@@ -1,6 +1,6 @@
 # nwf
 A simple and easy-to-use MVC framework for NPL Web application.  
-If you are familiar with the servlet or asp.net mvc, you'll like this.
+If you are familiar with the jsp/servlet or asp.net mvc, you'll like this.
 
 # How to use
 You only need to run the following command:  
