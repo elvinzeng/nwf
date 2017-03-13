@@ -8,7 +8,8 @@ You only need to run the following command:
 * ~/workspace $ wget https://raw.githubusercontent.com/elvinzeng/nwf/master/nwf_init.sh
 * ~/workspace $ sh ./nwf_init.sh "project-name"  
 
-Then, this script will use parameter "project-name" to create a directoty as project root directory, it will generate the necessary directory structure and the basic file automatically.
+Then, this script will use parameter "project-name" to create a directoty as project root directory, it will generate the necessary directory structure and the basic file automatically.  
+tips: You can use git-bash to run script if you are windows user.  
 
 # See Also
 * [NPL](https://github.com/LiXizhi/NPLRuntime) - Neural Parallel Language
