@@ -20,6 +20,10 @@ if [ ! -d "$pn" ]; then
         mkdir "$pn"
 fi
 cd $pn
+if [ -f "init_flag" ]; then
+	cat init_flag
+	exit 1
+fi
 
 if [ ! -d ".git" ]; then
 	git init 
@@ -47,5 +51,7 @@ fi
 cp npl_packages/nwf/resources/lua/* www/
 cp npl_packages/nwf/resources/config/webserver.config.xml www/ 
 cp -r npl_packages/nwf/resources/demo/* www/
+
+echo "do not run init script again! project already initialized at: $(date '+%F %T')" > init_flag
 
 echo nwf application initialization done.
