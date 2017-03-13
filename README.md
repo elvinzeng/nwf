@@ -7,6 +7,7 @@ You only need to run the following command:
 * ~ $ cd ~/workspace
 * ~/workspace $ wget https://raw.githubusercontent.com/elvinzeng/nwf/master/nwf_init.sh
 * ~/workspace $ sh ./nwf_init.sh "project-name"  
+
 Then, this script will use parameter "project-name" to create a directoty as project root directory, it will generate the necessary directory structure and the basic file automatically.
 
 # See Also
