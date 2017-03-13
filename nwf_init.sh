@@ -7,14 +7,13 @@
 # desc: this script will initialize nwf application automatically
 #####################################################################################
 
-echo start initialize nwf application...
 
 if [ $# -ne 1 ] ; then
 	echo "USAGE: sh $0 'project-name'"
 	exit 1;
-fi 
+fi
 pn=$1
-echo project name: $pn
+
 cd $(cd $(dirname $0) && pwd -P)
 if [ ! -d "$pn" ]; then
         mkdir "$pn"
@@ -24,6 +23,9 @@ if [ -f "init_flag" ]; then
 	cat init_flag
 	exit 1
 fi
+
+echo start initialize nwf application...
+echo project name: $pn
 
 if [ ! -d ".git" ]; then
 	git init 
