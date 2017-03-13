@@ -1,2 +1,2 @@
 # nwf
-简单易上手的基于NPL语言的Web应用MVC框架
+A simple and easy-to-use MVC framework for NPL Web application 
