@@ -7,6 +7,10 @@ local demoController = commonlib.gettable("nwf.controllers.DemoController");
 
 -- http://localhost:8099/demo/sayHello
 function demoController.sayHello(ctx)
+	-- you can access request, response, session here
+	-- local req = ctx.request;
+	-- local res = ctx.response;
+	-- local session = ctx.session;
 	return "test", {message = "Hello, Elvin!"}; -- return www/view/test.html
 end
 ```
