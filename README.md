@@ -34,12 +34,53 @@ local demoController = commonlib.gettable("nwf.controllers.DemoController");
 
 --  return json string
 function demoController.testJson(ctx)
-	return {message = "hello, elvin!", remark = "test json result"};
+	return {message = "hello, elvin!", remark = "test json result"};  -- just need to return a table
 end
 ```
 Json Result
 ```json
 {"remark":"test json result","message":"hello, elvin!"}
+```
+## async response
+www/controller/PayController.lua
+```lua
+function payController.getQRCode(ctx)
+	local request = ctx.request;
+	local string_util = commonlib.gettable("nwf.util.string");
+	local tb = { appid = constant.WECHAT_PAY_APPID,
+			mch_id = constant.WECHAT_PAY_MCHID,
+			nonce_str=string_util.new_guid(),
+			body = "xxxxxxxx",
+			out_trade_no = 123,
+			total_fee = 1 * 100,
+			spbill_create_ip = request:getpeername(),
+			notify_url = "https://www.xxx.com/api/pay/callback",
+			trade_type = "NATIVE",
+			product_id = '1111111'};
+	tb.sign = sign(tb);
+	-- return a async page
+	return function (ctx, render)
+	   payService.test(tb, function(data)
+		   render(data); -- json result
+		   --render("test", {message="async response", data=data}) -- view result
+	   end)
+	end;
+end
+```
+www/service/PayService.lua
+```lua
+function payService.test(tb, callback)
+	System.os.GetUrl({url = "https://api.mch.weixin.qq.com/pay/unifiedorder", 
+			form = {data = table2XML(tb) } }, 
+			function(status, msg, data)
+				local ret = false;
+				if(status == 200) then
+					ret = luaXml2Table(ParaXML.LuaXML_ParseString(data));
+				end
+				callback(ret);
+			end
+		);
+end
 ```
 
 # How to use
