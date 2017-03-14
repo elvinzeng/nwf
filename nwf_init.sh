@@ -24,7 +24,7 @@ if [ -f "init_flag" ]; then
 	exit 1
 fi
 
-echo start initialize nwf application...
+echo start initialize NPL Web application...
 echo project name: $pn
 
 if [ ! -d ".git" ]; then
@@ -56,4 +56,4 @@ cp -r npl_packages/nwf/resources/demo/* www/
 
 echo "do not run init script again! project already initialized at: $(date '+%F %T')" > init_flag
 
-echo nwf application initialization done.
+echo NPL Web application initialization done.
