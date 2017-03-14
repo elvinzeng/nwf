@@ -85,7 +85,8 @@ end
 
 # How to use
 ## Create Project
-You only need to run the following command:  
+First, update you NPLRuntime to latest version and set up environment variables for NPL.  
+Now, you only need to run the following command:  
 * ~ $ cd ~/workspace
 * ~/workspace $ curl -O https://raw.githubusercontent.com/elvinzeng/nwf/master/nwf_init.sh
 * ~/workspace $ sh ./nwf_init.sh "project-name"  
