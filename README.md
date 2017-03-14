@@ -97,6 +97,8 @@ tips: you can use git-bash to run script if you are Windows user.
 * Windows: run update_packages.sh and then run start_win.bat
 * Access "http://localhost:8099/ ". "it works!" means web application is start success.
 
+# development documentation
+More details you can find in [wiki](https://github.com/elvinzeng/nwf/wiki)
 # See Also
 * [NPL](https://github.com/LiXizhi/NPLRuntime) - Neural Parallel Language
 * [NPLPackages main](https://github.com/NPLPackages/main) - NPL Common Lua library
