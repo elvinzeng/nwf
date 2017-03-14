@@ -100,7 +100,7 @@ tips: you can use git-bash to run script if you are Windows user.
 # development documentation
 More details you can find in [wiki](https://github.com/elvinzeng/nwf/wiki)
 # See Also
-* [NPL](https://github.com/LiXizhi/NPLRuntime) - Neural Parallel Language
-* [NPLPackages main](https://github.com/NPLPackages/main) - NPL Common Lua library
+* [NPL](https://github.com/LiXizhi/NPLRuntime) — Neural Parallel Language
+* [NPLPackages main](https://github.com/NPLPackages/main) — NPL Common Lua library
 * [lua-resty-template](https://github.com/bungle/lua-resty-template) — Templating Engine
 * [lua-resty-validation](https://github.com/bungle/lua-resty-validation) — Validation and filtering library
