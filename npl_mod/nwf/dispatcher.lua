@@ -244,7 +244,7 @@ local function process(ctx)
             ctx.validation = {isEnabled = false, message = validator.message}
         else
             local isValid, errors = validator(req:getparams());
-            ctx.validation = {isValid = isValid, errors = errors, isEnabled = true}
+            ctx.validation = {isValid = isValid, fields = errors, isEnabled = true}
         end
 
         local view, model = action(ctx);
