@@ -85,7 +85,7 @@ end
 
 # 如何使用
 ## 创建项目
-首先，将你的NPLRuntime更新到最新的版本，然后设置好环境变量。
+首先，将你的NPLRuntime更新到最新的版本，然后设置好环境变量。  
 接着打开终端执以下命令(Windows下可以在git-bash中执行)：
 ```shell
 ~ $ cd ~/workspace
