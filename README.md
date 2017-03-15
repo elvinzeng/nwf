@@ -1,5 +1,6 @@
 # Introduction
 A simple and easy-to-use MVC framework for NPL Web application. If you are familiar with the jsp/servlet or asp.net mvc, you'll like this.  
+[Chinese document](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/index.md)
 ## return a view
 www/controller/DemoController.lua
 ```lua
@@ -87,9 +88,11 @@ end
 ## Create Project
 First, update you NPLRuntime to latest version and set up environment variables for NPL.  
 Now, you only need to run the following command:  
-* ~ $ cd ~/workspace
-* ~/workspace $ curl -O https://raw.githubusercontent.com/elvinzeng/nwf/master/nwf_init.sh
-* ~/workspace $ sh ./nwf_init.sh "project-name"  
+```shell
+~ $ cd ~/workspace
+~/workspace $ curl -O https://raw.githubusercontent.com/elvinzeng/nwf/master/nwf_init.sh
+~/workspace $ sh ./nwf_init.sh "project-name"  
+```
 
 Then, this script will use parameter "project-name" to create a directoty as project root directory, it will generate the necessary directory structure and the basic file automatically.  
 tips: you can use git-bash to run script if you are Windows user.  
