@@ -30,11 +30,13 @@ student.fields = {
 then
 ```lua
 local tb = {id="nextval('pf_upm_sys_user_sys_user_id_seq')",name="zhangsan",age=10};
-		
+
+local sqlGenerator = commonlib.gettable("nwf.db.sqlGenerator");
+
 local sql = sqlGenerator:insert(commonlib.gettable("entity.student"))
 			:value(tb)
 			:get();
---update will ignore to set id with new value
+--更新的时候会忽略tb中的id,即不更新id
 sql = sqlGenerator:update(commonlib.gettable("entity.student"))
 		  :value(tb)
 		  :where("id = ",tb.id)

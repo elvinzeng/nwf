@@ -30,7 +30,9 @@ student.fields = {
 then
 ```lua
 local tb = {id="nextval('pf_upm_sys_user_sys_user_id_seq')",name="zhangsan",age=10};
-		
+
+local sqlGenerator = commonlib.gettable("nwf.db.sqlGenerator");
+	
 local sql = sqlGenerator:insert(commonlib.gettable("entity.student"))
 			:value(tb)
 			:get();
