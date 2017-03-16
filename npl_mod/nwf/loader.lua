@@ -34,9 +34,6 @@ NPL.load("nwf.utils.configUtil")
 NPL.load("nwf.utils.string_util")
 NPL.load("nwf.dispatcher")
 NPL.load("nwf.utils.string_escape_util")
-NPL.load("nwf.db.connectionManager")
-NPL.load("nwf.db.dbTemplate")
-
 
 -- builtin filters
 -- register request log filter
