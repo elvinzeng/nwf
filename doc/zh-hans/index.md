@@ -106,7 +106,7 @@ end
 * 过滤器
 * 配置
 * 视图
-* 数据库访问
+* [数据库访问](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/database-access.md)
 
 # 参考文档
 * [wiki](https://github.com/elvinzeng/nwf/wiki) — nwf wiki
