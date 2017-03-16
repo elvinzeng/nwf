@@ -36,21 +36,15 @@ function util.upperFirstChar(str)
     return firstChar .. string.sub(str, 2, #str)
 end
 
-local guid_seed = 0;
-local last_time = 0;
 
+-- create a new guid
 function util.new_guid()
     local seed={'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     local tb = {};
     local t = ParaGlobal.timeGetTime();
-    if (last_time ~= t) then
-        guid_seed = 0;
-    end
-    last_time = t;
-    math.randomseed(tostring(t + guid_seed):reverse():sub(1, 6));
+    math.randomseed(tostring(t):reverse():sub(1, 6));
     for i = 1, 32 do
         table.insert(tb, seed[math.random(1, 16)]);
     end
-    guid_seed = guid_seed + 1;
     return table.concat(tb);
 end
