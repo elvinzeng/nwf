@@ -98,9 +98,18 @@ end
 * Windows: 运行update_packages.sh更新包，然后运行start_win.bat
 * 打开浏览器访问"http://localhost:8099/ ". 如果看到页面上显示"it works!"则表示运行成功。
 
-# 开发文档
-更多细节可以参考[wiki](https://github.com/elvinzeng/nwf/wiki)
+# 其他中文文档
+* [创建项目](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/create-project.md)
+* 请求映射
+* 控制器
+* 校验
+* 过滤器
+* 配置
+* 视图
+* 数据库访问
+
 # 参考文档
+* [wiki](https://github.com/elvinzeng/nwf/wiki) — nwf wiki
 * [NPL](https://github.com/LiXizhi/NPLRuntime) — Neural Parallel Language
 * [NPLPackages main](https://github.com/NPLPackages/main) — NPL Common Lua library
 * [lua-resty-template](https://github.com/bungle/lua-resty-template) — Templating Engine
