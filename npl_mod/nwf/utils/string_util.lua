@@ -36,10 +36,13 @@ function util.upperFirstChar(str)
     return firstChar .. string.sub(str, 2, #str)
 end
 
+local guid_seed = 0;
+
 function util.new_guid()
     local seed={'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     local tb = {};
-    math.randomseed(tostring(os.time()):reverse():sub(1, 6));
+    guid_seed = guid_seed + 1;
+    math.randomseed(tostring(os.time() + guid_seed):reverse():sub(1, 6));
     for i = 1, 32 do
         table.insert(tb, seed[math.random(1, 16)]);
     end
