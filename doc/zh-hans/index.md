@@ -1,7 +1,6 @@
-# Introduction
-A simple and easy-to-use MVC framework for NPL Web application. If you are familiar with the jsp/servlet or asp.net mvc, you'll like this.  
-[Chinese document](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/index.md)
-## return a view
+# 简介
+nwf是一个简单易用的基于NPL的MVC框架。如果你熟悉jsp/servlet或者asp.net mvc，相信你会喜欢上这个框架的。
+## 返回一个视图
 www/controller/DemoController.lua
 ```lua
 local demoController = commonlib.gettable("nwf.controllers.DemoController");
@@ -28,7 +27,7 @@ www/view/test.html
 </html>
 
 ```
-## return json result
+## 返回一个json
 www/controller/DemoController.lua
 ```lua
 local demoController = commonlib.gettable("nwf.controllers.DemoController");
@@ -42,7 +41,7 @@ Json Result
 ```json
 {"remark":"test json result","message":"hello, elvin!"}
 ```
-## async response
+## 异步响应
 www/controller/PayController.lua
 ```lua
 function payController.getQRCode(ctx)
@@ -84,26 +83,33 @@ function payService.test(tb, callback)
 end
 ```
 
-# How to use
-## Create Project
-First, update you NPLRuntime to latest version and set up environment variables for NPL.  
-Now, you only need to run the following command:  
+# 如何使用
+## 创建项目
+首先，将你的NPLRuntime更新到最新的版本，然后设置好环境变量。  
+接着打开终端执以下命令(Windows下可以在git-bash中执行)：
 ```shell
 ~ $ cd ~/workspace
 ~/workspace $ curl -O https://raw.githubusercontent.com/elvinzeng/nwf/master/nwf_init.sh
 ~/workspace $ sh ./nwf_init.sh "project-name"  
 ```
-
-Then, this script will use parameter "project-name" to create a directoty as project root directory, it will generate the necessary directory structure and the basic file automatically.  
-tips: you can use git-bash to run script if you are Windows user.  
-## Run Web Server
+脚本的参数为想要创建的项目的项目名称。初始化脚本会自动创建好目录结构并生成必要的文件。
+## 运行服务器
 * Linux: sh start.sh
-* Windows: run update_packages.sh and then run start_win.bat
-* Access "http://localhost:8099/ ". "it works!" means web application is start success.
+* Windows: 运行update_packages.sh更新包，然后运行start_win.bat
+* 打开浏览器访问"http://localhost:8099/ ". 如果看到页面上显示"it works!"则表示运行成功。
 
-# development documentation
-More details you can find in [wiki](https://github.com/elvinzeng/nwf/wiki)
-# See Also
+# 其他中文文档
+* [创建项目](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/create-project.md)
+* 请求映射
+* 控制器
+* 校验
+* 过滤器
+* 配置
+* 视图
+* 数据库访问
+
+# 参考文档
+* [wiki](https://github.com/elvinzeng/nwf/wiki) — nwf wiki
 * [NPL](https://github.com/LiXizhi/NPLRuntime) — Neural Parallel Language
 * [NPLPackages main](https://github.com/NPLPackages/main) — NPL Common Lua library
 * [lua-resty-template](https://github.com/bungle/lua-resty-template) — Templating Engine
