@@ -240,7 +240,13 @@ local function process(ctx)
     end
 
     xpcall(function()
-        local g = {}
+        local g = {
+            requestContext = ctx,
+            ctx = ctx,
+            request = ctx.request,
+            response = ctx.response,
+            session = ctx.session
+        }
         setmetatable(g, {__index = _G})
 
         if (type(validator) == "table") then
