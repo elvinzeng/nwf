@@ -247,8 +247,8 @@ local function process(ctx)
             ctx.validation = {isEnabled = false, message = validator.message}
         else
             setfenv(validator, g);
-            local isValid, errors = validator(req:getparams());
-            ctx.validation = {isValid = isValid, fields = errors, isEnabled = true}
+            local isValid, fields = validator(req:getparams(), req);
+            ctx.validation = {isValid = isValid, fields = fields, isEnabled = true}
         end
 
         setfenv(action, g);
