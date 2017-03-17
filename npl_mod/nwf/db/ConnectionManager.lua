@@ -5,21 +5,24 @@ date: 2017/3/6
 ]]
 
 local connectionManager = commonlib.gettable("nwf.db.connectionManager");
+local configUtil = commonlib.gettable("nwf.utils.configUtil");
 
 local driver = require("luasql.postgres");
 local env = nil;
+local dbConfig = nil;
 
 function connectionManager.getConnection()
 	if(not env) then
 		env = driver.postgres();
+		dbConfig = configUtil.getConfig("db");
 	end
-	conn = env:connect("test", "postgres", "123456", "127.0.0.1", "5432");
+	conn = env:connect(dbConfig.database, dbConfig.user_name, dbConfig.user_password, dbConfig.host, dbConfig.port);
 	conn:setautocommit(false);
 	return conn;
 end
 
 function connectionManager.releaseConnection(conn)
 	if(conn:close()) then
-		
+
 	end
 end

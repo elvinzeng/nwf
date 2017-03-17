@@ -8,12 +8,21 @@ local session = commonlib.gettable("nwf.session");
 local manager = commonlib.gettable("nwf.session.manager");
 local nwf = commonlib.gettable("nwf");
 local string_util = commonlib.gettable("nwf.util.string");
-nwf.session.timeoutSeconds = 30;
-local new_guid = string_util.new_guid;
+nwf.session.timeoutSeconds = 1200;
 
 manager.idList = {};
 manager.latestAccess = {};
 manager.data = {};
+
+
+-- create a new guid
+local function new_guid()
+    local guidStr = "";
+    repeat
+        guidStr = string_util.new_guid();
+    until(not manager.latestAccess[guidStr])
+    return guidStr;
+end
 
 
 local function getIndex(id)
@@ -24,6 +33,7 @@ local function getIndex(id)
     end
     return nil;
 end
+
 
 --  garbage collection
 local function gc()
