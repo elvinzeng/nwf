@@ -240,22 +240,28 @@ local function process(ctx)
     end
 
     xpcall(function()
+        local g = {}
+        setmetatable(g, {__index = _G})
+
         if (type(validator) == "table") then
             ctx.validation = {isEnabled = false, message = validator.message}
         else
+            setfenv(validator, g);
             local isValid, errors = validator(req:getparams());
             ctx.validation = {isValid = isValid, fields = errors, isEnabled = true}
         end
 
+        setfenv(action, g);
         local view, model = action(ctx);
         if (view and type(view) == "function") then
+            setfenv(view, g);
+            ctx.request._isAsync = true;
             view(ctx, function(view, model)
                 if (not model) then
                     model = {};
                 end
                 render(ctx, view, model, true);
             end);
-            ctx.request._isAsync = true;
         else
             render(ctx, view, model);
         end
