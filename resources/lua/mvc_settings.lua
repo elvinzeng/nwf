@@ -14,7 +14,7 @@ local nwf = commonlib.gettable("nwf");
 -- This is a database access api for postgresql
 -- NPL.load("nwf.db.connectionManager")
 -- NPL.load("nwf.db.dbTemplate")
--- NPL.load("nwf.db.SqlGenerator")
+-- NPL.load("nwf.db.sqlGenerator")
 
 
 ------------------------------------------------------------------
