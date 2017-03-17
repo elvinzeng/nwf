@@ -259,6 +259,9 @@ local function process(ctx)
 
         setfenv(action, g);
         local view, model = action(ctx);
+        if (not view) then
+           error("return value of action can not be nil.");
+        end
         if (view and type(view) == "function") then
             setfenv(view, g);
             ctx.request._isAsync = true;
