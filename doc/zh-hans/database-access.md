@@ -72,8 +72,8 @@ dbTemplate.executeWithReleaseCtrl(sqlN, conn, true, openTransaction)
 
 ### 关联查询
 #### Tips
-* 为每个表的字段设置别名, [mainTbPrefix_alias], [fromTbPrefix1_alias], [fromTbPrefix2_alias]...
-* 数据库的表的主键的别名 mainTbPrefix_id, fromTbPrefix1_id
+* 为每个表的字段设置别名, 格式为[mainTbPrefix_alias], [fromTbPrefix1_alias], [fromTbPrefix2_alias]...
+* 必须查询每个表的主键,别名格式为 mainTbPrefix_id, fromTbPrefix1_id
 * tbAliasPrefix = {mainTbPrefix, fromTbPrefix1, fromTbPrefix2, ...}
 * 如果不想使用关联查询 , 设置 tbAliasPrefix = nil 
 
