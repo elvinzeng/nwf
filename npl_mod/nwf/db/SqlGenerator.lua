@@ -7,23 +7,23 @@ date: 2017/3/6
 	tbName:表名
 	fields:表字段
 	字段属性：notNil: 非空 (生成insert语句的时候会检查是否输入)
-			  type: 数据类型 
+			  type: 数据类型
 			  isPrimaryKey: 主键不能更新
 
 	local student = commonlib.gettable("nwf.db.entity.student");
 	student.tbName = "student";
 	student.fields = {
-		id = {type = "number" ,method = "nextval('pf_upm_sys_user_sys_user_id_seq')" ,isPrimaryKey = true},
-		name = {notNil = true, type = "string"},
-		age = {notNil = true, type = "number"},
-		class_id = {notNil = false, type = "number"},
-		create_time = {notNil = false, type = "string"},
-		is_deleted = {notNil = false, type = "boolean"}
+		id = {notNil = true, isPrimaryKey = true},
+		name = {notNil = true},
+		age = {notNil = true},
+		class_id = {notNil = false},
+		create_time = {notNil = false},
+		is_deleted = {notNil = false}
 	}
 
 	e.g.
-	local tb = {name="zhangsan",age=10};
-		
+	local tb = {id="nextval('pf_upm_sys_user_sys_user_id_seq')", name="zhangsan", age=10};
+
 	local sql = sqlGenerator:insert(commonlib.gettable("nwf.db.entity.student"))
 							:value(tb)
 							:get();
@@ -120,7 +120,7 @@ end
 function sqlGenerator:append(content)
 	if(self.type == sqlGenerator.TYPE_SELECT) then
 		if(self.whereStr ~= "") then
-			self.sql = self.sql..self.whereStr;
+			self.sql = self.sql.." "..self.whereStr;
 			self.whereStr = "";
 		end
 		self.sql = self.sql.." "..content;
@@ -140,7 +140,7 @@ function sqlGenerator:value(tb)
 			if(v.notNil and value == nil) then
 				assert(false,k.." can not be nil");
 			end
-			local value = v.method or handleValue(value);
+			local value = handleValue(value);
 			if(value) then
 				table.insert(self.fields, k);
 				table.insert(self.values, value);
@@ -150,7 +150,7 @@ function sqlGenerator:value(tb)
 		for k, v in pairs(self.tbEntity.fields) do
 			local value = tb[k];
 			if(not v.isPrimaryKey)then
-				local value =  v.method or handleValue(value);
+				local value = handleValue(value);
 				if(value) then
 					self.content[k] = value;
 				end
@@ -175,7 +175,7 @@ function sqlGenerator:where(field, value, defValue)
 			field = "";
 		end
 		if(value) then
-			self.whereStr = "WHERE "..field..value;
+			self.whereStr = "WHERE "..field.." "..value;
 		else
 			self.whereStr = "WHERE 1 = 1";
 		end
@@ -198,7 +198,7 @@ function sqlGenerator:_and(field, value, defValue)
 			field = "";
 		end
 		if(value and self.whereStr ~= "") then
-			self.whereStr = self.whereStr.." AND "..field..value;
+			self.whereStr = self.whereStr.." AND "..field.." "..value;
 		end
 	end
 	return self;
@@ -218,7 +218,7 @@ function sqlGenerator:_or(field, value, defValue)
 		field = "";
 	end
 	if(value and self.whereStr ~= "") then
-		self.whereStr = self.whereStr.." OR "..field..value;
+		self.whereStr = self.whereStr.." OR "..field.." "..value;
 	end
 	return self;
 end
@@ -236,12 +236,12 @@ function sqlGenerator:get()
 		local sql = "UPDATE "
 		local fieldStr = "";
 		for k,v in pairs(self.content) do
-			fieldStr = fieldStr..","..k..'='..v;
+			fieldStr = fieldStr..", "..k..'='..v;
 		end
 		fieldStr = string.sub(fieldStr,2);
 		return sql..self.tbEntity.tbName.." SET "..fieldStr.." "..self.whereStr;
 	elseif(self.type == sqlGenerator.TYPE_DELETE) then
-		local sql = " DELETE FROM ";
+		local sql = "DELETE FROM ";
 		return sql..self.tbName.." "..self.whereStr;
 	elseif(self.type == sqlGenerator.TYPE_SELECT) then
 		if(self.whereStr ~= "") then
