@@ -48,7 +48,8 @@ sql = sqlGenerator:select(" s.name , s.age ")
 		  :append("FROM student s LEFT JOIN class c ON c.id = s.id")
 		  :where(nil,"create_time = now()")
 		  :get();
-```其中where(field, value, defValue),一般情况下field传入条件的字段和比较符,比如 "id =","name LIKE",value为比较的值,方法内部会根据类型判断是否添加单引号,如果value为nil,则使用defValue,如果defValue也为nil,这条语句将不会被追加进sql,某些特殊情况不希望对value做处理,或者有一些复杂的子句想要拼上去的可以将field设为nil,value会直接被拼接上sql。
+```  
+其中where(field, value, defValue),一般情况下field传入条件的字段和比较符,比如 "id =","name LIKE",value为比较的值,方法内部会根据类型判断是否添加单引号,如果value为nil,则使用defValue,如果defValue也为nil,这条语句将不会被追加进sql,某些特殊情况不希望对value做处理,或者有一些复杂的子句想要拼上去的可以将field设为nil,value会直接被拼接上sql。_and 和 _or 方法同理。
 ##  使用 DbTemplete
 ```lua
 local dbTemplate = commonlib.gettable("nwf.db.dbTemplate");
