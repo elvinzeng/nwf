@@ -13,11 +13,11 @@ method:
 	关联查询约定：
 	使用关联查询的时候需要注意的点
 		1.为每个表的字段设置别名
-			格式为[prefix]_[fieldName]   
-				prefix：别名前缀 同一个表下的数据，prefix相同（可以理解为类名）     
+			格式为[prefix]_[fieldName]
+				prefix：别名前缀 同一个表下的数据，prefix相同（可以理解为类名）
 				fieldName：字段名 自定义
 		2.必须查询每个表的id字段 命名为[prefix]_id
-		3.调用queryFirst 或 queryList时 传入所有别名前缀组成的table 
+		3.调用queryFirst 或 queryList时 传入所有别名前缀组成的table
 			{mainTbPrefix，fromTbPrefix1，fromTbPrefix2, ...}
 			其中第一个table的第一项必须为主表的别名前缀， 其他的为从表的别名前缀
 	e.g.
@@ -29,8 +29,8 @@ method:
 					s.class_id as student_classId ,
 					x.id as xxx_id,
 					x.name as xxx_name,
-					x.class_id as xxx_classId 
-				FROM class c 
+					x.class_id as xxx_classId
+				FROM class c
 				LEFT JOIN student s ON s.class_id = c.id
 				LEFT JOIN xxx x ON x.class_id = c.id
 				WHERE c.id = 2;
@@ -50,8 +50,8 @@ method:
 					s.class_id as student_classId ,
 					x.id as xxx_id,
 					x.name as xxx_name,
-					x.class_id as xxx_classId 
-				FROM (SELECT id, name FROM class LIMIT %d OFFSET %d) c 
+					x.class_id as xxx_classId
+				FROM (SELECT id, name FROM class LIMIT %d OFFSET %d) c
 				LEFT JOIN student s ON s.class_id = c.id
 				LEFT JOIN xxx x ON x.class_id = c.id;
 	local data,err = dbTemplate:queryList(sql, {"class","student","xxx"}, " select count(1) from class ", 1, 3);
@@ -74,11 +74,11 @@ local function getListFromCursor(cursor, tbAliasPrefix)
 			if( k > 1) then
 				local set = commonlib.UnorderedArraySet:new();
 				fromTbAliasPrefix[v] = {idSet = set};
-			end	
+			end
 		end
 		local mainIdSet = commonlib.UnorderedArraySet:new();
 		local mainTbAliasPrefix = tbAliasPrefix[1];
-		
+
 		for row in function() return cursor:fetch({}, "a"); end do
 			local id = row[mainTbAliasPrefix.."_id"];
 			if(mainIdSet:add(id)) then
@@ -124,7 +124,7 @@ local function getListFromCursor(cursor, tbAliasPrefix)
 							elseif(_prefix == mainTbAliasPrefix) then
 								row[k] = nil;
 							end
-						end	
+						end
 						fromTbItemList:add(fromTbItem);
 					end
 				end
@@ -141,13 +141,14 @@ end
 --[[
 	执行sql语句
 	@Param sql sql语句
-	@Return res: 执行结果 ， err: 错误信息
+	@Return res: 执行结果 （游标对象或更新行数）
 ]]
 function dbTemplate.execute(sql)
 	local conn = connectionManager.getConnection();
 	local res, err = conn:execute(sql);
 	connectionManager.releaseConnection(conn);
-	return res, err;
+	assert(not err, err.." occurs when execute: "..sql);
+	return res;
 end
 
 --[[
@@ -156,33 +157,34 @@ end
 	@Param conn 数据库连接对象
 	@Param release 执行完sql后是否释放conn，true:是
 	@Param openTransaction 是否开启事务
-	@Return res: 执行结果 ， err: 错误信息 ， conn: connection对象
+	@Return res: 执行结果 （游标对象或更新行数），conn: connection对象
 ]]
-function dbTemplate.executeWithReleaseCtrl(sql, conn, release ,openTransaction)
+function dbTemplate.executeWithReleaseCtrl(sql, conn, release, openTransaction)
 	if(not conn) then
 		conn = connectionManager.getConnection();
 		local _ = openTransaction and conn:execute("BEGIN;");
 	end
 	local res,err = conn:execute(sql);
-	if(openTransaction and err) then
-		conn:execute("ROLLBACK;");
-		conn:commit();
+	if(err) then
+		if(openTransaction) then
+			conn:execute("ROLLBACK;");
+			conn:commit();
+		end
 		connectionManager.releaseConnection(conn);
-		return res ,err;
+		assert(false, err.." occurs when execute: "..sql);
 	end
 	if(release) then
 		local _ = openTransaction and conn:commit();
 		connectionManager.releaseConnection(conn);
-		return res, err;
+		return res;
 	else
-		return res, err, conn;
+		return res, conn;
 	end
 end
 
 --[[
 	执行sql语句，事务
 	@Param ... n条sql语句
-	@Return err 如果其中一条sql执行异常会回滚事务，并返回执行错误的信息
 ]]
 function dbTemplate.executeWithTransaction(...)
 	local conn = connectionManager.getConnection();
@@ -190,11 +192,12 @@ function dbTemplate.executeWithTransaction(...)
 	local args = {...};
 	for i,v in ipairs(args) do
 		if(type(v) == "string") then
-			local res,err = conn:execute(v);
-			if((not res) and err) then 
+			local res, err = conn:execute(v);
+			if((err) then
 				conn:execute("ROLLBACK;");
 				conn:commit();
-				return err;
+				connectionManager.releaseConnection(conn);
+				assert(false, err.." occurs when execute: "..v);
 			end
 		end
 	end
@@ -209,50 +212,50 @@ end
 	@Param countSql 查询记录数的sql语句 分页的时候用到 与pageIndex、pageSize共用
 	@Param pageIndex 当前页，为nil时查全部，否则pageIndex > 0
 	@Param pageSize 页数，为nil时查全部，否则pageSize > 0
-	@Return _data:数据，_err:错误信息
+	@Return _data:数据
 ]]
 function dbTemplate:queryList(sql, tbAliasPrefix, countSql, pageIndex, pageSize)
 	if( countSql == nil or pageIndex == nil or pageSize == nil) then
-		local cursor, _err = self.execute(sql);
+		local cursor, err = self.execute(sql);
 		local _data = nil;
-		if(cursor and not _err) then
+		if(cursor) then
 			local res = getListFromCursor(cursor, tbAliasPrefix);
 			if(not res:empty()) then
 				_data = res;
 			end
 		end
-		return _data, _err;
+		return _data or {};
 	elseif( pageIndex <= 0) then
-		return nil, "pageIndex must be lager then 0";
+		assert(false, "pageIndex must be lager then 0");
 	elseif( pageSize <= 0) then
-		return nil, "pageSize must be lager then 0";
+		assert(false, "pageSize must be lager then 0");
 	else
-		local cursor, _err, conn = self.executeWithReleaseCtrl(countSql, nil, false);
+		local cursor, conn = self.executeWithReleaseCtrl(countSql, nil, false);
 		local _data = nil;
-		if(cursor and not _err) then
-			local count = cursor:fetch({}, "a").count + 0;	
+		if(cursor) then
+			local count = cursor:fetch({}, "a").count + 0;
 			if(count ~= 0) then
 				local pageCount = math.ceil(count / pageSize);
-				local pagination = { 
-					currentPageIndex = pageIndex, 
+				local pagination = {
+					currentPageIndex = pageIndex,
 					pageCount = pageCount,
 					pageSize = pageSize,
 					recordCount = count};
 				_data = { pagination = pagination };
 
 				local sql = string.format(sql, pageSize, (pageIndex - 1 ) * pageSize);
-				cursor, _err = self.executeWithReleaseCtrl(sql, conn, true);
-				if(cursor and not _err) then
+				cursor = self.executeWithReleaseCtrl(sql, conn, true);
+				if(cursor) then
 					local list = nil;
 					local res = getListFromCursor(cursor, tbAliasPrefix);
 					if(not res:empty()) then
 						list = res;
 					end
-					_data.list = list;
+					_data.list = list or {};
 				end
 			end
 		end
-		return _data, _err;
+		return _data or {};
 	end
 end
 
@@ -260,18 +263,18 @@ end
 	查询单条记录 支持关联查询
 	@Param sql sql语句
 	@Param tbAliasPrefix 别名前缀table
-	@Return _data:数据，_err:错误信息
+	@Return _data:数据
 ]]
 function dbTemplate:queryFirst(sql, tbAliasPrefix)
-	local cursor, _err = self.execute(sql);
+	local cursor, err = self.execute(sql);
 	local _data = nil;
-	if(cursor and not _err) then
+	if(cursor) then
 		if(tbAliasPrefix) then
 			local res = getListFromCursor(cursor, tbAliasPrefix);
 			_data = res:first();
-		else 
+		else
 			_data = cursor:fetch({}, "a");
 		end
 	end
-	return _data, _err;
+	return _data or {};
 end
