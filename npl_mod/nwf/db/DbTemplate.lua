@@ -147,7 +147,9 @@ function dbTemplate.execute(sql)
 	local conn = connectionManager.getConnection();
 	local res, err = conn:execute(sql);
 	connectionManager.releaseConnection(conn);
-	assert(not err, err.." occurs when execute: "..sql);
+	if(err) then
+		assert(false, err.." occurs when execute: "..sql);
+	end
 	return res;
 end
 
@@ -193,7 +195,7 @@ function dbTemplate.executeWithTransaction(...)
 	for i,v in ipairs(args) do
 		if(type(v) == "string") then
 			local res, err = conn:execute(v);
-			if((err) then
+			if(err) then
 				conn:execute("ROLLBACK;");
 				conn:commit();
 				connectionManager.releaseConnection(conn);
