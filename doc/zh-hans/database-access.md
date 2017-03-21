@@ -56,21 +56,22 @@ local dbTemplate = commonlib.gettable("nwf.db.dbTemplate");
 ```
 ### 基本用法
 ```lua
-dbTemplate.execute(sql)
+local res = dbTemplate.execute(sql)
 dbTemplate.executeWithTransaction(sql1,sql2,...)
-```
+```  
+res 为游标对象或者更新的行数  
 
 ### 执行sql，同时控制连接对象的释放
 ```lua
 dbTemplate.executeWithReleaseCtrl(sql, conn, release ,openTransaction)
 
 local openTransaction = true
-local conn = dbTemplate.executeWithReleaseCtrl(sql1, nil, false, openTransaction)
+local res, conn = dbTemplate.executeWithReleaseCtrl(sql1, nil, false, openTransaction)
 dbTemplate.executeWithReleaseCtrl(sql2, conn, false, openTransaction)
 ...
 --在执行最后一条sql脚本的时候 设置release = true
 dbTemplate.executeWithReleaseCtrl(sqlN, conn, true, openTransaction)
-```
+```  
 
 ### 关联查询
 #### Tips
@@ -95,7 +96,7 @@ local sql = SELECT c.id as class_id,
 	   LEFT JOIN student s ON s.class_id = c.id
 	   LEFT JOIN xxx x ON x.class_id = c.id
 	   WHERE c.id = 2;
-local data,err = dbTemplate:queryFirst(sql, {"class","student","xxx"});
+local data = dbTemplate:queryFirst(sql, {"class","student","xxx"});
 ```
 
 ### 分页查询
@@ -117,6 +118,6 @@ local sql = SELECT c.id as class_id,
            FROM (SELECT id, name FROM class LIMIT %d OFFSET %d) c 
 	   LEFT JOIN student s ON s.class_id = c.id
 	   LEFT JOIN xxx x ON x.class_id = c.id;
-local data,err = dbTemplate:queryList(sql, {"class","student","xxx"}, " select count(1) from class ", 1, 3);
+local data = dbTemplate:queryList(sql, {"class","student","xxx"}, " select count(1) from class ", 1, 3);
 ```
 
