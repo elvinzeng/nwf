@@ -54,16 +54,17 @@ local dbTemplate = commonlib.gettable("nwf.db.dbTemplate");
 ```
 ### Basic Usage
 ```lua
-dbTemplate.execute(sql)
+local res = dbTemplate.execute(sql)
 dbTemplate.executeWithTransaction(sql1,sql2,...)
 ```
+res is a cursor object or the count of update rows
 
 ### Release Control For Connection Object
 ```lua
 dbTemplate.executeWithReleaseCtrl(sql, conn, release ,openTransaction)
 
 local openTransaction = true
-local conn = dbTemplate.executeWithReleaseCtrl(sql1, nil, false, openTransaction)
+local res, conn = dbTemplate.executeWithReleaseCtrl(sql1, nil, false, openTransaction)
 dbTemplate.executeWithReleaseCtrl(sql2, conn, false, openTransaction)
 ...
 --release conn until last execute
@@ -93,7 +94,7 @@ local sql = SELECT c.id as class_id,
 	   LEFT JOIN student s ON s.class_id = c.id
 	   LEFT JOIN xxx x ON x.class_id = c.id
 	   WHERE c.id = 2;
-local data,err = dbTemplate:queryFirst(sql, {"class","student","xxx"});
+local data = dbTemplate:queryFirst(sql, {"class","student","xxx"});
 ```
 
 ### Pagination
@@ -115,6 +116,6 @@ local sql = SELECT c.id as class_id,
            FROM (SELECT id, name FROM class LIMIT %d OFFSET %d) c 
 	   LEFT JOIN student s ON s.class_id = c.id
 	   LEFT JOIN xxx x ON x.class_id = c.id;
-local data,err = dbTemplate:queryList(sql, {"class","student","xxx"}, " select count(1) from class ", 1, 3);
+local data = dbTemplate:queryList(sql, {"class","student","xxx"}, " select count(1) from class ", 1, 3);
 ```
 
