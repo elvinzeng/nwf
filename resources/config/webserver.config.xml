@@ -26,6 +26,12 @@
   </rules>
 
   <config>
+    <table name='nwf'>
+        <bool name='echoDebugInfo'>true</bool>
+    </table>
+  </config>
+
+  <config>
     <!--<string name='DEV_MODE'>debug</string>
     <table name='db'>
       <string name='host'>localhost</string>

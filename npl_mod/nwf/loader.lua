@@ -29,6 +29,18 @@ function nwf.registerFilter(filter)
     table.insert(filters, filter);
 end;
 
+-- load config
+local userConfig = WebServer.config["nwf"];
+local defaultConfig = {
+    echoDebugInfo = true
+}
+nwf.config = defaultConfig;
+if (userConfig) then
+    for k, v in pairs(userConfig) do
+        nwf.config[k] = v;
+    end
+end
+
 -- load builtin modules
 NPL.load("nwf.utils.configUtil")
 NPL.load("nwf.utils.string_util")
