@@ -38,8 +38,6 @@ function demoValidator.testlogin(params)
 end
 ]];
 
-local config = nwf.config;
-
 
 local function file_exists(path)
 	return ParaIO.DoesFileExist(path, false);
@@ -179,7 +177,7 @@ local function render(ctx, view, model, im)
     end
     local res = ctx.response;
     if (not view or view == "") then
-        if (config.echoDebugInfo) then
+        if (nwf.config.echoDebugInfo) then
             res:status(500):send([[<html><body>view cannot be nil or empty!</body></html>]]);
             res:finish();
         else
@@ -242,7 +240,7 @@ local function process(ctx)
     local _, func = requestPath:match("^/([%w_]+)/(.+)");
 	local action, validator = dispatch(requestPath);
 	if (type(action) == "table") then
-        if (config.echoDebugInfo) then
+        if (nwf.config.echoDebugInfo) then
             res:status(action.status):send(string.format([[<html><body>%s</body></html>]]
                 , action.message));
             res:finish();
@@ -299,7 +297,7 @@ local function process(ctx)
         local tb = debug.traceback();
         print(tb);
 
-        if (config.echoDebugInfo) then
+        if (nwf.config.echoDebugInfo) then
             res:status(500):send(string.format([[<html><head><title>error</title></head>
             <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
             res:finish();
@@ -344,7 +342,7 @@ local function doFilter(filters, i, ctx)
         print(tb);
 
         local res = ctx.response;
-        if (config.echoDebugInfo) then
+        if (nwf.config.echoDebugInfo) then
             res:status(500):send(string.format([[<html><head><title>error</title></head>
             <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
             res:finish();

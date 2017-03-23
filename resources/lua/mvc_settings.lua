@@ -5,7 +5,10 @@
 --      attention: 网站启动时将自动执行此文件一次。
 --       注意此文件执行之时服务器尚未启动，但是框架已经初始化完毕。
 ------------------------------------------------------------------
-local nwf = commonlib.gettable("nwf");
+-- local nwf = commonlib.gettable("nwf");
+local config = commonlib.gettable("nwf.config");
+
+config.echoDebugInfo = true;  -- 是否在页面上显示调试信息
 
 ------------------------------------------------------------------
 --  这里加载web应用需要的公共模块
