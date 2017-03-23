@@ -38,6 +38,8 @@ function demoValidator.testlogin(params)
 end
 ]];
 
+local config = nwf.config;
+
 
 local function file_exists(path)
 	return ParaIO.DoesFileExist(path, false);
@@ -177,8 +179,14 @@ local function render(ctx, view, model, im)
     end
     local res = ctx.response;
     if (not view or view == "") then
-        res:status(500):send([[<html><body>view cannot be nil or empty!</body></html>]]);
-        res:finish();
+        if (config.echoDebugInfo) then
+            res:status(500):send([[<html><body>view cannot be nil or empty!</body></html>]]);
+            res:finish();
+        else
+            print("view cannot be nil or empty!");
+            res:status(500):send([[<html><body>server error</body></html>]]);
+            res:finish();
+        end
     end
     if (type(view) == "table") then
         res:set_header('Content-Type', 'application/json');
@@ -234,9 +242,16 @@ local function process(ctx)
     local _, func = requestPath:match("^/([%w_]+)/(.+)");
 	local action, validator = dispatch(requestPath);
 	if (type(action) == "table") then
-		res:status(action.status):send(string.format([[<html><body>%s</body></html>]]
-            , action.message));
-        res:finish();
+        if (config.echoDebugInfo) then
+            res:status(action.status):send(string.format([[<html><body>%s</body></html>]]
+                , action.message));
+            res:finish();
+        else
+            res:status(action.status):send(string.format([[<html><body>%s</body></html>]]
+                , "server error"));
+            print(action.message);
+            res:finish();
+        end
     end
 
     xpcall(function()
@@ -284,9 +299,15 @@ local function process(ctx)
         local tb = debug.traceback();
         print(tb);
 
-        res:status(500):send(string.format([[<html><head><title>error</title></head>
-        <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
-        res:finish();
+        if (config.echoDebugInfo) then
+            res:status(500):send(string.format([[<html><head><title>error</title></head>
+            <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
+            res:finish();
+        else
+            res:status(500):send([[<html><head><title>error</title></head>
+            <body>server error</body></html>]]);
+            res:finish();
+        end
     end)
 end
 
@@ -323,9 +344,15 @@ local function doFilter(filters, i, ctx)
         print(tb);
 
         local res = ctx.response;
-        res:status(500):send(string.format([[<html><head><title>error</title></head>
-        <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
-        res:finish();
+        if (config.echoDebugInfo) then
+            res:status(500):send(string.format([[<html><head><title>error</title></head>
+            <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
+            res:finish();
+        else
+            res:status(500):send([[<html><head><title>error</title></head>
+            <body>server error</body></html>]]);
+            res:finish();
+        end
     end)
 
 end
