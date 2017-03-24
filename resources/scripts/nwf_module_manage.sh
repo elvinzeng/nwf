@@ -14,6 +14,10 @@ usage(){
 	echo "\t\tdelete module"
 	echo "\t-u 'module name'"
 	echo "\t\treinstall module"
+	echo "\t-m"
+	echo "\t\tlist all installed modules"
+	echo "\t-a"
+	echo "\t\tlist all available modules"
 }
 
 init_repo(){
@@ -92,6 +96,46 @@ reinstall_mod(){
 	echo completed.
 }
 
+installed_modules(){
+	for di in $(ls www/modules)
+	do
+		modDir="www/modules/$di"
+		if [ -d $modDir ]; then
+			echo "$di"
+			if [ -f "$modDir/desc.txt" ]; then
+				cat "$modDir/desc.txt"
+			fi
+			echo " "
+			echo "-------"
+		fi
+	done
+}
+
+all_modules(){
+	init_repo
+	for di in $(ls npl_packages)
+	do
+		echo $(cd "npl_packages/$di" && git pull | grep -v 'Already up-to-date.')
+		if [ -d npl_packages/$di/nwf_modules ]; then
+			for mod in $(ls npl_packages/$di/nwf_modules)
+			do
+				modBaseDir="npl_packages/$di/nwf_modules/$mod"
+				if [ "${di}x" = "mainx" ]; then
+					continue
+				fi
+				if [ -d $modBaseDir ]; then
+					echo "$mod"
+					if [ -f "$modBaseDir/desc.txt" ]; then
+						cat "$modBaseDir/desc.txt"
+					fi
+					echo " "
+					echo "-------"
+				fi
+			done
+		fi
+	done
+}
+
 if [ $# -lt 1 ] ; then
 	usage
 	exit 1;
@@ -99,12 +143,14 @@ fi
 
 cd $(cd $(dirname $0) && pwd -P)
 
-while getopts ":i:d:u:" opt
+while getopts ":i:d:u:ma" opt
 do
         case $opt in
                 i ) install_mod $OPTARG ;;
                 d ) del_mod $OPTARG ;;
                 u ) reinstall_mod $OPTARG ;;
+								m ) installed_modules ;;
+								a ) all_modules ;;
                 ? ) usage
                     exit 1;;
         esac
