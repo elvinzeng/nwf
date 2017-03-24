@@ -52,8 +52,12 @@ fi
 
 cp npl_packages/nwf/resources/lua/* www/
 cp npl_packages/nwf/resources/config/webserver.config.xml www/
-echo '#nwfModules git@git.idreamtech.com.cn:rddept/nwfModules.git' > module_source_repos.conf
-mkdir www/modules
+if [ ! -f "module_source_repos.conf" ]; then
+	echo '#nwfModules git@git.idreamtech.com.cn:rddept/nwfModules.git' > module_source_repos.conf
+fi
+if [ ! -d "www/modules" ]; then
+	mkdir www/modules
+fi
 cp -r npl_packages/nwf/resources/demo/* www/
 
 echo "do not run init script again! project already initialized at: $(date '+%F %T')" > init_flag
