@@ -49,14 +49,17 @@ end
 -- @param controllerName: controller name
 -- @pram func: function
 local function getAction(controllerPath, controllerName, func)
-    if(not file_exists(controllerPath)) then
-        return {status = 500, message = string.format("controller file not found: %s"
-            , controllerPath)};
-    end
-    NPL.load(controllerPath);
     if (not nwf.controllers[controllerName]) then
-        return {status = 500, message = string.format(controller_not_found_message_template
-            , controllerPath)};
+        if(not file_exists(controllerPath)) then
+            return {status = 500, message = string.format("controller file not found: %s"
+                , controllerPath)};
+        end
+        NPL.load(controllerPath);
+        if (not nwf.controllers[controllerName]) then
+            return {status = 500, message = string.format(controller_not_found_message_template
+                , controllerPath)};
+        end
+
     end
     local action = nwf.controllers[controllerName][func];
     if (not action) then
@@ -73,14 +76,16 @@ end
 -- @param validatorName: validator name
 -- @pram func: function
 local function getValidator(validatorPath, validatorName, func)
-    if(not file_exists(validatorPath)) then
-        return {message = string.format("validator file not found: %s"
-            , validatorPath)};
-    end
-    NPL.load(validatorPath);
     if (not nwf.validators[validatorName]) then
-        return {message = string.format(validator_not_found_message_template
-            , validatorPath)};
+        if(not file_exists(validatorPath)) then
+            return {message = string.format("validator file not found: %s"
+                , validatorPath)};
+        end
+        NPL.load(validatorPath);
+        if (not nwf.validators[validatorName]) then
+            return {message = string.format(validator_not_found_message_template
+                , validatorPath)};
+        end
     end
     local validatorFunc = nwf.validators[validatorName][func];
     if (not validatorFunc) then
