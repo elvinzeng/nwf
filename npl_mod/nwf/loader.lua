@@ -47,13 +47,13 @@ nwf.registerFilter(function(ctx, doNext)
     local t1 = os.time();
     local ms1 = ParaGlobal.timeGetTime();
     print();
-    print(string.format([[[%s] method:[%s] url:[%s] id: [%s]. begin..]]
-        , os.date("%c", t1), req:GetMethod(), requestPath, req:GetNid()));
+    print(string.format([[[%s] method:[%s] url:[%s] id: [%d]. begin..]]
+        , os.date("%c", t1), req:GetMethod(), requestPath, ms1));
     doNext();
     local ms2 = ParaGlobal.timeGetTime();
     print();
-    print(string.format([[[%s] method:[%s] url:[%s] id: [%s]. total %d millisec.]]
-        , os.date("%c", t1), req:GetMethod(), requestPath, req:GetNid(), ms2 - ms1));
+    print(string.format([[[%s] method:[%s] url:[%s] id: [%d]. total %d millisec.]]
+        , os.date("%c", t1), req:GetMethod(), requestPath, ms1, ms2 - ms1));
 end);
 -- load session module(filter)
 NPL.load("nwf.session");
