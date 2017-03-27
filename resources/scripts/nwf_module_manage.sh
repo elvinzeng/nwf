@@ -60,8 +60,8 @@ install_mod(){
 					echo $(cd www/modules/$mod && bash ./install.sh)
 				fi
 				echo "module $mod installattion completed."
-				break;
 			fi
+			break;
 		else
 			echo "module '$mod' was not found in repository '$di'"
 		fi
