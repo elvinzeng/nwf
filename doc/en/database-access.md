@@ -1,7 +1,7 @@
 # Database Access For Postgres
 ## Install Module  
-* sh nwf_module_manage.sh -a 列出可用的module  
-* sh nwf_module_manage.sh -i db_postgres  
+* sh nwf_module_manage.sh -a               ##list available module  
+* sh nwf_module_manage.sh -i db_postgres   ## install
 ## Config
 Configure your db connection parameters in webserver.config.xml
 ```xml
