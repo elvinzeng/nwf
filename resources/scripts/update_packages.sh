@@ -5,3 +5,6 @@ git pull
 cd ../nwf/
 git pull
 cd ../../
+
+
+bash npl_packages/nwf/resources/scripts/_update_project.sh

@@ -44,6 +44,7 @@ cd ../nwf && git pull
 cd ../../
 
 cp npl_packages/nwf/resources/config/gitignore .gitignore
+cp npl_packages/nwf/resources/config/module_source_repos.conf module_source_repos.conf
 find npl_packages/nwf/resources/scripts/ ! -name "_*.sh" -type f -exec cp {} . \;
 
 if [ ! -d "www" ]; then
@@ -52,9 +53,6 @@ fi
 
 cp npl_packages/nwf/resources/lua/* www/
 cp npl_packages/nwf/resources/config/webserver.config.xml www/
-if [ ! -f "module_source_repos.conf" ]; then
-	echo '#nwfModules git@git.idreamtech.com.cn:rddept/nwfModules.git' > module_source_repos.conf
-fi
 if [ ! -d "www/modules" ]; then
 	mkdir www/modules
 fi
