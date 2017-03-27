@@ -51,7 +51,7 @@ sqlGenerator.TYPE_SELECT = "SELECT";
 local function handleValue(value, defValue)
 	if(value) then
 		local type = type(value);
-		if(type ~= "number" and type ~= "boolean" and not string.match(value, "%w-%([%'%s]-[%w]*[%'%s]-%)")) then
+		if(type ~= "number" and type ~= "boolean" and not string.match(value, "%w-%([%'%s]-[%w_]*[%'%s]-%)")) then
 			value = "'"..value.."'";
 		end
 	end
@@ -136,9 +136,10 @@ end
 function sqlGenerator:value(tb)
 	if(self.type == sqlGenerator.TYPE_INSERT) then
 		for k,v in pairs(self.tbEntity.fields) do
-			local value = tb[k];
+			local value = tb[k] or tb[v.prop];
 			if(v.notNil and value == nil) then
-				assert(false,k.." can not be nil");
+				local prop = v.prop or k;
+				assert(false,prop.." can not be nil");
 			end
 			local value = handleValue(value);
 			if(value) then
@@ -148,7 +149,7 @@ function sqlGenerator:value(tb)
 		end
 	elseif(self.type == sqlGenerator.TYPE_UPDATE) then
 		for k, v in pairs(self.tbEntity.fields) do
-			local value = tb[k];
+			local value = tb[k] or tb[v.prop];
 			if(not v.isPrimaryKey)then
 				local value = handleValue(value);
 				if(value) then

@@ -34,7 +34,7 @@ method:
 				LEFT JOIN student s ON s.class_id = c.id
 				LEFT JOIN xxx x ON x.class_id = c.id
 				WHERE c.id = 2;
-	local data,err = dbTemplate:queryFirst(sql, {"class","student","xxx"});
+	local data = dbTemplate:queryFirst(sql, {"class","student","xxx"});
 
 	分页查询约定：
 		调用queryList时传入countSql，pageIndex，pageSize三个参数
@@ -54,7 +54,7 @@ method:
 				FROM (SELECT id, name FROM class LIMIT %d OFFSET %d) c
 				LEFT JOIN student s ON s.class_id = c.id
 				LEFT JOIN xxx x ON x.class_id = c.id;
-	local data,err = dbTemplate:queryList(sql, {"class","student","xxx"}, " select count(1) from class ", 1, 3);
+	local data = dbTemplate:queryList(sql, {"class","student","xxx"}, " select count(1) from class ", 1, 3);
 ]]
 
 local dbTemplate = commonlib.gettable("nwf.db.dbTemplate");
@@ -66,77 +66,90 @@ local connectionManager = commonlib.gettable("nwf.db.connectionManager");
 	@Param tbAliasPrefix 别名前缀组成的table
 	@Return array: 列表
 ]]
-local function getListFromCursor(cursor, tbAliasPrefix)
-	local array = commonlib.Array:new();
-	if(tbAliasPrefix and #tbAliasPrefix > 1) then
-		local fromTbAliasPrefix = {};-- 从表前缀为key，存放从表的id的set为value的table
-		for k,v in pairs(tbAliasPrefix) do
-			if( k > 1) then
-				local set = commonlib.UnorderedArraySet:new();
-				fromTbAliasPrefix[v] = {idSet = set};
-			end
-		end
-		local mainIdSet = commonlib.UnorderedArraySet:new();
-		local mainTbAliasPrefix = tbAliasPrefix[1];
+-- local function getListFromCursor(cursor, tbAliasPrefix)
+-- 	local array = commonlib.Array:new();
+-- 	if(tbAliasPrefix and #tbAliasPrefix > 1) then
+-- 		local fromTbAliasPrefix = {};-- 从表前缀为key，存放从表的id的set为value的table
+-- 		for k,v in pairs(tbAliasPrefix) do
+-- 			if( k > 1) then
+-- 				local set = commonlib.UnorderedArraySet:new();
+-- 				fromTbAliasPrefix[v] = {idSet = set};
+-- 			end
+-- 		end
+-- 		local mainIdSet = commonlib.UnorderedArraySet:new();
+-- 		local mainTbAliasPrefix = tbAliasPrefix[1];
 
-		for row in function() return cursor:fetch({}, "a"); end do
-			local id = row[mainTbAliasPrefix.."_id"];
-			if(mainIdSet:add(id)) then
-				local item = {};
-				for prefix,content in pairs(fromTbAliasPrefix) do
-					content.idSet:clear();
-					local fromTbId = row[prefix.."_id"];
-					if(fromTbId) then
-						content.idSet:add(fromTbId);
-						local fromTbItemList = commonlib.Array:new();
-						local fromTbItem = {};
-						fromTbItemList:add(fromTbItem);
-						item[prefix] = fromTbItemList;
-					end
-				end
-				for k,v in pairs(row) do
-					local _prefix, _alias = k:match("(%w+)_([%w_]+)");
-					if(_prefix == mainTbAliasPrefix) then
-						item[_alias] = v;
-					else
-						for prefix,content in pairs(fromTbAliasPrefix) do
-							if(_prefix == prefix) then
-								local fromTbItemList = item[prefix];
-								local fromTbItem = fromTbItemList:first();
-								fromTbItem[_alias] = v;
-								break;
-							end
-						end
-					end
-				end
-				array:add(item);
-			else
-				local item = array:last();
-				for prefix,content in pairs(fromTbAliasPrefix) do
-					if(content.idSet:add(row[prefix.."_id"])) then
-						local fromTbItemList = item[prefix];
-						local fromTbItem = {};
-						for k,v in pairs(row) do
-							local _prefix, _alias = k:match("(%w+)_([%w_]+)");
-							if(_prefix == prefix) then
-								fromTbItem[_alias] = v;
-								row[k] = nil;
-							elseif(_prefix == mainTbAliasPrefix) then
-								row[k] = nil;
-							end
-						end
-						fromTbItemList:add(fromTbItem);
-					end
-				end
-			end
-		end
-	else
-		for row in function() return cursor:fetch({}, "a"); end do
-			array:add(row);
-		end
+-- 		for row in function() return cursor:fetch({}, "a"); end do
+-- 			local id = row[mainTbAliasPrefix.."_id"];
+-- 			if(mainIdSet:add(id)) then
+-- 				local item = {};
+-- 				for prefix,content in pairs(fromTbAliasPrefix) do
+-- 					content.idSet:clear();
+-- 					local fromTbId = row[prefix.."_id"];
+-- 					if(fromTbId) then
+-- 						content.idSet:add(fromTbId);
+-- 						local fromTbItemList = commonlib.Array:new();
+-- 						local fromTbItem = {};
+-- 						fromTbItemList:add(fromTbItem);
+-- 						item[prefix] = fromTbItemList;
+-- 					end
+-- 				end
+-- 				for k,v in pairs(row) do
+-- 					local _prefix, _alias = k:match("(%w+)_([%w_]+)");
+-- 					if(_prefix == mainTbAliasPrefix) then
+-- 						item[_alias] = v;
+-- 					else
+-- 						for prefix,content in pairs(fromTbAliasPrefix) do
+-- 							if(_prefix == prefix) then
+-- 								local fromTbItemList = item[prefix];
+-- 								local fromTbItem = fromTbItemList:first();
+-- 								fromTbItem[_alias] = v;
+-- 								break;
+-- 							end
+-- 						end
+-- 					end
+-- 				end
+-- 				array:add(item);
+-- 			else
+-- 				local item = array:last();
+-- 				for prefix,content in pairs(fromTbAliasPrefix) do
+-- 					if(content.idSet:add(row[prefix.."_id"])) then
+-- 						local fromTbItemList = item[prefix];
+-- 						local fromTbItem = {};
+-- 						for k,v in pairs(row) do
+-- 							local _prefix, _alias = k:match("(%w+)_([%w_]+)");
+-- 							if(_prefix == prefix) then
+-- 								fromTbItem[_alias] = v;
+-- 								row[k] = nil;
+-- 							elseif(_prefix == mainTbAliasPrefix) then
+-- 								row[k] = nil;
+-- 							end
+-- 						end
+-- 						fromTbItemList:add(fromTbItem);
+-- 					end
+-- 				end
+-- 			end
+-- 		end
+-- 	else
+-- 		for row in function() return cursor:fetch({}, "a"); end do
+-- 			array:add(row);
+-- 		end
+-- 	end
+-- 	return array;
+-- end
+
+local function getListFromCursor(cursor, mapper)
+	for row in function() return cursor:fetch({}, "a"); end do
+		mapper:setValue(mapper.selMapper, row, mapper.prefix);
 	end
-	return array;
+	return mapper:get();
 end
+
+-- function dbTemplate:test(sql, mapper)
+-- 	local cursor = self.execute(sql);
+-- 	local res = getListFromCursorTest(cursor, mapper);
+-- 	return res;
+-- end
 
 --[[
 	执行sql语句
@@ -210,18 +223,18 @@ end
 --[[
 	查询列表数据，支持关联查询，支持分页
 	@Param sql sql语句
-	@Param tbAliasPrefix 别名前缀table
+	@Param mapper mapper 关联查询的时候使用
 	@Param countSql 查询记录数的sql语句 分页的时候用到 与pageIndex、pageSize共用
 	@Param pageIndex 当前页，为nil时查全部，否则pageIndex > 0
 	@Param pageSize 页数，为nil时查全部，否则pageSize > 0
 	@Return _data:数据
 ]]
-function dbTemplate:queryList(sql, tbAliasPrefix, countSql, pageIndex, pageSize)
+function dbTemplate:queryList(sql, mapper, countSql, pageIndex, pageSize)
 	if( countSql == nil or pageIndex == nil or pageSize == nil) then
 		local cursor, err = self.execute(sql);
 		local _data = nil;
 		if(cursor) then
-			local res = getListFromCursor(cursor, tbAliasPrefix);
+			local res = getListFromCursor(cursor, mapper);
 			if(not res:empty()) then
 				_data = res;
 			end
@@ -249,7 +262,7 @@ function dbTemplate:queryList(sql, tbAliasPrefix, countSql, pageIndex, pageSize)
 				cursor = self.executeWithReleaseCtrl(sql, conn, true);
 				if(cursor) then
 					local list = nil;
-					local res = getListFromCursor(cursor, tbAliasPrefix);
+					local res = getListFromCursor(cursor, mapper);
 					if(not res:empty()) then
 						list = res;
 					end
@@ -264,15 +277,15 @@ end
 --[[
 	查询单条记录 支持关联查询
 	@Param sql sql语句
-	@Param tbAliasPrefix 别名前缀table
+	@Param mapper mapper 关联查询的时候使用
 	@Return _data:数据
 ]]
-function dbTemplate:queryFirst(sql, tbAliasPrefix)
+function dbTemplate:queryFirst(sql, mapper)
 	local cursor, err = self.execute(sql);
 	local _data = nil;
 	if(cursor) then
-		if(tbAliasPrefix) then
-			local res = getListFromCursor(cursor, tbAliasPrefix);
+		if(mapper) then
+			local res = getListFromCursor(cursor, mapper);
 			_data = res:first();
 		else
 			_data = cursor:fetch({}, "a");
