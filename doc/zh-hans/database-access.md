@@ -1,4 +1,7 @@
 # 针对postgres的数据库访问层
+## 安装模块  
+* sh nwf_module_manage.sh -a 列出可用的module
+* sh nwf_module_manage.sh -i db_postgres
 ## 配置
 在webserver.config.xml中配置连接postgres数据库的参数
 ```xml
