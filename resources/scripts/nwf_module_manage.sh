@@ -8,16 +8,16 @@
 
 usage(){
 	echo "options:"
-	echo "\t-i 'module name'"
-	echo "\t\tinstall module"
-	echo "\t-d 'module name'"
-	echo "\t\tdelete module"
-	echo "\t-u 'module name'"
-	echo "\t\treinstall module"
-	echo "\t-m"
-	echo "\t\tlist all installed modules"
-	echo "\t-a"
-	echo "\t\tlist all available modules"
+	echo "    -i 'module name'"
+	echo "        install module"
+	echo "    -d 'module name'"
+	echo "        delete module"
+	echo "    -u 'module name'"
+	echo "        reinstall module"
+	echo "    -m"
+	echo "        list all installed modules"
+	echo "    -a"
+	echo "        list all available modules"
 }
 
 init_repo(){
