@@ -14,10 +14,6 @@ config.echoDebugInfo = true;  -- 是否在页面上显示调试信息
 --  这里加载web应用需要的公共模块
 --	e.g. NPL.load("(gl)www/utils/stlutil.lua");
 ------------------------------------------------------------------
--- This is a database access api for postgresql
--- NPL.load("nwf.db.connectionManager")
--- NPL.load("nwf.db.dbTemplate")
--- NPL.load("nwf.db.sqlGenerator")
 
 
 ------------------------------------------------------------------
