@@ -11,7 +11,7 @@ echo updating project...
 
 get_hash(){
     f=$1
-    while read line
+    cat .nwf/md5sum | sed 's/*//' | while read line
     do
         p=$(echo $line | awk '{print $2}')
         h=$(echo $line | awk '{print $1}')
@@ -19,7 +19,7 @@ get_hash(){
             echo "$h"
             break;
         fi
-    done < .nwf/md5sum
+    done
 }
 
 update_hash(){
