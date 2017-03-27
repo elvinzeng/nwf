@@ -70,24 +70,17 @@ install_mod(){
 
 del_mod(){
 	mod=$1
-	flag=0
-	for di in $(ls www/modules)
-	do
-		modDir="www/modules/$di"
-		if [ -d $modDir ]; then
-			echo "module '$mod' founded in '$modDir'"
-			if [ -f "$modDir/del.sh" ]; then
-				echo executing "$modDir/del.sh"
-				echo $(cd $modDir && bash ./del.sh)
-			fi
-			echo remove files...
-			echo $(cd www/modules && echo "remove dir $di" && rm $di -rf)
-			echo "done."
-			flag=1
-			break;
+	modDir="www/modules/$mod"
+	if [ -d $modDir ]; then
+		echo "module '$mod' founded in '$modDir'"
+		if [ -f "$modDir/del.sh" ]; then
+			echo executing "$modDir/del.sh"
+			echo $(cd $modDir && bash ./del.sh)
 		fi
-	done
-	if [ $flag -eq 0 ]; then
+		echo remove files...
+		echo $(cd www/modules && echo "remove dir $mod" && rm $mod -rf)
+		echo "done."
+	else
 		echo "module '$mod' can not found."
 	fi
 }
