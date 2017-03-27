@@ -1,4 +1,7 @@
 # 针对postgres的数据库访问层
+## 安装模块  
+* sh nwf_module_manage.sh -a 列出可用的module
+* sh nwf_module_manage.sh -i db_postgres
 ## 配置
 在webserver.config.xml中配置连接postgres数据库的参数
 ```xml
@@ -12,32 +15,34 @@
     </table>  
   </config>
 ```
+## 创建Mapper  
+为每个表创建mapper.lua文件,比如grade表对应GradeMapper.lua  
+```lua
+local gradeMapper = commonlib.inherit(nwf.db.mapper, commonlib.gettable("mapper.gradeMapper"));
+```
 ## 生成SQL脚本
-可以使用sqlGenerator生成一些简单的脚本,在生成INSERT或者UPDATE语句之前,需要创建与数据库表映射的实体, 
+可以使用sqlGenerator生成一些简单的脚本,在生成INSERT或者UPDATE语句之前,需要在对应mapper中创建与数据库表映射的实体, 
 主要用于插入value和set value的时候使用,类似下面的写法
 ```lua
-local student = commonlib.gettable("entity.student");  
-student.tbName = "student";  
-student.fields = {
-	id = {notNil = true, isPrimaryKey = true},
-	name = {notNil = true},
-	age = {notNil = true},
-	class_id = {notNil = false},
-	create_time = {notNil = false},
-	is_deleted = {notNil = false}
+gradeMapper.entity = {
+	tbName = "grade",
+	fields = {
+		grade_id = {prop = "gradeId", notNil = true, isPrimaryKey = true},
+		grade_name = {prop = "gradeName", notNil = true}
+	}
 }
 ```
 then
 ```lua
-local tb = {id="nextval('pf_upm_sys_user_sys_user_id_seq')",name="zhangsan",age=10};
-
+local tb = {gradeId="nextval('grade_id_seq')",gradeName="高一"};
+local entity = commonlib.gettable("mapper.gradeMapper").entity;
 local sqlGenerator = commonlib.gettable("nwf.db.sqlGenerator");
 
-local sql = sqlGenerator:insert(commonlib.gettable("entity.student"))
+local sql = sqlGenerator:insert(entity)
 			:value(tb)
 			:get();
 --更新的时候会忽略tb中的id,即不更新id
-sql = sqlGenerator:update(commonlib.gettable("entity.student"))
+sql = sqlGenerator:update(entity)
 		  :value(tb)
 		  :where("id =",tb.id)
 		  :_and(nil,"create_time = now()")
@@ -56,67 +61,123 @@ local dbTemplate = commonlib.gettable("nwf.db.dbTemplate");
 ```
 ### 基本用法
 ```lua
-dbTemplate.execute(sql)
+local res = dbTemplate.execute(sql)
 dbTemplate.executeWithTransaction(sql1,sql2,...)
-```
+```  
+res 为游标对象或者更新的行数  
 
 ### 执行sql，同时控制连接对象的释放
 ```lua
 dbTemplate.executeWithReleaseCtrl(sql, conn, release ,openTransaction)
 
 local openTransaction = true
-local conn = dbTemplate.executeWithReleaseCtrl(sql1, nil, false, openTransaction)
+local res, conn = dbTemplate.executeWithReleaseCtrl(sql1, nil, false, openTransaction)
 dbTemplate.executeWithReleaseCtrl(sql2, conn, false, openTransaction)
 ...
 --在执行最后一条sql脚本的时候 设置release = true
 dbTemplate.executeWithReleaseCtrl(sqlN, conn, true, openTransaction)
-```
-
-### 关联查询
-#### Tips
-* 为每个表的字段设置别名, 格式为[mainTbPrefix_alias], [fromTbPrefix1_alias], [fromTbPrefix2_alias]...
-* 必须查询每个表的主键,别名格式为 mainTbPrefix_id, fromTbPrefix1_id
-* tbAliasPrefix = {mainTbPrefix, fromTbPrefix1, fromTbPrefix2, ...}
-* 如果不想使用关联查询 , 设置 tbAliasPrefix = nil 
-
+```  
+### 查询  
+查询之前,需要在表对应mapper中编写相应的结果集映射关系
 ```lua
-dbTemplate:queryFirst(sql, tbAliasPrefix)
+gradeMapper.selectGrade = {
+	primaryKey = "grade_id", 				--primaryKey 必填
+	grade_id = {prop = "gradeId", type = "field"},		--key 为sql语句查出来的字段名，value 中的prop属性表示的是将查询结果映射到table中相对应的值
+	grade_name = {prop = "gradeName", type = "field"}	--prop相当于别名，主要解决postgres查出来的字段全部为小写的问题
+};
+```  
+然后调用dbTemplate中提供的方法  
+```lua
+-- 1.使用execute系列的方法  
+local cursor = dpTemplate.execute(sql);
+for row in function() return cursor:fetch({}, "a"); end do
+	--doSomthing...
+end
 
-local sql = SELECT c.id as class_id,
-		   c.name as class_name,
-		   s.id as student_id,
-		   s.name as student_name,
-		   s.age as student_age,
-		   s.class_id as student_classId ,
-		   x.id as xxx_id,
-		   x.name as xxx_name,
-		   x.class_id as xxx_classId 
-	   FROM class c 
-	   LEFT JOIN student s ON s.class_id = c.id
-	   LEFT JOIN xxx x ON x.class_id = c.id
-	   WHERE c.id = 2;
-local data,err = dbTemplate:queryFirst(sql, {"class","student","xxx"});
+-- 2.使用query系列方法 
+local res = dpTemplate:queryFirst(sql);
+local list = dpTemplate:queryList(sql);
+```
+### 关联查询
+mapper编写关联映射,这里要注意顺序  
+```lua
+gradeMapper.prefix = "grade";	--主表字段的前缀
+gradeMapper.studentListForClass = {
+	primaryKey = "student_id",
+	student_id = {prop = "studentId", type = "field"},
+	student_name = {prop = "studentName", type = "field"}
+};
+
+gradeMapper.testObjForClass = {
+	primaryKey = "test_id",
+	test_id = { prop = "testId", type = "field"},
+	test_name = { prop = "testName", type = "field"}
+}
+
+gradeMapper.classListForGrade = {
+	primaryKey = "class_id",
+	class_id = { prop = "classId", type = "field"},
+	class_name = { prop = "className", type = "field"},
+	student = { mapper = gradeMapper.studentListForClass, type = "list"},   --type="list" 表示一对多	
+	test = { mapper = gradeMapper.testObjForClass, type = "obj"}		--type="obj" 表示一对一
+};
+
+gradeMapper.selectGrade = {
+	primaryKey = "grade_id", 					--primaryKey 必填
+	grade_id = {prop = "gradeId", type = "field"},			--key 为sql语句查出来的字段名，value 中的prop属性表示的是将查询结果映射到table中相对应的值
+	grade_name = {prop = "gradeName", type = "field"}		--prop相当于别名，主要解决postgres查出来的字段全部为小写的问题
+	class = {mapper = gradeMapper.classListForGrade, type = "list"} 
+};
+```  
+编写sql语句需要遵循以下规范
+* 字段名格式：prefix_alias(前缀 + 下划线 + 别名),比如grade_name,注意同一个表的字段的前缀都是相同的 
+* 必须查询每个表的主键
+```lua
+local sql = sqlGenerator:select([[
+				g.grade_id,
+				g.grade_name,
+				c.class_id,
+				c.class_name,
+				s.student_id,
+				s.student_name,
+				t.test_id,
+                        	t.test_name]])
+			:append([[
+				FROM grade g
+				LEFT JOIN class c ON g.grade_id = c.grade_id
+				LEFT JOIN student s ON c.class_id = s.class_id
+				LEFT JOIN test t ON c.class_id = t.class_id
+			]])
+			:get();
+```  
+最后
+```lua
+local mapper = commonlib.gettable("mapper.gradeMapper");
+mapper:setResMapper(mapper.selectGrade);
+local res = dbTemplate:queryFirst(sql,  mapper);
 ```
 
 ### 分页查询
 #### Tips
 * `countSql` 不能为nil, `pageIndex` 和 `pageSize` 必须大于0
 * sql的分页子句: `LIMIT %d OFFSET %d`
-```lua
-dbTemplate:queryList(sql, tbAliasPrefix, countSql, pageIndex, pageSize)
-
-local sql = SELECT c.id as class_id,
-		   c.name as class_name,
-		   s.id as student_id,
-		   s.name as student_name,
-		   s.age as student_age,
-		   s.class_id as student_classId ,
-		   x.id as xxx_id,
-		   x.name as xxx_name,
-		   x.class_id as xxx_classId 
-           FROM (SELECT id, name FROM class LIMIT %d OFFSET %d) c 
-	   LEFT JOIN student s ON s.class_id = c.id
-	   LEFT JOIN xxx x ON x.class_id = c.id;
-local data,err = dbTemplate:queryList(sql, {"class","student","xxx"}, " select count(1) from class ", 1, 3);
+```lua	
+local sql = sqlGenerator:select([[
+				g.grade_id,
+				g.grade_name,
+				c.class_id,
+				c.class_name,
+				s.student_id,
+				s.student_name,
+				t.test_id,
+                        	t.test_name]])
+			:append([[
+				FROM (SELECT grade_id, grade_name FROM grade LIMIT %d OFFSET %d) g 
+				LEFT JOIN class c ON g.grade_id = c.grade_id
+				LEFT JOIN student s ON c.class_id = s.class_id
+				LEFT JOIN test t ON c.class_id = t.class_id
+			]])
+			:get();
+local data = dbTemplate:queryList(sql, mapper, " select count(1) from grade ", 1, 3);
 ```
 
