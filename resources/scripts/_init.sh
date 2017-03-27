@@ -19,8 +19,8 @@ if [ ! -d "$pn" ]; then
         mkdir "$pn"
 fi
 cd $pn
-if [ -f "init_flag" ]; then
-	cat init_flag
+if [ -f ".nwf/init_flag" ]; then
+	cat .nwf/init_flag
 	exit 1
 fi
 
@@ -60,6 +60,8 @@ if [ ! -d "www/modules" ]; then
 fi
 cp -r npl_packages/nwf/resources/demo/* www/
 
-echo "do not run init script again! project already initialized at: $(date '+%F %T')" > init_flag
+mkdir .nwf
+echo "do not run init script again! project already initialized at: $(date '+%F %T')" > .nwf/init_flag
+find . -path './.git' -prune -o -path './npl_packages' -prune -o -path './.nwf' -prune -o -type f -print | xargs md5sum > .nwf/md5sum
 
 echo NPL Web application initialization done.
