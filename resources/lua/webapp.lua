@@ -23,5 +23,8 @@ if(os.GetPlatform() == "linux") then
 	file:close();
 end
 
+-- application initialized
+NPL.load("(gl)www/app_initialized.lua");
+
 
 NPL.this(function() end);
