@@ -33,11 +33,9 @@ init_repo(){
 }
 
 install_mod(){
-	init_repo
 	mod=$1
 	for di in $(ls npl_packages)
 	do
-		echo $(cd "npl_packages/$di" && git pull)
 		modBaseDir="npl_packages/$di/nwf_modules/$mod"
 		if [ "${di}x" = "mainx" ]; then
 			continue
@@ -47,14 +45,21 @@ install_mod(){
 			if [ -d www/modules/$mod ]; then
 				echo "module '$mod' was already installed, skipped."
 			else
-				echo start install...
+				if [ -f $modBaseDir/dependencies.conf ]; then
+					echo install dependencies of module $mod...
+					cat $modBaseDir/dependencies.conf | while read line
+					do
+						install_mod $line
+					done
+				fi
+				echo start install module $mod...
 				echo copy files...
 				cp $modBaseDir www/modules/ -r
 				if [ -f "www/modules/$mod/install.sh" ]; then
 					echo executing "www/modules/$mod/install.sh"
 					echo $(cd www/modules/$mod && bash ./install.sh)
 				fi
-				echo "done."
+				echo "module $mod installattion completed."
 				break;
 			fi
 		else
@@ -146,11 +151,16 @@ cd $(cd $(dirname $0) && pwd -P)
 while getopts ":i:d:u:ma" opt
 do
         case $opt in
-                i ) install_mod $OPTARG ;;
+                i ) init_repo
+                    for di in $(ls npl_packages)
+                    do
+                        echo $(cd "npl_packages/$di" && git pull)
+                    done
+                    install_mod $OPTARG ;;
                 d ) del_mod $OPTARG ;;
                 u ) reinstall_mod $OPTARG ;;
-								m ) installed_modules ;;
-								a ) all_modules ;;
+				m ) installed_modules ;;
+				a ) all_modules ;;
                 ? ) usage
                     exit 1;;
         esac
