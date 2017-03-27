@@ -49,14 +49,17 @@ end
 -- @param controllerName: controller name
 -- @pram func: function
 local function getAction(controllerPath, controllerName, func)
-    if(not file_exists(controllerPath)) then
-        return {status = 500, message = string.format("controller file not found: %s"
-            , controllerPath)};
-    end
-    NPL.load(controllerPath);
     if (not nwf.controllers[controllerName]) then
-        return {status = 500, message = string.format(controller_not_found_message_template
-            , controllerPath)};
+        if(not file_exists(controllerPath)) then
+            return {status = 500, message = string.format("controller file not found: %s"
+                , controllerPath)};
+        end
+        NPL.load(controllerPath);
+        if (not nwf.controllers[controllerName]) then
+            return {status = 500, message = string.format(controller_not_found_message_template
+                , controllerPath)};
+        end
+
     end
     local action = nwf.controllers[controllerName][func];
     if (not action) then
@@ -73,14 +76,16 @@ end
 -- @param validatorName: validator name
 -- @pram func: function
 local function getValidator(validatorPath, validatorName, func)
-    if(not file_exists(validatorPath)) then
-        return {message = string.format("validator file not found: %s"
-            , validatorPath)};
-    end
-    NPL.load(validatorPath);
     if (not nwf.validators[validatorName]) then
-        return {message = string.format(validator_not_found_message_template
-            , validatorPath)};
+        if(not file_exists(validatorPath)) then
+            return {message = string.format("validator file not found: %s"
+                , validatorPath)};
+        end
+        NPL.load(validatorPath);
+        if (not nwf.validators[validatorName]) then
+            return {message = string.format(validator_not_found_message_template
+                , validatorPath)};
+        end
     end
     local validatorFunc = nwf.validators[validatorName][func];
     if (not validatorFunc) then
@@ -177,8 +182,14 @@ local function render(ctx, view, model, im)
     end
     local res = ctx.response;
     if (not view or view == "") then
-        res:status(500):send([[<html><body>view cannot be nil or empty!</body></html>]]);
-        res:finish();
+        if (nwf.config.echoDebugInfo) then
+            res:status(500):send([[<html><body>view cannot be nil or empty!</body></html>]]);
+            res:finish();
+        else
+            print("view cannot be nil or empty!");
+            res:status(500):send([[<html><body>server error</body></html>]]);
+            res:finish();
+        end
     end
     if (type(view) == "table") then
         res:set_header('Content-Type', 'application/json');
@@ -234,28 +245,50 @@ local function process(ctx)
     local _, func = requestPath:match("^/([%w_]+)/(.+)");
 	local action, validator = dispatch(requestPath);
 	if (type(action) == "table") then
-		res:status(action.status):send(string.format([[<html><body>%s</body></html>]]
-            , action.message));
-        res:finish();
+        if (nwf.config.echoDebugInfo) then
+            res:status(action.status):send(string.format([[<html><body>%s</body></html>]]
+                , action.message));
+            res:finish();
+        else
+            res:status(action.status):send(string.format([[<html><body>%s</body></html>]]
+                , "server error"));
+            print(action.message);
+            res:finish();
+        end
     end
 
     xpcall(function()
+        local g = {
+            requestContext = ctx,
+            ctx = ctx,
+            request = ctx.request,
+            response = ctx.response,
+            session = ctx.session
+        }
+        setmetatable(g, {__index = _G})
+
         if (type(validator) == "table") then
             ctx.validation = {isEnabled = false, message = validator.message}
         else
-            local isValid, errors = validator(req:getparams());
-            ctx.validation = {isValid = isValid, fields = errors, isEnabled = true}
+            setfenv(validator, g);
+            local isValid, fields = validator(req:getparams(), req);
+            ctx.validation = {isValid = isValid, fields = fields, isEnabled = true}
         end
 
+        setfenv(action, g);
         local view, model = action(ctx);
+        if (not view) then
+           error("return value of action can not be nil.");
+        end
         if (view and type(view) == "function") then
+            setfenv(view, g);
+            ctx.request._isAsync = true;
             view(ctx, function(view, model)
                 if (not model) then
                     model = {};
                 end
                 render(ctx, view, model, true);
             end);
-            ctx.request._isAsync = true;
         else
             render(ctx, view, model);
         end
@@ -269,9 +302,15 @@ local function process(ctx)
         local tb = debug.traceback();
         print(tb);
 
-        res:status(500):send(string.format([[<html><head><title>error</title></head>
-        <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
-        res:finish();
+        if (nwf.config.echoDebugInfo) then
+            res:status(500):send(string.format([[<html><head><title>error</title></head>
+            <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
+            res:finish();
+        else
+            res:status(500):send([[<html><head><title>error</title></head>
+            <body>server error</body></html>]]);
+            res:finish();
+        end
     end)
 end
 
@@ -308,9 +347,15 @@ local function doFilter(filters, i, ctx)
         print(tb);
 
         local res = ctx.response;
-        res:status(500):send(string.format([[<html><head><title>error</title></head>
-        <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
-        res:finish();
+        if (nwf.config.echoDebugInfo) then
+            res:status(500):send(string.format([[<html><head><title>error</title></head>
+            <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
+            res:finish();
+        else
+            res:status(500):send([[<html><head><title>error</title></head>
+            <body>server error</body></html>]]);
+            res:finish();
+        end
     end)
 
 end

@@ -1,10 +1,6 @@
 #!/bin/bash
 cd $(cd $(dirname $0) && pwd -P)
-cd npl_packages/main
-git pull
-cd ../nwf/
-git pull
-cd ../../
+sh ./update_packages.sh
 
 if [ -f "www.tar.gz" ]; then
 	echo "source package 'www.tar.gz' exits, directory www will be replace.."
