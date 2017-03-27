@@ -44,7 +44,7 @@ cd ../nwf && git pull
 cd ../../
 
 cp npl_packages/nwf/resources/config/gitignore .gitignore
-cp npl_packages/nwf/resources/scripts/* .
+find npl_packages/nwf/resources/scripts/ ! -name "_*.sh" -type f -exec cp {} . \;
 
 if [ ! -d "www" ]; then
 	mkdir "www"
