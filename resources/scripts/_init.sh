@@ -9,7 +9,7 @@
 
 
 if [ $# -ne 1 ] ; then
-	echo "USAGE: sh $0 'project-name'"
+	echo "USAGE: sh nwf_init.sh 'project-name'"
 	exit 1;
 fi
 pn=$1
