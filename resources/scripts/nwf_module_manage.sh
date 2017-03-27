@@ -94,6 +94,11 @@ del_mod(){
 
 reinstall_mod(){
 	mod=$1
+	init_repo
+	for di in $(ls npl_packages)
+	do
+		echo $(cd "npl_packages/$di" && git pull)
+	done
 	echo deleting...
 	del_mod $mod
 	echo reinstall...
