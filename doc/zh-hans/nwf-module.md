@@ -62,6 +62,59 @@ elvin@elvin-idreamtech ~/temp/nwf/demoproject $ cat module_source_repos.conf
 nwfModules git@git.idreamtech.com.cn:rddept/nwfModules.git
 nwfm git@git.xxxx.com:rddept/nwfm.git
 ```
-你可以添加多个模块源，为此仅需要给配置文件添加多行配置。每一行对应一个模块源。每一行分为两个字段，以一个空格分割。第一个字段为仓库名，第二个字段为仓库的路径。仓库名将会决定仓库被导入项目之后在项目中的目录名，这个是不允许重复的，通常情况下建议仓库名保持与仓库路径中的名称一致。为了避免出错，注意文件换行符使用unix风格，编码为UTF-8。如果是在windows下操作，请使用notepad++之类的程序员用的文本编辑器去编辑配置文件，不要使用Windows自带的记事本。  
+你可以添加多个模块源，为此仅需要给配置文件添加多行配置。每一行对应一个模块源。每一行分为两个字段，以一个空格分割。第一个字段为仓库名，第二个字段为仓库的路径。如果改行以井号打头，则为注释行。仓库名将会决定仓库被导入项目之后在项目中的目录名，这个是不允许重复的，通常情况下建议仓库名保持与仓库路径中的名称一致。为了避免出错，注意文件换行符使用unix风格，编码为UTF-8。如果是在windows下操作，请使用notepad++之类的程序员用的文本编辑器去编辑配置文件，不要使用Windows自带的记事本。  
 然后，再次运行脚本就能查看新的数据了。
 # 模块编写
+首先，创建好一个nwf的应用。然后，在"www/modules"目录下创建一个以模块名命名的目录。这里以helloworld模块为例。www/modules/目录的文件结构如下：  
+<pre>
+.
+└── helloworld                     --> 模块根目录，目录名即为模块名。
+    ├── del.sh                     --> 模块卸载脚本(可以不存在)
+    ├── desc.txt                   --> 模块简要描述信息(可以不存在)
+    ├── hello.html                 --> demo
+    ├── dependencies.conf          --> 依赖的模块列表(如果没有依赖的模块则可以不存在)
+    ├── HelloModController.lua     --> demo
+    ├── HelloModValidator.lua      --> demo
+    ├── init.lua                   --> 模块初始化程序(没有这个文件模块无法被框架加载)
+    └── install.sh                 --> 模块安装脚本(可以不存在)
+</pre>
+install.sh
+```shell
+#!/bin/bash
+
+echo helloworld module install...
+
+mkdir ../../view/helloworld
+cp hello.html ../../view/helloworld
+```
+del.sh  
+```shell
+#!/bin/bash
+
+echo helloworld module delete...
+
+rm ../../view/helloworld/hello.html
+rmdir ../../view/helloworld
+```
+desc.txt
+```shell
+elvin@elvin-idreamtech ~/temp/nwf/demoproject/www/modules/helloworld $ cat desc.txt
+A demo module for nwf.
+```
+init.lua
+```lua
+--
+-- init script for helloworld module
+-- Author: elvin
+-- Date: 17-3-24
+-- Time: 10:46
+-- desc: this script will be load at mvc framework loaded..
+--
+
+print("helloworld module init...");
+
+NPL.load("(gl)www/modules/helloworld/HelloModController.lua");
+NPL.load("(gl)www/modules/helloworld/HelloModValidator.lua");
+```
+另外，模块根目录下的dependencies.conf文件也是一个特殊文件。这是个纯文本文件，用于记录依赖的模块。格式为每个依赖模块的模块名占一行。UTF-8编码，换行符为unix风格。
+# 发布模块
