@@ -3,6 +3,7 @@
 resultMapper.selMapper = nil;
 
 local function init(mapper)
+    mapper.arrays = commonlib.Array:new();
     mapper.idSet = commonlib.UnorderedArraySet:new();
     for _, v in pairs(mapper) do
         if (type(v) == "table" and (v.type == "list" or v.type == "obj")) then
@@ -45,9 +46,6 @@ function resultMapper:setValue(mapper, row, prefix, flag, isObj)
                 end
             end
 
-            if (not mapper.arrays) then
-                mapper.arrays = commonlib.Array:new();
-            end
             mapper.arrays:add(item);
 
             if (flag == true) then
