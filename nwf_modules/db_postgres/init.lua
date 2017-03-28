@@ -6,7 +6,7 @@
 -- desc: this script will be load at mvc framework loaded..
 --
 
-print("driver module init...");
+print("db_postgres module init...");
 
 NPL.load("(gl)www/modules/db_postgres/ConnectionManager.lua");
 NPL.load("(gl)www/modules/db_postgres/DbTemplate.lua");

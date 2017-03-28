@@ -11,10 +11,13 @@
 # 项目结构
 <pre>
 .                                --> 项目根目录
-├── init_flag                    --> 用于存储项目初始化信息
+├── module_source_repos.conf     --> 模块源的配置文件
 ├── npl_packages                 --> npl packages 根目录
 │   ├── main                     --> NPL main package
 │   └── nwf                      --> nwf package
+├── .nwf                         --> 一些框架自动生成的文件，用于保存框架的内部数据。
+│   ├── init_flag                --> 项目初始化信息
+│   └── md5sum                   --> nwf自动生成的文件的校验和信息
 ├── pack.sh                      --> 源码压缩脚本
 ├── restart_debug.sh             --> 重启服务器(linux)
 ├── shutdown.sh                  --> 关闭服务器(linux)
@@ -22,11 +25,14 @@
 ├── start_win.bat                --> 启动服务器(Windows)
 ├── update_packages.sh           --> 更新main package以及nwf框架的包(linux and Windows)
 └── www                          --> web应用运行时的根目录
+    ├── app_initialized.lua      --> 网站完成启动之后执行的脚本
     ├── controller               --> 控制器搜索目录
     │   ├── DemoController.lua
     │   └── RootController.lua
+    ├── modules                  --> 项目的模块根目录
     ├── mvc_settings.lua         --> 框架初始化配置文件
     ├── router.lua               --> 框架核心模块
+    ├── static                   --> js、css等静态文件所在目录
     ├── validator                --> 校验器搜索目录
     │   └── DemoValidator.lua
     ├── view                     --> 模板文件搜索目录
