@@ -33,39 +33,44 @@ init_repo(){
 }
 
 install_mod(){
-	mod=$1
-	for di in $(ls npl_packages)
-	do
-		modBaseDir="npl_packages/$di/nwf_modules/$mod"
-		if [ "${di}x" = "mainx" ]; then
-			continue
-		fi
-		if [ -d $modBaseDir ]; then
-			echo "module '$mod' founded in repository '$di'"
-			if [ -d www/modules/$mod ]; then
-				echo "module '$mod' was already installed, skipped."
-			else
-				if [ -f $modBaseDir/dependencies.conf ]; then
-					echo install dependencies of module $mod...
-					cat $modBaseDir/dependencies.conf | while read line
-					do
-						install_mod $line
-					done
-				fi
-				echo start install module $mod...
-				echo copy files...
-				cp $modBaseDir www/modules/ -r
-				if [ -f "www/modules/$mod/install.sh" ]; then
-					echo executing "www/modules/$mod/install.sh"
-					echo $(cd www/modules/$mod && bash ./install.sh)
-				fi
-				echo "module $mod installattion completed."
+	local mod=$1
+	if [ "${mod}x" != "x" ]; then
+		local di=""
+		for di in $(ls npl_packages)
+		do
+			local modBaseDir="npl_packages/$di/nwf_modules/$mod"
+			if [ "${di}x" = "mainx" ]; then
+				continue
 			fi
-			break;
-		else
-			echo "module '$mod' was not found in repository '$di'"
-		fi
-	done
+			if [ -d $modBaseDir ]; then
+				echo "module '$mod' founded in repository '$di'"
+				if [ -d www/modules/$mod ]; then
+					echo "module '$mod' was already installed, skipped."
+				else
+					if [ -f $modBaseDir/dependencies.conf ]; then
+						echo install dependencies of module $mod...
+						cat $modBaseDir/dependencies.conf | grep -v '^$'
+						local line=""
+						cat $modBaseDir/dependencies.conf | grep -v '^$' | while read line
+						do
+							install_mod $line
+						done
+					fi
+					echo start install module $mod...
+					echo copy files...
+					cp $modBaseDir www/modules/ -r
+					if [ -f "www/modules/$mod/install.sh" ]; then
+						echo executing "www/modules/$mod/install.sh"
+						echo $(cd www/modules/$mod && bash ./install.sh)
+					fi
+					echo "module $mod installattion completed."
+				fi
+				break;
+			else
+				echo "module '$mod' was not found in repository '$di'"
+			fi
+		done
+	fi
 }
 
 del_mod(){
