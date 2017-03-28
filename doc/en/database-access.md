@@ -52,9 +52,7 @@ sql = sqlGenerator:select(" s.name , s.age ")
 		  :append("FROM student s LEFT JOIN class c ON c.id = s.id")
 		  :where(nil,"create_time = now()")
 		  :get();
-```  
-
-
+```
 ##  Use DbTemplete
 ```lua
 local dbTemplate = commonlib.gettable("nwf.db.dbTemplate");
