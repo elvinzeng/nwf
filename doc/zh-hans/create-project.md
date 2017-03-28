@@ -11,10 +11,13 @@
 # 项目结构
 <pre>
 .                                --> 项目根目录
-├── init_flag                    --> 用于存储项目初始化信息
+├── module_source_repos.conf     --> 模块源的配置文件
 ├── npl_packages                 --> npl packages 根目录
 │   ├── main                     --> NPL main package
 │   └── nwf                      --> nwf package
+├── .nwf                         --> 一些框架自动生成的文件，用于保存框架的内部数据。
+│   ├── init_flag                --> 项目初始化信息
+│   └── md5sum                   --> nwf自动生成的文件的校验和信息
 ├── pack.sh                      --> 源码压缩脚本
 ├── restart_debug.sh             --> 重启服务器(linux)
 ├── shutdown.sh                  --> 关闭服务器(linux)
