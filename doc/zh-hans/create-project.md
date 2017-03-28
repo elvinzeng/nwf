@@ -25,11 +25,14 @@
 ├── start_win.bat                --> 启动服务器(Windows)
 ├── update_packages.sh           --> 更新main package以及nwf框架的包(linux and Windows)
 └── www                          --> web应用运行时的根目录
+    ├── app_initialized.lua      --> 网站完成启动之后执行的脚本
     ├── controller               --> 控制器搜索目录
     │   ├── DemoController.lua
     │   └── RootController.lua
+    ├── modules                  --> 项目的模块根目录
     ├── mvc_settings.lua         --> 框架初始化配置文件
     ├── router.lua               --> 框架核心模块
+    ├── static                   --> js、css等静态文件所在目录
     ├── validator                --> 校验器搜索目录
     │   └── DemoValidator.lua
     ├── view                     --> 模板文件搜索目录
