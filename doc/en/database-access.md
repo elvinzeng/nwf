@@ -52,7 +52,14 @@ sql = sqlGenerator:select(" s.name , s.age ")
 		  :append("FROM student s LEFT JOIN class c ON c.id = s.id")
 		  :where(nil,"create_time = now()")
 		  :get();
-```
+```  
+method `where(field, value, defValue)`,under the normal conditions that the field entry conditions   
+and the comparison of characters,such as `id =`,`name LIKE`,value is the outcome of the comparison,  
+the method internally determines whether to add single quotation marks by value's type,if value is   
+`nil`,defValue will be used,if defValue also `nil`,this statement will not be appended to sql.  
+Sometimes if you don't want to handle the value,or just want to append a single sql to result,set  
+filed to nil.The methods of `_and` and `_or` are same with `where`
+
 ##  Use DbTemplete
 ```lua
 local dbTemplate = commonlib.gettable("nwf.db.dbTemplate");
