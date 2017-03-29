@@ -1,5 +1,17 @@
-# 简介
-nwf是一个简单易用的基于NPL的MVC框架。如果你熟悉jsp/servlet或者asp.net mvc，相信你会喜欢上这个框架的。
+# 文件和处理函数
+根据[请求映射规则](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/request-mappings.md)，把你的控制器文件放到对应的目录下，并在控制器文件中写好对应的函数。
+# request context
+在本文中，我把控制器里面用于处理请求的每个函数叫做一个action。每个action都有一个参数，ctx。这是一个table。大概的结构像下面这样：  
+```lua
+{
+    request = {},
+    response = {},
+    session = {id = "xxxxxxx"},
+    validation = {isValid = false, fields = {}, isEnabled = true}
+}
+```
+# action的返回值
+action的返回值个数以及类型将会决定这个请求的响应类型。
 ## 返回一个视图
 www/controller/DemoController.lua
 ```lua
@@ -82,37 +94,15 @@ function payService.test(tb, callback)
 		);
 end
 ```
+## 重定向
+www/controller/DemoController.lua
+```lua
+local demoController = commonlib.gettable("nwf.controllers.DemoController");
 
-# 如何使用
-## 创建项目
-首先，将你的NPLRuntime更新到最新的版本，然后设置好环境变量。  
-接着打开终端执以下命令(Windows下可以在git-bash中执行)：
-```shell
-~ $ cd ~/workspace
-~/workspace $ curl -O https://raw.githubusercontent.com/elvinzeng/nwf/master/nwf_init.sh
-~/workspace $ sh ./nwf_init.sh "project-name"  
+-- send recirect
+function demoController.testRedirect(ctx)
+        return "redirect:/demo/sayHello";
+end
 ```
-脚本的参数为想要创建的项目的项目名称。初始化脚本会自动创建好目录结构并生成必要的文件。
-## 运行服务器
-* Linux: sh start.sh
-* Windows: 运行update_packages.sh更新包，然后运行start_win.bat。或者直接运行start_win_auto_update.sh。
-* 打开浏览器访问"http://localhost:8099/ ". 如果看到页面上显示"it works!"则表示运行成功。
-
-# 其他中文文档
-* [创建项目](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/create-project.md)
-* [请求映射](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/request-mappings.md)
-* [控制器](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/controller.md)
-* [校验](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/validation.md)
-* [特殊变量](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/special-variables.md)
-* 过滤器
-* 配置
-* 视图
-* [数据库访问](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/database-access.md)
-* [模块](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/nwf-module.md)
-
-# 参考文档
-* [wiki](https://github.com/elvinzeng/nwf/wiki) — nwf wiki
-* [NPL](https://github.com/LiXizhi/NPLRuntime) — Neural Parallel Language
-* [NPLPackages main](https://github.com/NPLPackages/main) — NPL Common Lua library
-* [lua-resty-template](https://github.com/bungle/lua-resty-template) — Templating Engine
-* [lua-resty-validation](https://github.com/bungle/lua-resty-validation) — Validation and filtering library
+## 特殊变量
+参考 [special variables](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/special-variables.md).
