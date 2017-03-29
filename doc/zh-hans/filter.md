@@ -15,4 +15,5 @@ nwf.registerFilter(function(ctx, doNext)
 end);
 ```
 参数ctx就是请求上下文，与[控制器](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/controller.md)中拿到的是同一个对象。  
-参数doNext是一个函数。千万记得一定要调用这个函数，漏掉会导致一直无响应。调用doNext将会调用下一个过滤器，如果没有下一个过滤器则会将请求转交给控制器进行处理。
+参数doNext是一个函数。千万记得一定要调用这个函数，漏掉会导致一直无响应。调用doNext将会调用下一个过滤器，如果没有下一个过滤器则会将请求转交给控制器进行处理。  
+你可以多次调用注册函数，过滤器会按注册顺序被调用。
