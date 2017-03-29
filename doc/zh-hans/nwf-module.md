@@ -116,5 +116,10 @@ print("helloworld module init...");
 NPL.load("(gl)www/modules/helloworld/HelloModController.lua");
 NPL.load("(gl)www/modules/helloworld/HelloModValidator.lua");
 ```
-另外，模块根目录下的dependencies.conf文件也是一个特殊文件。这是个纯文本文件，用于记录依赖的模块。格式为每个依赖模块的模块名占一行。UTF-8编码，换行符为unix风格。
+模块根目录下的dependencies.conf文件是一个特殊文件。这是个纯文本文件，用于记录依赖的模块。格式为每个依赖模块的模块名占一行。UTF-8编码，换行符为unix风格。  
+注意：给模块取名的时候，需要选取一个全局唯一的名称，以避免出错。
 # 发布模块
+## 作为框架内建模块发布
+将helloworld模块的整个目录提交到nwf项目根目录下的nwf_modules目录中，然后发个pull request。
+## 发布到私有源
+将helloworld模块的整个目录提交到到私有模块源git仓库的根目录下的nwf_modules中。
