@@ -7,8 +7,8 @@ desc: this file will load NPL web framework basic module and init components.
 
 print('npl web framework is loading...');
 
--- init objects and load modules
-print("init objects and load modules...");
+-- init
+print("init framework...");
 local nwf = commonlib.gettable("nwf");
 nwf.controllers = {};
 nwf.validators = {};
@@ -31,7 +31,6 @@ function nwf.registerFilter(filter)
     table.insert(filters, filter);
 end;
 
--- load builtin modules
 print("load builtin modules...");
 NPL.load("nwf.utils.configUtil")
 NPL.load("nwf.utils.string_util")
@@ -55,7 +54,7 @@ nwf.registerFilter(function(ctx, doNext)
     print(string.format([[[%s] method:[%s] url:[%s] id: [%d]. total %d millisec.]]
         , os.date("%c", t1), req:GetMethod(), requestPath, ms1, ms2 - ms1));
 end);
--- load session module(filter)
+-- load session component(filter)
 NPL.load("nwf.session");
 
 -- load settings
