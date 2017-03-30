@@ -82,6 +82,48 @@ function payService.test(tb, callback)
 		);
 end
 ```
+## 模块化机制
+### 列出所有的可用模块
+```shell
+elvin@elvin-idreamtech ~/temp/nwf/demoproject $ ./nwf_module_manage.sh -a
+
+
+db_postgres
+数据库访问层api-postgres版
+-------
+helloworld
+A demo module for nwf.
+-------
+```
+### 安装模块
+```shell
+elvin@elvin-idreamtech ~/temp/nwf/demoproject $ ./nwf_module_manage.sh -i helloworld
+Already up-to-date.
+Already up-to-date.
+module 'helloworld' founded in repository 'nwf'
+start install module helloworld...
+copy files...
+executing www/modules/helloworld/install.sh
+helloworld module install...
+module helloworld installattion completed.
+```
+### 模块管理命令
+不带任何参数直接运行模块管理脚本可以看到帮助信息。
+```shell
+elvin@elvin-idreamtech ~/temp/nwf/demoproject $ ./nwf_module_manage.sh
+options:
+    -i 'module name'
+        install module
+    -d 'module name'
+        delete module
+    -u 'module name'
+        reinstall module
+    -m
+        list all installed modules
+    -a
+        list all available modules
+```
+截至文档更新时，有如上几个参数。最新的参数请以命令输出的信息为准。
 
 # 如何使用
 ## 创建项目
