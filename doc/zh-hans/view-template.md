@@ -1,3 +1,4 @@
+本文来自resty的官方文档，稍作修改然后翻译了一下。如果发现有什么错误或问题，可以给我提个issue。
 ## Hello World
 www/controller/DemoController.lua
 ```lua
@@ -26,56 +27,55 @@ output
 </body>
 </html>
 ```
-## Template Syntax
+## 视图模板的语法
 
-You may use the following tags in templates:
+你可以在模板中使用以下标签:
 
-* `{{expression}}`, writes result of expression - html escaped
-* `{*expression*}`, writes result of expression 
-* `{% lua code %}`, executes Lua code
-* `{(template)}`, includes `template` file, you may also supply context for include file `{(file.html, { message = "Hello, World" } )}`
-* `{[expression]}`, includes `expression` file (the result of expression), you may also supply context for include file `{["file.html", { message = "Hello, World" } ]}`
+* `{{expression}}`, 输出指定表达式的值到占位符所在位置，该标签会自动对表达式的值进行html编码。
+* `{*expression*}`, 输出指定表达式的值到占位符所在位置
+* `{% lua code %}`, 执行lua脚本
+* `{(template)}`, 包含另一个页面, 你还可以给这个页面提供一个模型table，像这样 `{(file.html, { message = "Hello, World" } )}`
+* `{[expression]}`, 包含另一个页面，被包含的页面为表达式expression的值所指示的页面, 你还可以给这个页面提供一个模型table，像这样 `{(file.html, { message = "Hello, World" } )}`
 * `{-block-}...{-block-}`, wraps inside of a `{-block-}` to a value stored in a `blocks` table with a key `block` (in this case), see [using blocks](https://github.com/bungle/lua-resty-template#using-blocks). Don't use predefined block names `verbatim` and `raw`.
-* `{-verbatim-}...{-verbatim-}` and `{-raw-}...{-raw-}` are predefined blocks whose inside is not processed by the `lua-resty-template` but the content is outputted as is.
-* `{# comments #}` everything between `{#` and `#}` is considered to be commented out (i.e. not outputted or executed)
+* `{-verbatim-}...{-verbatim-}` and `{-raw-}...{-raw-}` 包含在内的代码将会直接被输出
+* `{# comments #}` 注释，所有被放在 `{#` and `#}` 标签中的内容将被视为注释，并且不会输出。
 
-From templates you may access everything in `context` table, and everything in `template` table. In templates you can also access `context` and `template` by prefixing keys.
+在模板中，你可以直接访问模型对象中的任何属性，也可以加上context前缀。
 
 ```html
 <h1>{{message}}</h1> == <h1>{{context.message}}</h1>
 ```
 
-##### Short Escaping Syntax
+##### 输出标签文本
 
-If you don't want a particular template tag to be processed you may escape the starting tag with backslash `\`:
+如果你想输出类似标签的文本，你需要通过一个反斜线来转义。如下：
 
 ```html
 <h1>\{{message}}</h1>
 ```
 
-This will output (instead of evaluating the message):
+上面的代码会输出下面这样的内容到页面上
 
 ```html
 <h1>{{message}}</h1>
 ```
 
-If you want to add backslash char just before template tag, you need to escape that as well:
+如果你想输出反斜线，则需要用两个反斜线。
 
 ```html
 <h1>\\{{message}}</h1>
 ```
 
-This will output:
+上面的代码将会输出下面这样的标记到页面中
 
 ```html
 <h1>\[message-variables-content-here]</h1>
 ```
 
-##### A Word About HTML Escaping
+##### 实体编码
 
-Only strings are escaped, functions are called without arguments (recursively) and results are returned as is, other types are `tostring`ified. `nil`s will be convert to empty strings `""`.
-
-Escaped HTML characters:
+所有的字符串都有被编码，函数则会被不带任何参数的直接调用然后取返回值。其他类型则会被tostring。如果值为nil则会输出空字符串。  
+会被编码的特殊字符
 
 * `&` becomes `&amp;`
 * `<` becomes `&lt;`
@@ -84,14 +84,14 @@ Escaped HTML characters:
 * `'` becomes `&#39;`
 * `/` becomes `&#47;`
 
-#### Example
+#### 例子
 ##### Lua
 ```lua
 return "view.html", {
   title   = "test title",
   message = "Hello, World!",
   names   = { "Elvin", "Links", "God" },
-  jquery  = '<script src="static/js/jquery.min.js"></script>' 
+  jquery  = '<script src="static/js/jquery.min.js"></script>'
 }
 ```
 
@@ -124,9 +124,9 @@ return "view.html", {
 </html>
 ```
 
-#### Reserved Context Keys and Remarks
+#### 被保留的关键字
 
-It is adviced that you do not use these keys in your model tables:
+强烈建议不要在你的模型对象中使用以下属性名，这些属性名为保留的名称，如果模型中定义了这些东西，容易与框架内部的一些对象相互覆盖。
 
 * `___`, holds the compiled template, if set you need to use `{{context.___}}`
 * `context`, holds the current context, if set you need to use `{{context.context}}`
@@ -136,7 +136,7 @@ It is adviced that you do not use these keys in your model tables:
 * `template`, holds the template table, if set you need to use `{{context.template}}`
 * `render`, the function that renders a view, obviously ;-)
 
-You should also not `{(view.html)}` recursively:
+另外，注意不要递归包含视图本身 `{(view.html)}`，像这样:
 
 ##### Lua
 ```lua
@@ -148,11 +148,11 @@ return "view.html"
 {(view.html)}
 ```
 
-You can load templates from "sub-directories" as well with `{(syntax)}`:
+你也可以包含子目录下的视图文件:
 
 ##### view.html
 ```html
 {(users/list.html)}
 ```
-## details
-All template syntax is resty-template view syntax, you can find more details at [resty-template document](https://github.com/bungle/lua-resty-template/blob/master/README.md).
+## 其他
+通常情况下，上面介绍的这些语法已经够用了。如果想了解更详细的语法，可以参考 [resty-template document](https://github.com/bungle/lua-resty-template/blob/master/README.md)
