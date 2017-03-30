@@ -105,7 +105,7 @@ end
 * [校验](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/validation.md)
 * [特殊变量](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/special-variables.md)
 * [过滤器](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/filter.md)
-* 配置
+* [配置](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/settings.md)
 * 视图
 * [数据库访问](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/database-access.md)
 * [模块](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/nwf-module.md)
