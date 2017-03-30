@@ -43,6 +43,8 @@ do
     echo ./npl_packages/nwf/resources/demo/${line:2} www/${line:2} >> $dlst
 done
 cd "$cwd"
+echo "https://github.com/elvinzeng/nwf lib/so" >> $dlst
+echo "https://github.com/elvinzeng/nwf lib/dll" >> $dlst
 
 flst="$(pwd)/.nwf/upd.file.list"
 echo -n "" > $flst

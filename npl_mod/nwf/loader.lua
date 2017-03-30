@@ -7,6 +7,16 @@ desc: this file will load NPL web framework basic module and init components.
 
 print('npl web framework is loading...');
 
+-- add search path
+NPL.load("(gl)script/ide/System/os/os.lua");
+local os = commonlib.gettable("System.os");
+if(os.GetPlatform() == "linux") then
+    package.cpath = package.cpath .. ';./lib/so/?.so;'
+end
+if(os.GetPlatform() == "win32") then
+    package.cpath = package.cpath .. ';./lib/dll/?.dll;'
+end
+
 -- init
 print("init framework...");
 local nwf = commonlib.gettable("nwf");

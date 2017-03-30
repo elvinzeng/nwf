@@ -51,6 +51,14 @@ if [ ! -d "www" ]; then
 	mkdir "www"
 fi
 
+if [ ! -d "lib/so" ]; then
+	mkdir "lib/so" -p
+fi
+
+if [ ! -d "lib/dll" ]; then
+	mkdir "lib/dll" -p
+fi
+
 cp npl_packages/nwf/resources/lua/* www/
 cp npl_packages/nwf/resources/config/webserver.config.xml www/
 if [ ! -d "www/modules" ]; then
