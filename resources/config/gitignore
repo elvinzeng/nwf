@@ -55,7 +55,6 @@ build/Release
 
 # others
 *.rar
-*.dll
 www.tar.gz
 
 
