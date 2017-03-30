@@ -31,7 +31,6 @@ function nwf.registerFilter(filter)
     table.insert(filters, filter);
 end;
 
-print("load builtin modules...");
 NPL.load("nwf.utils.configUtil")
 NPL.load("nwf.utils.string_util")
 NPL.load("nwf.dispatcher")
