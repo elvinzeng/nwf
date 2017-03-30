@@ -83,7 +83,47 @@ function payService.test(tb, callback)
 		);
 end
 ```
+## modular mechanism  
+it is easy to reuse functional compoent of website.
+### list all available module
+```shell
+elvin@elvin-idreamtech ~/temp/nwf/demoproject $ ./nwf_module_manage.sh -a
 
+
+db_postgres
+数据库访问层api-postgres版
+-------
+helloworld
+A demo module for nwf.
+-------
+```
+### install
+```shell
+elvin@elvin-idreamtech ~/temp/nwf/demoproject $ ./nwf_module_manage.sh -i helloworld
+Already up-to-date.
+Already up-to-date.
+module 'helloworld' founded in repository 'nwf'
+start install module helloworld...
+copy files...
+executing www/modules/helloworld/install.sh
+helloworld module install...
+module helloworld installattion completed.
+```
+### other commands
+```shell
+elvin@elvin-idreamtech ~/temp/nwf/demoproject $ ./nwf_module_manage.sh
+options:
+    -i 'module name'
+        install module
+    -d 'module name'
+        delete module
+    -u 'module name'
+        reinstall module
+    -m
+        list all installed modules
+    -a
+        list all available modules
+```
 # How to use
 ## Create Project
 First, update you NPLRuntime to latest version and set up environment variables for NPL.  
