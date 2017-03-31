@@ -150,7 +150,7 @@ all_modules(){
 			done
 		fi
 	done
-	echo "============ [all available modules] end ============"
+	echo "============ [all available modules] end ========="
 }
 
 if [ $# -lt 1 ] ; then
