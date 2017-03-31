@@ -10,23 +10,4 @@ local config = commonlib.gettable("nwf.config");
 
 config.echoDebugInfo = true;  -- 是否在页面上显示调试信息
 
-------------------------------------------------------------------
---  这里加载web应用需要的公共模块
---	e.g. NPL.load("(gl)www/utils/stlutil.lua");
-------------------------------------------------------------------
-
-
-------------------------------------------------------------------
---  这里注册web应用的各种过滤器
-------------------------------------------------------------------
-
---[[
-    nwf.registerFilter(function(ctx, doNext)
-        local req = ctx.request;
-        local res = ctx.response;
-        doSomething();
-        doNext();
-        doSomething();
-    end);
-]]
 
