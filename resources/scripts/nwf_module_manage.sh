@@ -140,9 +140,9 @@ all_modules(){
 					continue
 				fi
 				if [ -d $modBaseDir ]; then
-					echo "模块名： $mod"
+					echo "name: $mod"
 					if [ -f "$modBaseDir/desc.txt" ]; then
-						echo "简介："
+						echo "introduction:"
 						cat "$modBaseDir/desc.txt"
 					fi
 					echo " "
