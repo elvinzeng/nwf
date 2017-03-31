@@ -125,7 +125,9 @@ all_modules(){
 	echo "updating repositories..."
 	for di in $(ls npl_packages)
 	do
-		echo $(cd "npl_packages/$di" && git pull)
+	    local cwd=$(pwd)
+		cd "npl_packages/$di" && git pull
+		cd $cwd
 	done
 	echo "============ [all available modules] ============"
 	for di in $(ls npl_packages)
