@@ -1,5 +1,5 @@
 # Introduction
-A simple and easy-to-use MVC framework for NPL Web application. If you are familiar with the jsp/servlet or asp.net mvc, you'll like this.  
+A simple and easy-to-use MVC framework for NPL Web application. If you are familiar with the jsp/servlet or asp.net mvc, you'll like it.  
 [Chinese document](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/index.md)
 ## return a view
 www/controller/DemoController.lua
