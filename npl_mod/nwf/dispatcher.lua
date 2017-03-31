@@ -395,3 +395,20 @@ local function handle(message)
 end
 
 dispatcher.handle = handle;
+
+-- render the view with specified model
+-- @param ctx: request context
+-- @param view: view
+-- @param model: model to render a view
+nwf.render = function(ctx, view, model)
+    if (not ctx) then
+        error("parameter ctx can not be nil.");
+    end
+    if (not view) then
+        error("parameter view can not be nil.");
+    end
+    if (not model) then
+        model = {};
+    end
+    render(ctx, view, model, true);
+end
