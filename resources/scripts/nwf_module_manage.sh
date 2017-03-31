@@ -110,8 +110,9 @@ installed_modules(){
 	do
 		modDir="www/modules/$di"
 		if [ -d $modDir ]; then
-			echo "$di"
+			echo "name: $di"
 			if [ -f "$modDir/desc.txt" ]; then
+			    echo "introduction:"
 				cat "$modDir/desc.txt"
 			fi
 			echo " "
