@@ -21,6 +21,7 @@ usage(){
 }
 
 init_repo(){
+    echo "init repositories..."
 	cat module_source_repos.conf| grep -v '#'|while read line
 	do
 		rn=$(echo $line | cut -d' ' -f1)
@@ -121,9 +122,14 @@ installed_modules(){
 
 all_modules(){
 	init_repo
+	echo "updating repositories..."
 	for di in $(ls npl_packages)
 	do
-		echo $(cd "npl_packages/$di" && git pull | grep -v 'Already up-to-date.')
+		echo $(cd "npl_packages/$di" && git pull)
+	done
+	echo "============ [all available modules] ============"
+	for di in $(ls npl_packages)
+	do
 		if [ -d npl_packages/$di/nwf_modules ]; then
 			for mod in $(ls npl_packages/$di/nwf_modules)
 			do
@@ -142,6 +148,7 @@ all_modules(){
 			done
 		fi
 	done
+	echo "============ [all available modules] end ============"
 }
 
 if [ $# -lt 1 ] ; then
