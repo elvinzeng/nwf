@@ -1,7 +1,7 @@
 # 概念
 过滤器是一个请求过滤函数，用于对请求进行一些特殊处理。类似于java的filter，.NET的http module，nodejs和django的middleware。
 # 注册一个过滤器
-通常我们会在www/mvc_settings.lua文件中注册过滤器，注册方法像下面这样：
+通常我们会在www/app_initialized.lua文件中注册过滤器，注册方法像下面这样：
 ```lua
 ------------------------------------------------------------------
 --  这里注册web应用的各种过滤器
