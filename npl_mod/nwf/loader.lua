@@ -23,6 +23,7 @@ local nwf = commonlib.gettable("nwf");
 nwf.controllers = {};
 nwf.validators = {};
 nwf.config = {};
+nwf.modules = {};
 nwf.template = require "nwf.resty.template";
 nwf.validation = require "nwf.resty.validation";
 -- init functions
@@ -72,15 +73,49 @@ NPL.load("(gl)www/mvc_settings.lua");
 
 -- load modules
 print("load nwf modules...");
+
+nwf.loadModule = function (path, name)
+    --print("nwf.loadModule('" .. path .. "', " .. name .. ")");
+    if (nwf.modules[name]) then
+        print("module '" .. name .. "' already loaded, skipped.");
+        return;
+    else
+        nwf.modules[name] = true;
+    end
+
+    local dependenciesConfigPath = path .. '/dependencies.conf';
+    if (ParaIO.DoesFileExist(dependenciesConfigPath, false)) then
+        local depConfig = io.open(dependenciesConfigPath);
+        for line in depConfig:lines() do
+            if (not nwf.modules[line]) then
+                print("load module '" .. line .."' as a dependency of module '"
+                        .. name .."'");
+                nwf.loadModule("www/modules/" .. line, line);
+            end
+        end
+        depConfig:close();
+    end
+
+    print("loading module '" .. name .. "'")
+    local initScriptPath = path .. '/init.lua';
+    local g = {};
+    setmetatable(g, {__index = _G})
+    local doInit = function()
+        NPL.load(initScriptPath);
+    end
+    setfenv(doInit, g);
+    doInit();
+end
+
 NPL.load("(gl)script/ide/Files.lua");
 lfs = commonlib.Files.GetLuaFileSystem();
 mod_pathes = {}
 mod_root_dir = "www/modules"
 for entry in lfs.dir(mod_root_dir) do
     if entry ~= '.' and entry ~= '..' then
-        local path = mod_root_dir .. '/' .. entry .. '/init.lua';
+        local path = mod_root_dir .. '/' .. entry;
         print("found module: " .. entry);
-        NPL.load(path);
+        nwf.loadModule(path, entry);
     end
 end
 
