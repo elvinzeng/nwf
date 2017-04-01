@@ -149,5 +149,3 @@ More details you can find in [wiki](https://github.com/elvinzeng/nwf/wiki)
 * [lua-resty-template](https://github.com/bungle/lua-resty-template) — Templating Engine
 * [lua-resty-validation](https://github.com/bungle/lua-resty-validation) — Validation and filtering library
 
-
-![](https://analytics.gelvt.com/170331.php?idsite=3&rec=1&action_name=nwf%E9%A1%B9%E7%9B%AE)
