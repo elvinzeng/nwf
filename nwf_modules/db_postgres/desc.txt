@@ -1,1 +1,2 @@
-﻿数据库访问层api-postgres版 -- links
+﻿数据库访问层api-postgres版
+author: links
