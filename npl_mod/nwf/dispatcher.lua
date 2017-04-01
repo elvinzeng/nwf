@@ -14,10 +14,14 @@ local dispatcher = nwf.dispatcher;
 local controller_not_found_message_template = [[<p>controller [%s] founded, but it seen not been registed as an controller.</p>
 you can register a controller like this:<br />
 <pre>
-local demoController = commonlib.gettable("nwf.controllers.DemoController");
+local controller = commonlib.gettable("nwf.controllers.%s");
 
-function demoController.sayHello(ctx)
-        return "test2", {message = "Hello, Elvin!"}; -- return www/view/test2.html
+function controller.%s(ctx)
+    if (ctx.validation.isEnabled) then
+        return "test", {message = "Hello, Elvin!"}; -- return www/view/test.html
+    else
+        return "raw", {content=ctx.validation.message};
+    end
 end
 </pre>
 ]];
@@ -25,9 +29,9 @@ end
 local validator_not_found_message_template = [[
 validator [%s] founded, but it seen not been registed as an validator.
 you can register a validator like this:
-local demoValidator = commonlib.gettable("nwf.validators.DemoValidator");
+local validator = commonlib.gettable("nwf.validators.%s");
 
-function demoValidator.testlogin(params)
+function validator.%s(params)
     -- local username = params.username;
     -- local password = params.password;
     -- do validation here
@@ -57,7 +61,7 @@ local function getAction(controllerPath, controllerName, func)
         NPL.load(controllerPath);
         if (not nwf.controllers[controllerName]) then
             return {status = 500, message = string.format(controller_not_found_message_template
-                , controllerPath)};
+                , controllerPath, controllerName, func)};
         end
 
     end
@@ -84,7 +88,7 @@ local function getValidator(validatorPath, validatorName, func)
         NPL.load(validatorPath);
         if (not nwf.validators[validatorName]) then
             return {message = string.format(validator_not_found_message_template
-                , validatorPath)};
+                , validatorPath, validatorName, func)};
         end
     end
     local validatorFunc = nwf.validators[validatorName][func];
@@ -155,13 +159,21 @@ local function dispatch(requestPath)
         local validatorName = string_util.upperFirstChar(ctrl) .. "Validator";
 
         local p = "";
+        local name_prifix = "";
         for i, v in ipairs(parts) do
             if (v ~= "" and i < #parts - 1) then
                 p = p .. v .. "/";
+                if (name_prifix == "") then
+                    name_prifix = v;
+                else
+                    name_prifix = name_prifix .. "_" .. v;
+                end
             end
         end
         controllerPath = controllerPath .. p .. controllerName .. ".lua";
         validatorPath = validatorPath .. p .. validatorName .. ".lua";
+        controllerName = name_prifix .. "_" .. controllerName;
+        validatorName = name_prifix .. "_" .. validatorName;
         return getAction(controllerPath, controllerName, func),
              getValidator(validatorPath, validatorName, func);
     end
