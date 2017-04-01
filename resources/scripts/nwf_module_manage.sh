@@ -18,6 +18,8 @@ usage(){
 	echo "        list all installed modules"
 	echo "    -a"
 	echo "        list all available modules"
+	echo "    -r"
+	echo "        update(reinstall) all modules"
 }
 
 init_repo(){
@@ -96,13 +98,35 @@ reinstall_mod(){
 	init_repo
 	for di in $(ls npl_packages)
 	do
-		echo $(cd "npl_packages/$di" && git pull)
+		local cwd=$(pwd)
+		cd "npl_packages/$di" && git pull
+		cd $cwd
 	done
 	echo deleting...
 	del_mod $mod
 	echo reinstall...
 	install_mod $mod
 	echo completed.
+}
+
+reinstall_all_mod(){
+	echo "updating repositories..."
+	for di in $(ls npl_packages)
+	do
+		local cwd=$(pwd)
+		cd "npl_packages/$di" && git pull
+		cd $cwd
+	done
+	echo "==============================="
+	for di in $(ls www/modules)
+	do
+		echo deleting...
+		del_mod $di
+		echo reinstall...
+		install_mod $di
+		echo completed.
+		echo "------------"
+	done
 }
 
 installed_modules(){
@@ -162,7 +186,7 @@ fi
 
 cd $(cd $(dirname $0) && pwd -P)
 
-while getopts ":i:d:u:ma" opt
+while getopts ":i:d:u:mar" opt
 do
         case $opt in
                 i ) init_repo
@@ -174,6 +198,7 @@ do
                 d ) del_mod $OPTARG ;;
                 u ) reinstall_mod $OPTARG ;;
 				m ) installed_modules ;;
+				r ) reinstall_all_mod ;;
 				a ) all_modules ;;
                 ? ) usage
                     exit 1;;
