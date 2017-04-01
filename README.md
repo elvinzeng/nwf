@@ -150,4 +150,4 @@ More details you can find in [wiki](https://github.com/elvinzeng/nwf/wiki)
 * [lua-resty-validation](https://github.com/bungle/lua-resty-validation) — Validation and filtering library
 
 
-<img src="https://analytics.gelvt.com/170331.php?idsite=3&rec=1&action_name=nwf%E9%A1%B9%E7%9B%AE%E9%A6%96%E9%A1%B5" style="border:0" alt="" />
+![](https://analytics.gelvt.com/170331.php?idsite=3&rec=1&action_name=nwf%E9%A1%B9%E7%9B%AE)
