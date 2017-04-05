@@ -101,7 +101,6 @@ local list = dpTemplate:queryList(sql);
 ### 关联查询
 mapper编写关联映射,这里要注意顺序  
 ```lua
-gradeMapper.prefix = "grade";	--主表字段的前缀
 gradeMapper.studentListForClass = {
 	primaryKey = "student_id",
 	student_id = {prop = "studentId", type = "field"},
@@ -130,7 +129,7 @@ gradeMapper.selectGrade = {
 };
 ```  
 编写sql语句需要遵循以下规范
-* 字段名格式：prefix_alias(前缀 + 下划线 + 别名),比如grade_name,注意同一个表的字段的前缀都是相同的 
+* 关联表查询的字段名不能相同
 * 必须查询每个表的主键
 ```lua
 local sql = sqlGenerator:select([[
