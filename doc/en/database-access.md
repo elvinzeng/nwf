@@ -130,7 +130,7 @@ gradeMapper.selectGrade = {
 };
 ```  
 #### Tips
-* set alias for field in this format [prefix_alias]
+* fields name or alias must be unique in one select
 * must query primary key for each table
 
 ```lua
