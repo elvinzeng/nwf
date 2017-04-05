@@ -2,28 +2,20 @@
 
 resultMapper.selMapper = nil;
 
-local function init(mapper)
-    mapper.arrays = commonlib.Array:new();
-    mapper.idSet = commonlib.UnorderedArraySet:new();
-    for _, v in pairs(mapper) do
-        if (type(v) == "table" and (v.type == "list" or v.type == "obj")) then
-            init(v.mapper);
-        end
-    end
-end
-
 function resultMapper:get()
     return self.selMapper.arrays;
 end
 
 function resultMapper:setResMapper(mapper)
     self.selMapper = mapper;
-    init(mapper);
 end
 
 function resultMapper:setValue(mapper, row, prefix, flag, isObj)
     local id = row[mapper.primaryKey];
     if (id) then
+        if (not mapper.idSet) then
+            mapper.idSet = commonlib.UnorderedArraySet:new();
+        end
         if (mapper.idSet:add(id)) then
             local item = {};
             for k, v in pairs(mapper) do
@@ -45,7 +37,9 @@ function resultMapper:setValue(mapper, row, prefix, flag, isObj)
                     row[k] = nil;
                 end
             end
-
+            if (not mapper.arrays) then
+                mapper.arrays = commonlib.Array:new();
+            end
             mapper.arrays:add(item);
 
             if (flag == true) then
