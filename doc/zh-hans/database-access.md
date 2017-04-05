@@ -101,7 +101,6 @@ local list = dpTemplate:queryList(sql);
 ### 关联查询
 mapper编写关联映射,这里要注意顺序  
 ```lua
-gradeMapper.prefix = "grade";	--主表字段的前缀
 gradeMapper.studentListForClass = {
 	primaryKey = "student_id",
 	student_id = {prop = "studentId", type = "field"},
