@@ -101,7 +101,6 @@ local list = dpTemplate:queryList(sql);
 ### Association
 Code association relation to mapper.lua  
 ```lua
-gradeMapper.prefix = "grade";	--main table prefix
 gradeMapper.studentListForClass = {
 	primaryKey = "student_id",
 	student_id = {prop = "studentId", type = "field"},
