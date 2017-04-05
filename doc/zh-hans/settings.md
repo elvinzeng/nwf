@@ -12,6 +12,8 @@ config.echoDebugInfo = true;  -- 是否在页面上显示调试信息
 | 配置项名           | 值 | 值的类型 | 描述信息 |
 | ------------------- | ------------------ | ------------ |------------ |
 | nwf.config.echoDebugInfo | true/false | boolean | 如果设置为true则表示将直接在网页中输出调试信息 |
+| nwf.config.redirectToErrorPage | true/false | boolean | 指示是否在发生错误时跳转到错误页（该配置项仅当nwf.config.echoDebugInfo设置为false时有效）|
+
 ## www/app_initialized.lua
 这个文件将会在框架完全加载完毕并且服务器启动之后执行，你可以在这个文件中加入应用启动之后需要执行的代码。  
 ### e.g.

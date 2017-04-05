@@ -1,5 +1,5 @@
 --[[
-title: NPL web framework loader 
+title: NPL web framework loader
 author: zenghui
 date: 2017/2/27
 desc: this file will load NPL web framework basic module and init components.
@@ -24,6 +24,7 @@ nwf.controllers = {};
 nwf.validators = {};
 nwf.config = {};
 nwf.modules = {};
+nwf.requestMappings = {};
 nwf.template = require "nwf.resty.template";
 nwf.validation = require "nwf.resty.validation";
 -- init functions
@@ -66,6 +67,14 @@ nwf.registerFilter(function(ctx, doNext)
 end);
 -- load session component(filter)
 NPL.load("nwf.session");
+
+-- error page controller
+nwf.registerRequestMapping("/404", function(ctx)
+    return "404";
+end);
+nwf.registerRequestMapping("/error", function(ctx)
+    return "error";
+end);
 
 -- load settings
 print("load framework settings...");

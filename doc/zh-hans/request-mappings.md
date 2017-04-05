@@ -10,3 +10,12 @@ nwf的请求映射规则遵守约定优于配置的规则，主要的映射规�
 | /aaa/bbb/ccc    | www/controller/aaa/BbbController.ccc(ctx); | /sys/config/update | www/controller/sys/ConfigController.update(ctx); |
 
 你可以嵌套任意层目录，框架会根据请求路径的最后两个部分来搜索controller。
+# 显示注册请求映射
+调用下面这个函数： 
+```lua
+-- register request mapping
+-- @param requestPath: 请求路径
+-- @param controllerFunc: 控制器的处理函数
+-- @param validatorFunc: 校验器的处理函数
+function nwf.registerRequestMapping(requestPath, controllerFunc, validatorFunc);
+```

@@ -104,6 +104,14 @@ end
 -- dispatch request
 -- @param: request path. like '/demo/sayHello'
 local function dispatch(requestPath)
+    if (nwf.requestMappings[requestPath]) then
+        return nwf.requestMappings[requestPath].action or {status = 500
+            , message = "controller already registered, but function of "
+                    .. requestPath .. " not found"}
+            , nwf.requestMappings[requestPath].validator or {status = 500
+            , message = "validator of " .. requestPath .. " not found"};
+    end
+
     local controllerPath = "www/controller/";
     local validatorPath = "www/validator/";
     local ctrl, func = false, false;
@@ -199,8 +207,12 @@ local function render(ctx, view, model, im)
             res:finish();
         else
             print("view cannot be nil or empty!");
-            res:status(500):send([[<html><body>server error</body></html>]]);
-            res:finish();
+            if (nwf.config.redirectToErrorPage) then
+                nwf.redirectToErrorPage(ctx)
+            else
+                res:status(500):send([[<html><body>server error</body></html>]]);
+                res:finish();
+            end
         end
     end
     if (type(view) == "table") then
@@ -222,9 +234,13 @@ local function render(ctx, view, model, im)
     else
         view = "www/view/" .. view .. ".html";
         if(not file_exists(view)) then
-            res:status(404):send(string.format([[<html><body>specified view not found: %s
+            if (nwf.config.redirectToErrorPage) then
+                nwf.redirectToErrorPage(ctx, 404)
+            else
+                res:status(404):send(string.format([[<html><body>specified view not found: %s
                 </body></html>]], view));
-            res:finish();
+                res:finish();
+            end
         end
         local resbody = "";
         local template = commonlib.gettable("nwf.template");
@@ -262,10 +278,18 @@ local function process(ctx)
                 , action.message));
             res:finish();
         else
-            res:status(action.status):send(string.format([[<html><body>%s</body></html>]]
-                , "server error"));
             print(action.message);
-            res:finish();
+            if (nwf.config.redirectToErrorPage) then
+                if (action.status == 404) then
+                    nwf.redirectToErrorPage(ctx, 404)
+                else
+                    nwf.redirectToErrorPage(ctx)
+                end
+            else
+                res:status(action.status):send(string.format([[<html><body>%s</body></html>]]
+                    , "server error"));
+                res:finish();
+            end
         end
     end
 
@@ -319,9 +343,13 @@ local function process(ctx)
             <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
             res:finish();
         else
-            res:status(500):send([[<html><head><title>error</title></head>
+            if (nwf.config.redirectToErrorPage) then
+                nwf.redirectToErrorPage(ctx)
+            else
+                res:status(500):send([[<html><head><title>error</title></head>
             <body>server error</body></html>]]);
-            res:finish();
+                res:finish();
+            end
         end
     end)
 end
@@ -364,9 +392,13 @@ local function doFilter(filters, i, ctx)
             <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
             res:finish();
         else
-            res:status(500):send([[<html><head><title>error</title></head>
+            if (nwf.config.redirectToErrorPage) then
+                nwf.redirectToErrorPage(ctx)
+            else
+                res:status(500):send([[<html><head><title>error</title></head>
             <body>server error</body></html>]]);
-            res:finish();
+                res:finish();
+            end
         end
     end)
 
@@ -423,4 +455,37 @@ nwf.render = function(ctx, view, model)
         model = {};
     end
     render(ctx, view, model, true);
+end
+
+-- @param ctx: request context
+-- @param code: error code
+function nwf.redirectToErrorPage(ctx, code)
+    if (not code) then
+        code = "error";
+    end
+    local view = "www/view/" .. tostring(code) .. ".html";
+
+    if(not file_exists(view)) then
+        if (nwf.config.echoDebugInfo) then
+            print("error: 404.html not found");
+            ctx.response:status(404):send(string.format([[<html><body>404.html not found</html>]]));
+            ctx.response:finish();
+        else
+            print("error: " .. code .. ".html not found");
+            ctx.response:status(500):send([[<html><head><title>error</title></head>
+        <body>server error</body></html>]]);
+            ctx.response:finish();
+        end
+    else
+        ctx.response:status(302):set_header("Location", "/" .. code);
+        ctx.response:send("");
+    end
+end
+
+-- register request mapping
+-- @param requestPath: request path
+-- @param controllerFunc: function of controller
+-- @param validatorFunc: function of validator
+function nwf.registerRequestMapping(requestPath, controllerFunc, validatorFunc)
+    nwf.requestMappings[requestPath] = {action = controllerFunc, validator = validatorFunc};
 end
