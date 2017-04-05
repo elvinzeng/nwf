@@ -130,7 +130,7 @@ gradeMapper.selectGrade = {
 };
 ```  
 编写sql语句需要遵循以下规范
-* 字段名格式：prefix_alias(前缀 + 下划线 + 别名),比如grade_name,注意同一个表的字段的前缀都是相同的 
+* 关联表查询的字段名不能相同
 * 必须查询每个表的主键
 ```lua
 local sql = sqlGenerator:select([[
