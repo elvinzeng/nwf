@@ -7,10 +7,11 @@ function resultMapper:get()
 end
 
 function resultMapper:setResMapper(mapper)
-    self.selMapper = mapper;
+    local copy = commonlib.copy(mapper);
+    self.selMapper = copy;
 end
 
-function resultMapper:setValue(mapper, row, prefix, flag, isObj)
+function resultMapper:setValue(mapper, row, flag, isObj)
     local id = row[mapper.primaryKey];
     if (id) then
         if (not mapper.idSet) then
@@ -20,7 +21,7 @@ function resultMapper:setValue(mapper, row, prefix, flag, isObj)
             local item = {};
             for k, v in pairs(mapper) do
                 if (type(v) == "table" and v.type == "list") then
-                    local _item = self:setValue(v.mapper, row, k, true, false);
+                    local _item = self:setValue(v.mapper, row, true, false);
                     if (_item) then
                         if (not item[v.prop or k]) then
                             item[v.prop or k] = commonlib.Array:new();
@@ -28,11 +29,11 @@ function resultMapper:setValue(mapper, row, prefix, flag, isObj)
                         item[v.prop or k]:add(_item);
                     end
                 elseif (type(v) == "table" and v.type == "obj") then
-                    item[k] = self:setValue(v.mapper, row, k, true, true);
+                    item[k] = self:setValue(v.mapper, row, true, true);
                 end
             end
             for k, v in pairs(row) do
-                if (prefix == k:match("(%w+)_")) then
+                if (mapper[k]) then
                     item[mapper[k].prop or k] = v;
                     row[k] = nil;
                 end
@@ -55,7 +56,7 @@ function resultMapper:setValue(mapper, row, prefix, flag, isObj)
             end
             for k, v in pairs(mapper) do
                 if (type(v) == "table" and v.type == "list") then
-                    local _item = self:setValue(v.mapper, row, k, true, false);
+                    local _item = self:setValue(v.mapper, row, true, false);
                     if (_item) then
                         if (not item[k]) then
                             item[k] = commonlib.Array:new();
@@ -63,7 +64,7 @@ function resultMapper:setValue(mapper, row, prefix, flag, isObj)
                         item[k]:add(_item);
                     end
                 elseif (type(v) == "table" and v.type == "obj") then
-                    item[k] = self:setValue(v.mapper, row, k, true, true);
+                    item[k] = self:setValue(v.mapper, row, true, true);
                 end
             end
             if (isObj) then
