@@ -9,5 +9,6 @@
 local config = commonlib.gettable("nwf.config");
 
 config.echoDebugInfo = true;  -- 是否在页面上显示调试信息
+config.redirectToErrorPage = false;  -- 是否在错误发生时自动跳转到404、500等页面
 
 
