@@ -483,8 +483,9 @@ function nwf.redirectToErrorPage(ctx, code)
 end
 
 -- register request mapping
--- @param ctx: request context
--- @param code: error code
+-- @param requestPath: request path
+-- @param controllerFunc: function of controller
+-- @param validatorFunc: function of validator
 function nwf.registerRequestMapping(requestPath, controllerFunc, validatorFunc)
     nwf.requestMappings[requestPath] = {action = controllerFunc, validator = validatorFunc};
 end
