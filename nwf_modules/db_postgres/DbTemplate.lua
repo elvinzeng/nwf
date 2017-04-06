@@ -10,51 +10,6 @@ method:
 		dbTemplate:queryList
 		dbTemplate:queryFirst
 
-	关联查询约定：
-	使用关联查询的时候需要注意的点
-		1.为每个表的字段设置别名
-			格式为[prefix]_[fieldName]
-				prefix：别名前缀 同一个表下的数据，prefix相同（可以理解为类名）
-				fieldName：字段名 自定义
-		2.必须查询每个表的id字段 命名为[prefix]_id
-		3.调用queryFirst 或 queryList时 传入所有别名前缀组成的table
-			{mainTbPrefix，fromTbPrefix1，fromTbPrefix2, ...}
-			其中第一个table的第一项必须为主表的别名前缀， 其他的为从表的别名前缀
-	e.g.
-	local sql = SELECT c.id as class_id,
-					c.name as class_name,
-					s.id as student_id,
-					s.name as student_name,
-					s.age as student_age,
-					s.class_id as student_classId ,
-					x.id as xxx_id,
-					x.name as xxx_name,
-					x.class_id as xxx_classId
-				FROM class c
-				LEFT JOIN student s ON s.class_id = c.id
-				LEFT JOIN xxx x ON x.class_id = c.id
-				WHERE c.id = 2;
-	local data = dbTemplate:queryFirst(sql, {"class","student","xxx"});
-
-	分页查询约定：
-		调用queryList时传入countSql，pageIndex，pageSize三个参数
-		传入的sql中的分页子句 LIMIT %d OFFSET %d
-
-		分页查询和关联查询的时候需要注意sql的写法
-	e.g.
-	local sql = SELECT c.id as class_id,
-					c.name as class_name,
-					s.id as student_id,
-					s.name as student_name,
-					s.age as student_age,
-					s.class_id as student_classId ,
-					x.id as xxx_id,
-					x.name as xxx_name,
-					x.class_id as xxx_classId
-				FROM (SELECT id, name FROM class LIMIT %d OFFSET %d) c
-				LEFT JOIN student s ON s.class_id = c.id
-				LEFT JOIN xxx x ON x.class_id = c.id;
-	local data = dbTemplate:queryList(sql, {"class","student","xxx"}, " select count(1) from class ", 1, 3);
 ]]
 
 local dbTemplate = commonlib.gettable("nwf.modules.db_postgres.dbTemplate");
@@ -66,77 +21,6 @@ local connectionManager = commonlib.gettable("nwf.modules.db_postgres.connection
 	@Param tbAliasPrefix 别名前缀组成的table
 	@Return array: 列表
 ]]
--- local function getListFromCursor(cursor, tbAliasPrefix)
--- 	local array = commonlib.Array:new();
--- 	if(tbAliasPrefix and #tbAliasPrefix > 1) then
--- 		local fromTbAliasPrefix = {};-- 从表前缀为key，存放从表的id的set为value的table
--- 		for k,v in pairs(tbAliasPrefix) do
--- 			if( k > 1) then
--- 				local set = commonlib.UnorderedArraySet:new();
--- 				fromTbAliasPrefix[v] = {idSet = set};
--- 			end
--- 		end
--- 		local mainIdSet = commonlib.UnorderedArraySet:new();
--- 		local mainTbAliasPrefix = tbAliasPrefix[1];
-
--- 		for row in function() return cursor:fetch({}, "a"); end do
--- 			local id = row[mainTbAliasPrefix.."_id"];
--- 			if(mainIdSet:add(id)) then
--- 				local item = {};
--- 				for prefix,content in pairs(fromTbAliasPrefix) do
--- 					content.idSet:clear();
--- 					local fromTbId = row[prefix.."_id"];
--- 					if(fromTbId) then
--- 						content.idSet:add(fromTbId);
--- 						local fromTbItemList = commonlib.Array:new();
--- 						local fromTbItem = {};
--- 						fromTbItemList:add(fromTbItem);
--- 						item[prefix] = fromTbItemList;
--- 					end
--- 				end
--- 				for k,v in pairs(row) do
--- 					local _prefix, _alias = k:match("(%w+)_([%w_]+)");
--- 					if(_prefix == mainTbAliasPrefix) then
--- 						item[_alias] = v;
--- 					else
--- 						for prefix,content in pairs(fromTbAliasPrefix) do
--- 							if(_prefix == prefix) then
--- 								local fromTbItemList = item[prefix];
--- 								local fromTbItem = fromTbItemList:first();
--- 								fromTbItem[_alias] = v;
--- 								break;
--- 							end
--- 						end
--- 					end
--- 				end
--- 				array:add(item);
--- 			else
--- 				local item = array:last();
--- 				for prefix,content in pairs(fromTbAliasPrefix) do
--- 					if(content.idSet:add(row[prefix.."_id"])) then
--- 						local fromTbItemList = item[prefix];
--- 						local fromTbItem = {};
--- 						for k,v in pairs(row) do
--- 							local _prefix, _alias = k:match("(%w+)_([%w_]+)");
--- 							if(_prefix == prefix) then
--- 								fromTbItem[_alias] = v;
--- 								row[k] = nil;
--- 							elseif(_prefix == mainTbAliasPrefix) then
--- 								row[k] = nil;
--- 							end
--- 						end
--- 						fromTbItemList:add(fromTbItem);
--- 					end
--- 				end
--- 			end
--- 		end
--- 	else
--- 		for row in function() return cursor:fetch({}, "a"); end do
--- 			array:add(row);
--- 		end
--- 	end
--- 	return array;
--- end
 
 local function getListFromCursor(cursor, mapper)
 	for row in function() return cursor:fetch({}, "a"); end do
@@ -145,11 +29,6 @@ local function getListFromCursor(cursor, mapper)
 	return mapper:get();
 end
 
--- function dbTemplate:test(sql, mapper)
--- 	local cursor = self.execute(sql);
--- 	local res = getListFromCursorTest(cursor, mapper);
--- 	return res;
--- end
 
 --[[
 	执行sql语句
