@@ -57,8 +57,8 @@ method:
 	local data = dbTemplate:queryList(sql, {"class","student","xxx"}, " select count(1) from class ", 1, 3);
 ]]
 
-local dbTemplate = commonlib.gettable("nwf.db.dbTemplate");
-local connectionManager = commonlib.gettable("nwf.db.connectionManager");
+local dbTemplate = commonlib.gettable("nwf.modules.db_postgres.dbTemplate");
+local connectionManager = commonlib.gettable("nwf.modules.db_postgres.connectionManager");
 
 --[[
 	将游标中的数据装进list并返回，支持关联查询

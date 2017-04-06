@@ -40,7 +40,7 @@ date: 2017/3/6
 					  :get();
 
 ]]
-local sqlGenerator = commonlib.inherit(nil,commonlib.gettable("nwf.db.sqlGenerator"));
+local sqlGenerator = commonlib.inherit(nil,commonlib.gettable("nwf.modules.db_postgres.sqlGenerator"));
 
 sqlGenerator.type = nil;
 sqlGenerator.TYPE_INSERT = "INSERT";
