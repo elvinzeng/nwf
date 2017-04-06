@@ -18,10 +18,9 @@ local connectionManager = commonlib.gettable("nwf.modules.db_postgres.connection
 --[[
 	将游标中的数据装进list并返回，支持关联查询
 	@Param cursor 游标对象
-	@Param tbAliasPrefix 别名前缀组成的table
+	@Param mapper 关联映射集
 	@Return array: 列表
 ]]
-
 local function getListFromCursor(cursor, mapper)
 	for row in function() return cursor:fetch({}, "a"); end do
 		mapper:setValue(mapper.selMapper, row, mapper.prefix);
