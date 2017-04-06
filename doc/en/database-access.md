@@ -18,7 +18,7 @@ Configure your db connection parameters in webserver.config.xml
 ## Create Mapper  
 Create `mapper.lua` for each table, like table `grade` to `GradeMapper.lua`
 ```lua
-local gradeMapper = commonlib.inherit(nwf.db.mapper, commonlib.gettable("mapper.gradeMapper"));
+local gradeMapper = commonlib.inherit(nwf.modules.db_postgres.mapper, commonlib.gettable("mapper.gradeMapper"));
 ```
 
 ## Generate SQL
@@ -36,7 +36,7 @@ then
 ```lua
 local tb = {gradeId="nextval('grade_id_seq')",gradeName="高一"};
 local entity = commonlib.gettable("mapper.gradeMapper").entity;
-local sqlGenerator = commonlib.gettable("nwf.db.sqlGenerator");
+local sqlGenerator = commonlib.gettable("nwf.modules.db_postgres.sqlGenerator");
 	
 local sql = sqlGenerator:insert(entity)
 			:value(tb)
@@ -57,7 +57,7 @@ Method `where(field, value, defValue)`,under the normal conditions that the fiel
 
 ##  Use DbTemplete
 ```lua
-local dbTemplate = commonlib.gettable("nwf.db.dbTemplate");
+local dbTemplate = commonlib.gettable("nwf.modules.db_postgres.dbTemplate");
 ```
 ### Basic Usage
 ```lua
