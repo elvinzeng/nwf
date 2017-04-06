@@ -1,4 +1,4 @@
-﻿local resultMapper = commonlib.inherit(nil, commonlib.gettable("nwf.db.mapper"));
+﻿local resultMapper = commonlib.inherit(nil, commonlib.gettable("nwf.modules.db_postgres.mapper"));
 
 resultMapper.selMapper = nil;
 

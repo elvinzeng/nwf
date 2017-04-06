@@ -4,7 +4,7 @@ author: links
 date: 2017/3/6
 ]]
 
-local connectionManager = commonlib.gettable("nwf.db.connectionManager");
+local connectionManager = commonlib.gettable("nwf.modules.db_postgres.connectionManager");
 local configUtil = commonlib.gettable("nwf.utils.configUtil");
 
 local driver = require("luasql.postgres");
