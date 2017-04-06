@@ -125,6 +125,9 @@ end, function(params)
     -- return validation result here;
 end);
 ```
+
+在模块中创建全局变量建议创建到`nwf.modules.moduleName`下。比如`nwf.modules.helloworld.xxx`、`nwf.modules.helloworld.constant`、`nwf.modules.helloworld.abc`。  
+
 模块根目录下的dependencies.conf文件是一个特殊文件。这是个纯文本文件，用于记录依赖的模块。格式为每个依赖模块的模块名占一行。UTF-8编码，换行符为unix风格。  
 注意：给模块取名的时候，需要选取一个全局唯一的名称，以避免出错。
 # 发布模块
