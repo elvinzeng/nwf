@@ -23,7 +23,8 @@ local nwf = commonlib.gettable("nwf");
 nwf.controllers = {};
 nwf.validators = {};
 nwf.config = {};
-nwf.modules = {};
+nwf.initializedModules = {};
+nwf.modules = {};  -- namespace for modules
 nwf.requestMappings = {};
 nwf.template = require "nwf.resty.template";
 nwf.validation = require "nwf.resty.validation";
@@ -85,18 +86,18 @@ print("load nwf modules...");
 
 nwf.loadModule = function (path, name)
     --print("nwf.loadModule('" .. path .. "', " .. name .. ")");
-    if (nwf.modules[name]) then
+    if (nwf.initializedModules[name]) then
         print("module '" .. name .. "' already loaded, skipped.");
         return;
     else
-        nwf.modules[name] = true;
+        nwf.initializedModules[name] = true;
     end
 
     local dependenciesConfigPath = path .. '/dependencies.conf';
     if (ParaIO.DoesFileExist(dependenciesConfigPath, false)) then
         local depConfig = io.open(dependenciesConfigPath);
         for line in depConfig:lines() do
-            if (not nwf.modules[line]) then
+            if (not nwf.initializedModules[line]) then
                 print("load module '" .. line .."' as a dependency of module '"
                         .. name .."'");
                 nwf.loadModule("www/modules/" .. line, line);
