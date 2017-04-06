@@ -19,3 +19,12 @@ nwf的请求映射规则遵守约定优于配置的规则，主要的映射规�
 -- @param validatorFunc: 校验器的处理函数
 function nwf.registerRequestMapping(requestPath, controllerFunc, validatorFunc);
 ```
+例子：  
+```lua
+nwf.registerRequestMapping("/aaa/bbb/ccc/ddd", function(ctx)
+    return "test", {message = "Hello, Elvin!"};
+end, function(params) 
+    -- do validation here
+    -- return validation result here;
+end);
+```
