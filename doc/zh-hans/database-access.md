@@ -18,7 +18,7 @@
 ## 创建Mapper  
 为每个表创建mapper.lua文件,比如grade表对应GradeMapper.lua  
 ```lua
-local gradeMapper = commonlib.inherit(nwf.db.mapper, commonlib.gettable("mapper.gradeMapper"));
+local gradeMapper = commonlib.inherit(nwf.modules.db_postgres.mapper, commonlib.gettable("mapper.gradeMapper"));
 ```
 ## 生成SQL脚本
 可以使用sqlGenerator生成一些简单的脚本,在生成INSERT或者UPDATE语句之前,需要在对应mapper中创建与数据库表映射的实体, 
@@ -36,7 +36,7 @@ then
 ```lua
 local tb = {gradeId="nextval('grade_id_seq')",gradeName="高一"};
 local entity = commonlib.gettable("mapper.gradeMapper").entity;
-local sqlGenerator = commonlib.gettable("nwf.db.sqlGenerator");
+local sqlGenerator = commonlib.gettable("nwf.modules.db_postgres.sqlGenerator");
 
 local sql = sqlGenerator:insert(entity)
 			:value(tb)
@@ -57,7 +57,7 @@ sql = sqlGenerator:select(" s.name , s.age ")
 其中where(field, value, defValue),一般情况下field传入条件的字段和比较符,比如 "id =","name LIKE",value为比较的值,方法内部会根据类型判断是否添加单引号,如果value为nil,则使用defValue,如果defValue也为nil,这条语句将不会被追加进sql,某些特殊情况不希望对value做处理,或者有一些复杂的子句想要拼上去的可以将field设为nil,value会直接被拼接上sql。_and 和 _or 方法同理。
 ##  使用 DbTemplete
 ```lua
-local dbTemplate = commonlib.gettable("nwf.db.dbTemplate");
+local dbTemplate = commonlib.gettable("nwf.modules.db_postgres.dbTemplate");
 ```
 ### 基本用法
 ```lua
