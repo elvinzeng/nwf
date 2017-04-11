@@ -1,10 +1,8 @@
---
--- init script for helloworld module
--- Author: elvin
--- Date: 17-3-24
--- Time: 10:46
--- desc: this script will be load at mvc framework loaded..
---
+--[[
+    DESC:init script for db_postgres module
+    Author: links
+    Date: 2017/3/6
+--]]
 
 print("db_postgres module init...");
 
