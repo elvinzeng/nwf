@@ -78,18 +78,37 @@ install_mod(){
 
 del_mod(){
 	mod=$1
-	modDir="www/modules/$mod"
-	if [ -d $modDir ]; then
-		echo "module '$mod' founded in '$modDir'"
-		if [ -f "$modDir/del.sh" ]; then
-			echo executing "$modDir/del.sh"
-			echo $(cd $modDir && bash ./del.sh)
-		fi
-		echo remove files...
-		echo $(cd www/modules && echo "remove dir $mod" && rm $mod -rf)
-		echo "done."
-	else
-		echo "module '$mod' can not found."
+	cancelFlag=0;
+	depm=""
+
+	for m in $(ls www/modules)
+	do
+	    if [ -e www/modules/$m/dependencies.conf ]; then
+	        count=$(grep "$mod" www/modules/$m/dependencies.conf | wc -l)
+	        if [ $count -gt 0 ]; then
+	            cancelFlag=1;
+	            depm="$m"
+	            break;
+	        fi
+	    fi
+	done
+
+    if [ $cancelFlag -ne 0 ]; then
+        echo "Module \"$mod\" cannot be uninstalled because module \"$depm\" is dependent on it."
+    else
+        modDir="www/modules/$mod"
+        if [ -d $modDir ]; then
+            echo "module '$mod' founded in '$modDir'"
+            if [ -f "$modDir/del.sh" ]; then
+                echo executing "$modDir/del.sh"
+                echo $(cd $modDir && bash ./del.sh)
+            fi
+            echo remove files...
+            echo $(cd www/modules && echo "remove dir $mod" && rm $mod -rf)
+            echo "done."
+        else
+            echo "module '$mod' can not found."
+        fi
 	fi
 }
 
