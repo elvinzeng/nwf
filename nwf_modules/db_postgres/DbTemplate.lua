@@ -83,9 +83,9 @@ function dbTemplate.executeWithTransaction(...)
 	local conn = connectionManager.getConnection();
 	conn:execute("BEGIN;");
 	local args = {...};
-	for i,v in ipairs(args) do
+	for _,v in ipairs(args) do
 		if(type(v) == "string") then
-			local res, err = conn:execute(v);
+			local _, err = conn:execute(v);
 			if(err) then
 				conn:execute("ROLLBACK;");
 				conn:commit();
@@ -109,22 +109,22 @@ end
 ]]
 function dbTemplate:queryList(sql, mapper, countSql, pageIndex, pageSize)
 	if( countSql == nil or pageIndex == nil or pageSize == nil) then
-		local cursor, err = self.execute(sql);
-		local _data = nil;
+		local cursor = self.execute(sql);
+		local _data;
 		if(cursor) then
 			local res = getListFromCursor(cursor, mapper);
-			if(not res:empty()) then
+			if(res and not res:empty()) then
 				_data = res;
 			end
 		end
-		return _data or {};
+		return _data;
 	elseif( pageIndex <= 0) then
 		assert(false, "pageIndex must be lager then 0");
 	elseif( pageSize <= 0) then
 		assert(false, "pageSize must be lager then 0");
 	else
 		local cursor, conn = self.executeWithReleaseCtrl(countSql, nil, false);
-		local _data = nil;
+		local _data;
 		if(cursor) then
 			local count = cursor:fetch({}, "a").count + 0;
 			if(count ~= 0) then
@@ -139,16 +139,16 @@ function dbTemplate:queryList(sql, mapper, countSql, pageIndex, pageSize)
 				local sql = string.format(sql, pageSize, (pageIndex - 1 ) * pageSize);
 				cursor = self.executeWithReleaseCtrl(sql, conn, true);
 				if(cursor) then
-					local list = nil;
+					local list;
 					local res = getListFromCursor(cursor, mapper);
-					if(not res:empty()) then
+					if(res and not res:empty()) then
 						list = res;
 					end
 					_data.list = list or {};
 				end
 			end
 		end
-		return _data or {};
+		return _data;
 	end
 end
 
@@ -159,15 +159,15 @@ end
 	@Return _data:数据
 ]]
 function dbTemplate:queryFirst(sql, mapper)
-	local cursor, err = self.execute(sql);
-	local _data = nil;
+	local cursor = self.execute(sql);
+	local _data;
 	if(cursor) then
 		if(mapper) then
 			local res = getListFromCursor(cursor, mapper);
-			_data = res:first();
+			_data = res and res:first();
 		else
 			_data = cursor:fetch({}, "a");
 		end
 	end
-	return _data or {};
+	return _data;
 end
