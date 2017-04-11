@@ -112,6 +112,23 @@ del_mod(){
 	fi
 }
 
+del_mod_force(){
+	mod=$1
+    modDir="www/modules/$mod"
+    if [ -d $modDir ]; then
+        echo "module '$mod' founded in '$modDir'"
+        if [ -f "$modDir/del.sh" ]; then
+            echo executing "$modDir/del.sh"
+            echo $(cd $modDir && bash ./del.sh)
+        fi
+        echo remove files...
+        echo $(cd www/modules && echo "remove dir $mod" && rm $mod -rf)
+        echo "done."
+    else
+        echo "module '$mod' can not found."
+    fi
+}
+
 reinstall_mod(){
 	mod=$1
 	init_repo
@@ -122,7 +139,7 @@ reinstall_mod(){
 		cd $cwd
 	done
 	echo deleting...
-	del_mod $mod
+	del_mod_force $mod
 	echo reinstall...
 	install_mod $mod
 	echo completed.
@@ -140,7 +157,7 @@ reinstall_all_mod(){
 	for di in $(ls www/modules)
 	do
 		echo deleting...
-		del_mod $di
+		del_mod_force $di
 		echo reinstall...
 		install_mod $di
 		echo completed.
