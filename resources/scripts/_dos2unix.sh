@@ -38,13 +38,13 @@ fi
 
 echo "converting file $filepath to UNIX format..."
 
-echo "removing BOM..."
+#echo "removing BOM..."
 sed -i 's/\xEF\xBB\xBF//' $filepath
 
-echo "converting newline style..."
+#echo "converting newline style..."
 sed -i 's/\r//g' $filepath
 
-echo "converting file encoding to UTF-8..."
+#echo "converting file encoding to UTF-8..."
 tempfile=$(mktemp)
 se="$(file $filepath --mime-encoding | awk '{print $2}')"
 skipEncodingConvertFlag=0
