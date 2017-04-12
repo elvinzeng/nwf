@@ -46,11 +46,11 @@ sed -i 's/\r//g' $filepath
 
 echo "converting file encoding to UTF-8..."
 tempfile=$(mktemp)
-se="$(file hehe.txt | awk '{print $2}')"
+se="$(file hehe.txt --mime-encoding | awk '{print $2}')"
 skipEncodingConvertFlag=0
-if [ "${se}x" = "ISO-8859x" ]; then
+if [ "${se}x" = "iso-8859-1x" ]; then
 	se="GBK"
-elif [ "${se}x" = "UTF-8x" ]; then
+elif [ "${se}x" = "utf-8x" ]; then
 	se="UTF-8"
 	skipEncodingConvertFlag=1
 elif [ "${se}x" = "ASCIIx" ]; then
