@@ -56,6 +56,8 @@ elif [ "${se}x" = "utf-8x" ]; then
 	skipEncodingConvertFlag=1
 elif [ "${se}x" = "ASCIIx" ]; then
 	enc="ASCII"
+elif [ "${se}x" = "us-asciix" ]; then
+	enc="us-ascii"
 else
 	echo "unknown file encoding \"$se\". file encoding convert skipped."
 	skipEncodingConvertFlag=1
