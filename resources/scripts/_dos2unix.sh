@@ -48,19 +48,20 @@ echo "converting file encoding to UTF-8..."
 tempfile=$(mktemp)
 se="$(file hehe.txt --mime-encoding | awk '{print $2}')"
 skipEncodingConvertFlag=0
+enc=""
 if [ "${se}x" = "iso-8859-1x" ]; then
-	se="GBK"
+	enc="GBK"
 elif [ "${se}x" = "utf-8x" ]; then
-	se="UTF-8"
+	enc="UTF-8"
 	skipEncodingConvertFlag=1
 elif [ "${se}x" = "ASCIIx" ]; then
-	se="ASCII"
+	enc="ASCII"
 else
 	echo "unknown file encoding. file encoding convert skipped."
 	skipEncodingConvertFlag=1
 fi
 if [ $skipEncodingConvertFlag -eq 0 ]; then
-	iconv -f "$se" -t UTF-8 "$filepath" > "$tempfile"
+	iconv -f "$enc" -t UTF-8 "$filepath" > "$tempfile"
 	cp "$tempfile" "$filepath"
 fi
 
