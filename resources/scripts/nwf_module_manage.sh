@@ -24,6 +24,7 @@ usage(){
 
 init_repo(){
     echo "init repositories..."
+    bash npl_packages/nwf/resources/scripts/_dos2unix.sh module_source_repos.conf
 	cat module_source_repos.conf| grep -v '#'|while read line
 	do
 		rn=$(echo $line | cut -d' ' -f1)
@@ -52,6 +53,7 @@ install_mod(){
 				else
 					if [ -f $modBaseDir/dependencies.conf ]; then
 						echo install dependencies of module $mod...
+						bash npl_packages/nwf/resources/scripts/_dos2unix.sh $modBaseDir/dependencies.conf
 						cat $modBaseDir/dependencies.conf | grep -v '^$'
 						local line=""
 						cat $modBaseDir/dependencies.conf | grep -v '^$' | while read line
@@ -88,6 +90,7 @@ del_mod(){
 	for m in $(ls www/modules)
 	do
 	    if [ -e www/modules/$m/dependencies.conf ]; then
+	        bash npl_packages/nwf/resources/scripts/_dos2unix.sh www/modules/$m/dependencies.conf
 	        count=$(grep "$mod" www/modules/$m/dependencies.conf | wc -l)
 	        if [ $count -gt 0 ]; then
 	            cancelFlag=1;
