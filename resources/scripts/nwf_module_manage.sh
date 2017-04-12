@@ -63,12 +63,12 @@ install_mod(){
 					echo copy files...
 					cp $modBaseDir www/modules/ -r
 					if [ -f "www/modules/$mod/install.sh" ]; then
-						echo executing "www/modules/$mod/install.sh"
 						local cwd="$(pwd)"
 						cd www/modules/$mod
 						bash npl_packages/nwf/resources/scripts/_dos2unix.sh install.sh
 						bash ./install.sh
 						cd "$cwd"
+						echo executing "www/modules/$mod/install.sh"
 					fi
 					echo "module $mod installattion completed."
 				fi
@@ -104,12 +104,12 @@ del_mod(){
         if [ -d $modDir ]; then
             echo "module '$mod' founded in '$modDir'"
             if [ -f "$modDir/del.sh" ]; then
-                echo executing "$modDir/del.sh"
                 local cwd="$(pwd)"
                 cd "$modDir"
                 bash npl_packages/nwf/resources/scripts/_dos2unix.sh del.sh
                 bash ./del.sh
                 cd "$cwd"
+                echo executing "$modDir/del.sh"
             fi
             echo remove files...
             echo $(cd www/modules && echo "remove dir $mod" && rm $mod -rf)
@@ -126,12 +126,12 @@ del_mod_force(){
     if [ -d $modDir ]; then
         echo "module '$mod' founded in '$modDir'"
         if [ -f "$modDir/del.sh" ]; then
-            echo executing "$modDir/del.sh"
             local cwd="$(pwd)"
             cd "$modDir"
             bash npl_packages/nwf/resources/scripts/_dos2unix.sh del.sh
             bash ./del.sh
             cd "$cwd"
+            echo executing "$modDir/del.sh"
         fi
         echo remove files...
         echo $(cd www/modules && echo "remove dir $mod" && rm $mod -rf)
