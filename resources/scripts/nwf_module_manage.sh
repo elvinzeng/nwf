@@ -65,7 +65,7 @@ install_mod(){
 					if [ -f "www/modules/$mod/install.sh" ]; then
 						local cwd="$(pwd)"
 						cd www/modules/$mod
-						bash npl_packages/nwf/resources/scripts/_dos2unix.sh install.sh
+						bash ${cwd}/npl_packages/nwf/resources/scripts/_dos2unix.sh install.sh
 						bash ./install.sh
 						cd "$cwd"
 						echo executing "www/modules/$mod/install.sh"
@@ -106,7 +106,7 @@ del_mod(){
             if [ -f "$modDir/del.sh" ]; then
                 local cwd="$(pwd)"
                 cd "$modDir"
-                bash npl_packages/nwf/resources/scripts/_dos2unix.sh del.sh
+                bash ${cwd}/npl_packages/nwf/resources/scripts/_dos2unix.sh del.sh
                 bash ./del.sh
                 cd "$cwd"
                 echo executing "$modDir/del.sh"
@@ -128,7 +128,7 @@ del_mod_force(){
         if [ -f "$modDir/del.sh" ]; then
             local cwd="$(pwd)"
             cd "$modDir"
-            bash npl_packages/nwf/resources/scripts/_dos2unix.sh del.sh
+            bash ${cwd}/npl_packages/nwf/resources/scripts/_dos2unix.sh del.sh
             bash ./del.sh
             cd "$cwd"
             echo executing "$modDir/del.sh"
