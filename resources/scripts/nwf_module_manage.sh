@@ -53,7 +53,7 @@ install_mod(){
 				else
 					if [ -f $modBaseDir/dependencies.conf ]; then
 						echo install dependencies of module $mod...
-						bash npl_packages/nwf/resources/scripts/_dos2unix.sh $modBaseDir/dependencies.conf
+						#bash npl_packages/nwf/resources/scripts/_dos2unix.sh $modBaseDir/dependencies.conf
 						cat $modBaseDir/dependencies.conf | grep -v '^$'
 						local line=""
 						cat $modBaseDir/dependencies.conf | grep -v '^$' | while read line
