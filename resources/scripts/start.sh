@@ -12,7 +12,7 @@ if [ $flag -gt 1 ]; then
 	exit;
 fi
 
-sh ./update_packages.sh
+# sh ./update_packages.sh
 
 if [ -f "www.tar.gz" ]; then
 	echo "source package 'www.tar.gz' exits, directory www will be replace.."
