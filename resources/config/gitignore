@@ -60,4 +60,5 @@ www.tar.gz
 # nwf temp file
 .nwf/upd.dir.list
 .nwf/upd.file.list
+.nwf/reinitialized_flag
 
