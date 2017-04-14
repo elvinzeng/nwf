@@ -21,13 +21,13 @@ API：
 nwf.registerRequestMapping(requestPath, controllerFunc, validatorFunc);
 
 -- register controller
--- @param requestPath: request path
--- @param controllerFunc: function of controller
+-- @param requestPath: 请求路径
+-- @param controllerFunc: 控制器的处理函数
 nwf.registerController(requestPath, controllerFunc);
 
 -- register validator
--- @param requestPath: request path
--- @param validatorFunc: function of validator
+-- @param requestPath: 请求路径
+-- @param validatorFunc: 校验器的处理函数
 nwf.registerValidator(requestPath, validatorFunc)
 ```
 
