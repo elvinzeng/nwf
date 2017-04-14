@@ -489,3 +489,38 @@ end
 function nwf.registerRequestMapping(requestPath, controllerFunc, validatorFunc)
     nwf.requestMappings[requestPath] = {action = controllerFunc, validator = validatorFunc};
 end
+
+-- register controller
+-- @param requestPath: request path
+-- @param controllerFunc: function of controller
+function nwf.registerController(requestPath, controllerFunc)
+    if (not nwf.requestMappings[requestPath]) then
+        nwf.requestMappings[requestPath] = {
+            action = controllerFunc,
+            validator = {
+                message = string.format("validator of '%s' not registered."
+                    , requestPath)
+            }
+        };
+    else
+        nwf.requestMappings[requestPath].action = controllerFunc;
+    end
+end
+
+-- register validator
+-- @param requestPath: request path
+-- @param validatorFunc: function of validator
+function nwf.registerValidator(requestPath, validatorFunc)
+    if (not nwf.requestMappings[requestPath]) then
+        nwf.requestMappings[requestPath] = {
+            action = {
+                status = 404,
+                message = string.format("controller of '%s' not registered."
+                    , requestPath)
+            },
+            validator = validatorFunc
+        };
+    else
+        nwf.requestMappings[requestPath].validator = validatorFunc;
+    end
+end
