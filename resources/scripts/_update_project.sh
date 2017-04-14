@@ -114,5 +114,8 @@ bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh npl_packages
 bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh ".nwf"
 bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh ".gitmodules"
 bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh ".gitignore"
+bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "restart_debug.sh"
+bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "shutdown.sh"
+bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "start.sh"
 
 echo project updated.
