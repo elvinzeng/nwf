@@ -118,4 +118,8 @@ bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "restart_debug.sh"
 bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "shutdown.sh"
 bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "start.sh"
 
+if [ -f ".nwf/reinitialized_flag" ]; then
+    bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "reinitialize.sh"
+fi
+
 echo project updated.
