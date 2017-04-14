@@ -54,10 +54,10 @@ end);
 # 在控制器或者校验器脚本文件中显式注册
 默认情况下，控制器和校验器脚本文件会在第一个请求到来的时候加载。
 这意味着默认情况下在校验器或者控制器脚本文件中显式注册请求映射的功能是不支持的。
-如果你需要在控制器或者校验器脚本文件中显式注册控制器、校验器的功能，那么你需要安装模块"preload_controller_mod"。
+如果你需要在控制器或者校验器脚本文件中显式注册控制器、校验器的功能，那么你需要安装[模块](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/nwf-module.md)"preload_controller_mod"。
 
 ```shell
 $ ./nwf_module_manage.sh -i preload_controller_mod
 ```
 
-这个模块将会在网站启动的时候扫描项目文件并自动预加载所有的控制器和校验器。
+这个[模块](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/nwf-module.md)将会在网站启动的时候扫描项目文件并自动预加载所有的控制器和校验器。
