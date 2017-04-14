@@ -40,7 +40,7 @@ date: 2017/3/6
 					  :get();
 
 ]]
-local sqlGenerator = commonlib.inherit(nil,commonlib.gettable("nwf.modules.db_postgres.sqlGenerator"));
+local sqlGenerator = commonlib.inherit(nil, commonlib.gettable("nwf.modules.db_postgres.sqlGenerator"));
 
 sqlGenerator.type = nil;
 sqlGenerator.TYPE_INSERT = "INSERT";
@@ -48,14 +48,44 @@ sqlGenerator.TYPE_UPDATE = "UPDATE";
 sqlGenerator.TYPE_DELETE = "DELETE";
 sqlGenerator.TYPE_SELECT = "SELECT";
 
-local function handleValue(value, defValue)
-	if(value) then
-		local type = type(value);
-		if(type ~= "number" and type ~= "boolean" and not string.match(value, "%w-%([%'%s]-[%w_]*[%'%s]-%)")) then
-			value = "'"..value.."'";
-		end
-	end
-	return value or defValue;
+local function handleValue(value)
+    local res;
+    if (value) then
+        local type = type(value);
+        if (type == "table") then
+            res = "";
+            for _, v in pairs(value) do
+                local temp = handleValue(v);
+                if (temp) then
+                    res = res .. "," .. temp;
+                end
+            end
+            res = string.sub(res, 2);
+        elseif (type ~= "number" and type ~= "boolean" and not string.match(value, "%w-%([%'%s]-[%w_]*[%'%s]-%)")) then
+            res = "'" .. value .. "'";
+        else
+            res = value;
+        end
+    end
+    return res;
+end
+
+local function handleFiledValue(field, value)
+    if (field) then
+        if (string.match(field, "%?")) then
+            local v = value;
+            if (type(value) == "table") then
+                v = handleValue(value);
+            end
+            if (v) then
+                value = string.gsub(field, "%?", v);
+                field = "";
+            end
+        else
+            value = handleValue(value);
+        end
+    end
+    return field or "", value;
 end
 
 --[[
@@ -64,12 +94,12 @@ end
 	@Return newInstance
 ]]
 function sqlGenerator:insert(tbEntity)
-	local newInstance = self:new();
-	newInstance.type = sqlGenerator.TYPE_INSERT;
-	newInstance.tbEntity = tbEntity;
-	newInstance.fields = {};
-	newInstance.values = {};
-	return newInstance;
+    local newInstance = self:new();
+    newInstance.type = sqlGenerator.TYPE_INSERT;
+    newInstance.tbEntity = tbEntity;
+    newInstance.fields = {};
+    newInstance.values = {};
+    return newInstance;
 end
 
 --[[
@@ -78,12 +108,12 @@ end
 	@Return newInstance
 ]]
 function sqlGenerator:update(tbEntity)
-	local newInstance = self:new();
-	newInstance.type = sqlGenerator.TYPE_UPDATE;
-	newInstance.tbEntity = tbEntity;
-	newInstance.content = {};
-	newInstance.whereStr = "";
-	return newInstance;
+    local newInstance = self:new();
+    newInstance.type = sqlGenerator.TYPE_UPDATE;
+    newInstance.tbEntity = tbEntity;
+    newInstance.content = {};
+    newInstance.whereStr = "";
+    return newInstance;
 end
 
 --[[
@@ -92,11 +122,11 @@ end
 	@Return newInstance
 ]]
 function sqlGenerator:delete(tbName)
-	local newInstance = self:new();
-	newInstance.type = sqlGenerator.TYPE_DELETE;
-	newInstance.tbName = tbName;
-	newInstance.whereStr = "";
-	return newInstance;
+    local newInstance = self:new();
+    newInstance.type = sqlGenerator.TYPE_DELETE;
+    newInstance.tbName = tbName;
+    newInstance.whereStr = "";
+    return newInstance;
 end
 
 --[[
@@ -105,11 +135,12 @@ end
 	@Return newInstance
 ]]
 function sqlGenerator:select(fields)
-	local newInstance = self:new();
-	newInstance.type = sqlGenerator.TYPE_SELECT;
-	newInstance.sql = "SELECT "..fields;
-	newInstance.whereStr = "";
-	return newInstance;
+    local newInstance = self:new();
+    newInstance.type = sqlGenerator.TYPE_SELECT;
+    newInstance.sql = "SELECT ? ";
+    newInstance.whereStr = "";
+    newInstance.fields = fields;
+    return newInstance;
 end
 
 --[[
@@ -118,14 +149,14 @@ end
 	@Return self
 ]]
 function sqlGenerator:append(content)
-	if(self.type == sqlGenerator.TYPE_SELECT) then
-		if(self.whereStr ~= "") then
-			self.sql = self.sql.." "..self.whereStr;
-			self.whereStr = "";
-		end
-		self.sql = self.sql.." "..content;
-	end
-	return self;
+    if (self.type == sqlGenerator.TYPE_SELECT) then
+        if (self.whereStr ~= "") then
+            self.sql = self.sql .. " " .. self.whereStr;
+            self.whereStr = "";
+        end
+        self.sql = self.sql .. " " .. content;
+    end
+    return self;
 end
 
 --[[
@@ -134,120 +165,121 @@ end
 	@Return self
 ]]
 function sqlGenerator:value(tb)
-	if(self.type == sqlGenerator.TYPE_INSERT) then
-		for k,v in pairs(self.tbEntity.fields) do
-			local value = tb[k] or tb[v.prop];
-			if(v.notNil and value == nil) then
-				local prop = v.prop or k;
-				assert(false,prop.." can not be nil");
-			end
-			local value = handleValue(value);
-			if(value) then
-				table.insert(self.fields, k);
-				table.insert(self.values, value);
-			end
-		end
-	elseif(self.type == sqlGenerator.TYPE_UPDATE) then
-		for k, v in pairs(self.tbEntity.fields) do
-			local value = tb[k] or tb[v.prop];
-			if(not v.isPrimaryKey)then
-				local value = handleValue(value);
-				if(value) then
-					self.content[k] = value;
-				end
-			end
-		end
-	end
-	return self;
+    if (self.type == sqlGenerator.TYPE_INSERT) then
+        for k, v in pairs(self.tbEntity.fields) do
+            local value = tb[k] or tb[v.prop];
+            if (v.notNil and value == nil) then
+                local prop = v.prop or k;
+                assert(false, prop .. " can not be nil");
+            end
+            local value = handleValue(value);
+            if (value) then
+                table.insert(self.fields, k);
+                table.insert(self.values, value);
+            end
+        end
+    elseif (self.type == sqlGenerator.TYPE_UPDATE) then
+        for k, v in pairs(self.tbEntity.fields) do
+            local value = tb[k] or tb[v.prop];
+            if (not v.isPrimaryKey) then
+                local value = handleValue(value);
+                if (value) then
+                    self.content[k] = value;
+                end
+            end
+        end
+    end
+    return self;
 end
 
 --[[
 	追加where子句，只调一次即可
 	@Param field 查询字段 可为nil , 为空时直接使用value作为拼接的内容
-	@Param value 查询条件 field 不为nil时， value会根据类型自动添加转换，类似string型的会加上''
-	@Param defValue 如果value为nil时使用defValue,如果defValue也为nil，那这条语句不会被拼接上去
+	@Param value 查询条件 field 不为nil时，value会根据类型自动添加转换，类似string型的会加上'',如果value为nil时,那这条语句不会被拼接上去
 	@Return self
 ]]
-function sqlGenerator:where(field, value, defValue)
-	if(self.whereStr == "") then
-		if(field) then
-			value = handleValue(value, defValue);
-		else
-			field = "";
-		end
-		if(value) then
-			self.whereStr = "WHERE "..field.." "..value;
-		else
-			self.whereStr = "WHERE 1 = 1";
-		end
-	end
-	return self;
+function sqlGenerator:where(field, value)
+    if (self.whereStr == "") then
+        field, value = handleFiledValue(field, value);
+        if (value) then
+            self.whereStr = "WHERE " .. field .. " " .. value;
+        else
+            self.whereStr = "WHERE 1 = 1";
+        end
+    end
+    return self;
 end
 
 --[[
 	追加and子句,在where子句之后调用才有效
 	@Param field 查询字段 可为nil , 为空时直接使用value作为拼接的内容
-	@Param value 查询条件 field 不为nil时， value会根据类型自动添加转换，类似string型的会加上''
-	@Param defValue 如果value为nil时使用defValue
+	@Param value 查询条件 field 不为nil时， value会根据类型自动添加转换，类似string型的会加上'',如果value为nil时,那这条语句不会被拼接上去
 	@Return self
 ]]
-function sqlGenerator:_and(field, value, defValue)
-	if(self.type ~= sqlGenerator.TYPE_INSERT) then
-		if(field) then
-			value = handleValue(value, defValue);
-		else
-			field = "";
-		end
-		if(value and self.whereStr ~= "") then
-			self.whereStr = self.whereStr.." AND "..field.." "..value;
-		end
-	end
-	return self;
+function sqlGenerator:_and(field, value)
+    if (self.type ~= sqlGenerator.TYPE_INSERT) then
+        field, value = handleFiledValue(field, value);
+        if (value and self.whereStr ~= "") then
+            self.whereStr = self.whereStr .. " AND " .. field .. " " .. value;
+        end
+    end
+    return self;
 end
 
 --[[
 	追加or子句,在where子句之后调用才有效
 	@Param field 查询字段 可为nil , 为空时直接使用value作为拼接的内容
-	@Param value 查询条件 field 不为nil时， value会根据类型自动添加转换，类似string型的会加上''
-	@Param defValue 如果value为nil时使用defValue
+	@Param value 查询条件 field 不为nil时， value会根据类型自动添加转换，类似string型的会加上'',如果value为nil时,那这条语句不会被拼接上去
 	@Return self
 ]]
-function sqlGenerator:_or(field, value, defValue)
-	if(field) then
-		value = handleValue(value, defValue);
-	else
-		field = "";
-	end
-	if(value and self.whereStr ~= "") then
-		self.whereStr = self.whereStr.." OR "..field.." "..value;
-	end
-	return self;
+function sqlGenerator:_or(field, value)
+    field, value = handleFiledValue(field, value);
+    if (value and self.whereStr ~= "") then
+        self.whereStr = self.whereStr .. " OR " .. field .. " " .. value;
+    end
+    return self;
+end
+
+function sqlGenerator:limit()
+    if (self.type == sqlGenerator.TYPE_SELECT) then
+        self.limitSql = "LIMIT %d OFFSET %d";
+    end
+    return self;
+end
+
+function sqlGenerator:orderBy(field)
+    if (self.type == sqlGenerator.TYPE_SELECT) then
+        self.orderBySql = "ORDER BY "..field;
+    end
+    return self;
 end
 
 --[[
 	获取最终结果
 ]]
 function sqlGenerator:get()
-	if(self.type == sqlGenerator.TYPE_INSERT) then
-		local sql = "INSERT INTO ";
-		local fieldStr = table.concat(self.fields,",");
-		local valueStr = table.concat(self.values,",");
-		return sql..self.tbEntity.tbName.." ("..fieldStr..") VALUES ("..valueStr..")";
-	elseif(self.type == sqlGenerator.TYPE_UPDATE) then
-		local sql = "UPDATE "
-		local fieldStr = "";
-		for k,v in pairs(self.content) do
-			fieldStr = fieldStr..", "..k..'='..v;
-		end
-		fieldStr = string.sub(fieldStr,2);
-		return sql..self.tbEntity.tbName.." SET "..fieldStr.." "..self.whereStr;
-	elseif(self.type == sqlGenerator.TYPE_DELETE) then
-		local sql = "DELETE FROM ";
-		return sql..self.tbName.." "..self.whereStr;
-	elseif(self.type == sqlGenerator.TYPE_SELECT) then
-		if(self.whereStr ~= "") then
-			self.sql = self.sql.." "..self.whereStr;
-		end
-		return self.sql;
-	end
+    if (self.type == sqlGenerator.TYPE_INSERT) then
+        local sql = "INSERT INTO ";
+        local fieldStr = table.concat(self.fields, ",");
+        local valueStr = table.concat(self.values, ",");
+        return sql .. self.tbEntity.tbName .. " (" .. fieldStr .. ") VALUES (" .. valueStr .. ")";
+    elseif (self.type == sqlGenerator.TYPE_UPDATE) then
+        local sql = "UPDATE "
+        local fieldStr = "";
+        for k, v in pairs(self.content) do
+            fieldStr = fieldStr .. ", " .. k .. '=' .. v;
+        end
+        fieldStr = string.sub(fieldStr, 2);
+        return sql .. self.tbEntity.tbName .. " SET " .. fieldStr .. " " .. self.whereStr;
+    elseif (self.type == sqlGenerator.TYPE_DELETE) then
+        local sql = "DELETE FROM ";
+        return sql .. self.tbName .. " " .. self.whereStr;
+    elseif (self.type == sqlGenerator.TYPE_SELECT) then
+        if (self.whereStr ~= "") then
+            self.sql = self.sql .. " " .. self.whereStr;
+        end
+        local sql = string.gsub(self.sql, "%?", self.fields);
+        local countSql = string.gsub(self.sql, "%?", "COUNT(1)")
+        return sql.." "..(self.orderBySql or "").." "..(self.limitSql or ""), countSql;
+    end
 end
