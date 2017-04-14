@@ -112,5 +112,7 @@ done
 
 bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh npl_packages
 bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh ".nwf"
+bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh ".gitmodules"
+bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh ".gitignore"
 
 echo project updated.
