@@ -104,9 +104,16 @@ do
             echo "file $tf already exist, but has been modified by hand, skipped."
         fi
     else
-        cp $sf $tf
-        md5sum $tf >> .nwf/md5sum
-        echo "file $tf does not exist, automatically copied."
+        sf="${sf#'./'}"
+        sflen=${#sf}
+        sfprefix="${sf:0:32}"
+        if [ $sflen -ge 32 -a "${sfprefix}x" = "npl_packages/nwf/resources/demo/x" ]; then
+            echo "file $tf removed by programer, but it is a demo file, skipped."
+        else
+            cp $sf $tf
+            md5sum $tf >> .nwf/md5sum
+            echo "file $tf does not exist, automatically copied."
+        fi
     fi
 done
 
