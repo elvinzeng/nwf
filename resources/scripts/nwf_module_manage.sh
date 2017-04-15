@@ -34,10 +34,10 @@ init_repo(){
 		if [ ! -d "npl_packages/$rn" ]; then
 			echo "repository $rn doesn't exist, importing..."
 			git submodule add "$rl" "npl_packages/$rn"
-			cd "npl_packages/$rn"
-            git checkout "${rb:-master}"
-            cd "$cwd"
 		fi
+		cd "npl_packages/$rn"
+        git checkout "${rb:-master}"
+        cd "$cwd"
 	done
 }
 
