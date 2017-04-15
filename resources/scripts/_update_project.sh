@@ -150,7 +150,4 @@ echo "reformating '.nwf/md5sum'..."
 cat .nwf/md5sum | sed 's/*//' | awk '{print $1" "$2}' | uniq | sort > .nwf/md5sum.formated
 mv .nwf/md5sum.formated .nwf/md5sum
 
-echo "reconfig git..."
-git config core.autocrlf input
-
 echo project updated.
