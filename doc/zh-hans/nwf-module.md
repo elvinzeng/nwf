@@ -63,7 +63,16 @@ nwfModules git@git.idreamtech.com.cn:rddept/nwfModules.git
 nwfm git@git.xxxx.com:rddept/nwfm.git
 ```
 你可以添加多个模块源，为此仅需要给配置文件添加多行配置。每一行对应一个模块源。每一行分为两个字段，以一个空格分割。第一个字段为仓库名，第二个字段为仓库的路径。如果该行以井号打头，则为注释行。仓库名将会决定仓库被导入项目之后在项目中的目录名，这个是不允许重复的，通常情况下建议仓库名保持与仓库路径中的名称一致。为了避免出错，注意文件换行符使用unix风格，编码为UTF-8。如果是在windows下操作，请使用notepad++之类的程序员用的文本编辑器去编辑配置文件，不要使用Windows自带的记事本。  
-然后，再次运行脚本就能查看新的数据了。
+然后，再次运行脚本就能查看新的数据了。  
+
+除此之外，每个配置行还可以有第三个字段。第三个字段为可选字段，用于指定模块源仓库的分支。如果不指定，则默认为master分支。  
+
+```shell
+elvin@elvin-idreamtech ~/temp/nwf/demoproject $ cat module_source_repos.conf
+nwfModules git@git.idreamtech.com.cn:rddept/nwfModules.git dev
+nwfm git@git.xxxx.com:rddept/nwfm.git dev
+```
+
 # 模块编写
 首先，创建好一个nwf的应用。然后，在"www/modules"目录下创建一个以模块名命名的目录。这里以helloworld模块为例。www/modules/目录的文件结构如下：  
 <pre>
