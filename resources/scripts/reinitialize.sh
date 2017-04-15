@@ -26,6 +26,22 @@ if [ ! -f ".nwf/reinitialized_flag" ]; then
 		cd "$PROJECT_BASE_DIR"
 	done
 
+	echo "init modules sources..."
+    bash npl_packages/nwf/resources/scripts/_dos2unix.sh module_source_repos.conf
+	cat module_source_repos.conf| grep -v '#'|while read line
+	do
+		rn=$(echo $line | cut -d' ' -f1)
+		rl=$(echo $line | cut -d' ' -f2)
+		rb=$(echo $line | cut -d' ' -f3)
+		if [ ! -d "npl_packages/$rn" ]; then
+			echo "repository $rn doesn't exist, importing..."
+			git submodule add "$rl" "npl_packages/$rn"
+		fi
+		cd "npl_packages/$rn"
+        git checkout "${rb:-master}"
+        cd "$PROJECT_BASE_DIR"
+	done
+
     echo "do not run reinitialize script again! project already reinitialized at: $(date '+%F %T')" > .nwf/reinitialized_flag
     echo "reinitialize completed."
 else
