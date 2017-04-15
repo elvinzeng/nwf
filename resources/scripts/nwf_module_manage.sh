@@ -246,9 +246,12 @@ while getopts ":i:d:u:mar" opt
 do
         case $opt in
                 i ) init_repo
+                    cwd="$(pwd)"
                     for di in $(ls npl_packages)
                     do
-                        echo $(cd "npl_packages/$di" && git pull)
+                        cd "npl_packages/$di"
+                        git pull
+                        cd "$cwd"
                     done
                     install_mod $OPTARG ;;
                 d ) del_mod $OPTARG ;;
