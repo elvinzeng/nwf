@@ -24,14 +24,19 @@ usage(){
 
 init_repo(){
     echo "init repositories..."
+    cwd=$(pwd)
     bash npl_packages/nwf/resources/scripts/_dos2unix.sh module_source_repos.conf
 	cat module_source_repos.conf| grep -v '#'|while read line
 	do
 		rn=$(echo $line | cut -d' ' -f1)
 		rl=$(echo $line | cut -d' ' -f2)
+		rb=$(echo $line | cut -d' ' -f3)
 		if [ ! -d "npl_packages/$rn" ]; then
 			echo "repository $rn doesn't exist, importing..."
 			git submodule add "$rl" "npl_packages/$rn"
+			cd "npl_packages/$rn"
+            git checkout "${rb:-master}"
+            cd "$cwd"
 		fi
 	done
 }
