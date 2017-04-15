@@ -8,6 +8,7 @@
 #####################################################################################
 
 echo updating project...
+PROJECT_BASE_DIR="$(pwd)"
 
 get_hash(){
     f=$1
@@ -117,6 +118,7 @@ do
     fi
 done
 
+echo "hide irrelevant files..."
 bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh npl_packages
 bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh ".nwf"
 bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh ".gitmodules"
@@ -124,9 +126,24 @@ bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh ".gitignore"
 bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "restart_debug.sh"
 bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "shutdown.sh"
 bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "start.sh"
-
 if [ -f ".nwf/reinitialized_flag" ]; then
     bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "reinitialize.sh"
 fi
+
+echo "init modules sources..."
+bash npl_packages/nwf/resources/scripts/_dos2unix.sh module_source_repos.conf
+cat module_source_repos.conf| grep -v '#'|while read line
+do
+    rn=$(echo $line | cut -d' ' -f1)
+    rl=$(echo $line | cut -d' ' -f2)
+    rb=$(echo $line | cut -d' ' -f3)
+    if [ ! -d "npl_packages/$rn" ]; then
+        echo "repository $rn doesn't exist, importing..."
+        git submodule add "$rl" "npl_packages/$rn"
+    fi
+    cd "npl_packages/$rn"
+    git checkout "${rb:-master}"
+    cd "$PROJECT_BASE_DIR"
+done
 
 echo project updated.
