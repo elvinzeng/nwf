@@ -20,6 +20,8 @@ usage(){
 	echo "        list all available modules"
 	echo "    -r"
 	echo "        update(reinstall) all modules"
+	echo "    -I"
+	echo "        install all modules specified by dependencies.conf"
 }
 
 init_repo(){
@@ -235,14 +237,37 @@ all_modules(){
 	echo "============ [all available modules] end ========="
 }
 
+install_dependencies(){
+    if [ ! -f "dependencies.conf" ]; then
+        echo "dependencies config file of project 'dependencies.conf' not found."
+        echo "you should put dependencies config file 'dependencies.conf' on project root dir."
+        exit 1;
+    fi
+    init_repo
+    for di in $(ls npl_packages)
+    do
+        cd "npl_packages/$di"
+        git pull
+        cd "$PROJECT_BASE_DIR"
+    done
+    cd "$PROJECT_BASE_DIR"
+    echo "installing dependencies specified by dependencies.conf..."
+    cat dependencies.conf | grep -v '^$' | while read line
+    do
+        install_mod $line
+    done
+    echo "dependencies installation completed."
+}
+
 if [ $# -lt 1 ] ; then
 	usage
 	exit 1;
 fi
 
 cd $(cd $(dirname $0) && pwd -P)
+PROJECT_BASE_DIR="$(pwd)"
 
-while getopts ":i:d:u:mar" opt
+while getopts ":i:d:u:marI" opt
 do
         case $opt in
                 i ) init_repo
@@ -259,6 +284,7 @@ do
 				m ) installed_modules ;;
 				r ) reinstall_all_mod ;;
 				a ) all_modules ;;
+				I ) install_dependencies ;;
                 ? ) usage
                     exit 1;;
         esac
