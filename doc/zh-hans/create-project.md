@@ -13,6 +13,7 @@
 .                                --> 项目根目录
 ├── module_source_repos.conf     --> 模块源的配置文件
 ├── dependencies.conf            --> 配置此项目依赖的模块
+├── reinitialize.sh              --> 重新初始化项目的工具脚本（项目小组其他成员clone了项目之后可以运行这个脚本初始化所有git子模块）
 ├── npl_packages                 --> npl packages 根目录
 │   ├── main                     --> NPL main package
 │   └── nwf                      --> nwf package
