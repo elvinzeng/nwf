@@ -37,6 +37,7 @@ end
 function dbTemplate.execute(sql)
 	local conn = connectionManager.getConnection();
 	local res, err = conn:execute(sql);
+	conn:commit();
 	connectionManager.releaseConnection(conn);
 	if(err) then
 		assert(false, err.." occurs when execute: "..sql);
