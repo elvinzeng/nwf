@@ -68,7 +68,7 @@ function dbTemplate.executeWithReleaseCtrl(sql, conn, release, openTransaction)
 		assert(false, err.." occurs when execute: "..sql);
 	end
 	if(release) then
-		local _ = openTransaction and conn:commit();
+		conn:commit();
 		connectionManager.releaseConnection(conn);
 		return res;
 	else
