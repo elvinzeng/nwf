@@ -12,6 +12,7 @@
 <pre>
 .                                --> 项目根目录
 ├── module_source_repos.conf     --> 模块源的配置文件
+├── dependencies.conf            --> 配置此项目依赖的模块
 ├── npl_packages                 --> npl packages 根目录
 │   ├── main                     --> NPL main package
 │   └── nwf                      --> nwf package
@@ -56,7 +57,25 @@
 
 ```
 
-## 运行服务器
+# 安装依赖的模块
+
+首先配置好项目依赖的[模块](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/nwf-module.md)
+
+```shell
+elvin@elvin-idreamtech ~/workspace/testnwf $ cat dependencies.conf 
+preload_controller_mod
+helloworld
+```
+
+然后执行以下命令安装所有配置文件中的[模块](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/nwf-module.md)
+
+```shell
+~ $ ./nwf_module_manage.sh -I
+```
+
+如果你还不熟悉nwf模块，可以暂时跳过这一步直接启动服务器。
+
+# 运行服务器
 * Linux: sh start.sh
 * Windows: 运行update_packages.sh更新包，然后运行start_win.bat
 * 打开浏览器访问"http://localhost:8099/ ". 如果看到页面上显示"it works!"则表示运行成功。
