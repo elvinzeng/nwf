@@ -52,6 +52,7 @@ echo -n "" > $flst
 
 echo npl_packages/nwf/resources/config/gitignore .gitignore >> $flst
 echo npl_packages/nwf/resources/config/module_source_repos.conf module_source_repos.conf >> $flst
+echo npl_packages/nwf/resources/config/dependencies.conf dependencies.conf >> $flst
 echo npl_packages/nwf/resources/config/webserver.config.xml www/webserver.config.xml >> $flst
 
 find ./npl_packages/nwf/resources/lua/ -type f | while read line

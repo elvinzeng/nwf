@@ -251,6 +251,7 @@ install_dependencies(){
         cd "$PROJECT_BASE_DIR"
     done
     cd "$PROJECT_BASE_DIR"
+    bash npl_packages/nwf/resources/scripts/_dos2unix.sh dependencies.conf
     echo "installing dependencies specified by dependencies.conf..."
     cat dependencies.conf | grep -v '^$' | while read line
     do
