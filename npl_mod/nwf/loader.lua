@@ -108,13 +108,14 @@ nwf.loadModule = function (path, name)
 
     print("loading module '" .. name .. "'")
     local initScriptPath = path .. '/init.lua';
-    local g = {};
+    --[[local g = {};
     setmetatable(g, {__index = _G})
     local doInit = function()
         NPL.load(initScriptPath);
     end
     setfenv(doInit, g);
-    doInit();
+    doInit();--]]
+    NPL.load(initScriptPath);
 end
 
 NPL.load("(gl)script/ide/Files.lua");
