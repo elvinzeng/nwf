@@ -144,6 +144,7 @@ do
     fi
     cd "npl_packages/$rn"
     git checkout "${rb:-master}"
+    git pull
     cd "$PROJECT_BASE_DIR"
 done
 
