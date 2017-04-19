@@ -28,6 +28,7 @@ nwf.modules = {};  -- namespace for modules
 nwf.requestMappings = {};
 nwf.template = require "nwf.resty.template";
 nwf.validation = require "nwf.resty.validation";
+nwf.mod_path = {"www/modules"}  -- specified module search path
 -- init functions
 local filters = commonlib.gettable("nwf.filters");
 
@@ -120,15 +121,22 @@ end
 
 NPL.load("(gl)script/ide/Files.lua");
 lfs = commonlib.Files.GetLuaFileSystem();
-mod_pathes = {}
-mod_root_dir = "www/modules"
-for entry in lfs.dir(mod_root_dir) do
-    if entry ~= '.' and entry ~= '..' then
-        local path = mod_root_dir .. '/' .. entry;
-        print("found module: " .. entry);
-        nwf.loadModule(path, entry);
+
+function load_dir(mod_base_dir)
+    for entry in lfs.dir(mod_base_dir) do
+        if entry ~= '.' and entry ~= '..' then
+            local path = mod_base_dir .. '/' .. entry;
+            print("found module: " .. entry);
+            nwf.loadModule(path, entry);
+        end
     end
 end
 
+for i,v in ipairs(nwf.mod_path) do
+    print("--------------- loading modules -----------------");
+    print("modules base dir: '" .. v .. "'");
+    load_dir(v);
+    print("--------------- loading modules ------------- end");
+end
 
 print('npl web framework loaded.');
