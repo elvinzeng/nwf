@@ -54,6 +54,7 @@ NPL.load("nwf.utils.configUtil")
 NPL.load("nwf.utils.string_util")
 NPL.load("nwf.dispatcher")
 NPL.load("nwf.utils.string_escape_util")
+NPL.load("nwf.nwf_load_file")
 
 -- builtin filters
 -- register request log filter
@@ -141,7 +142,8 @@ nwf.loadModule = function (mod_base_dir, name)
     end
     setfenv(doInit, g);
     doInit();--]]
-    NPL.load(initScriptPath);
+    -- NPL.load(initScriptPath);
+    nwf.load(initScriptPath);
 end
 
 function load_dir(mod_base_dir)
