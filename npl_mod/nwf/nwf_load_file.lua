@@ -36,7 +36,7 @@ end
 -- @param base_dir: if path is a relative path, base_dir will be base path of path.
 -- parameter base_dir will be disable if path is a absolute.
 function nwf.load(path, base_dir)
-    if (string.match(path, '^/.*')) then
+    if (string.match(path, '^/.*') or string.match(path, '^%w:.*')) then
         loadFileByAbsolutePath(path);
     else
         local absolutePath = (base_dir or PROJECT_BASE_DIR) .. "/" .. path;
