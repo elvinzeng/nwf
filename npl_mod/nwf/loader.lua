@@ -84,6 +84,10 @@ NPL.load("(gl)www/mvc_settings.lua");
 
 -- load modules
 print("load nwf modules...");
+NPL.load("(gl)script/ide/Files.lua");
+lfs = commonlib.Files.GetLuaFileSystem();
+PROJECT_BASE_DIR = lfs.currentdir();
+print("project base dir: '" .. PROJECT_BASE_DIR .. "'");
 
 nwf.loadModule = function (mod_base_dir, name)
     local path = mod_base_dir .. '/' .. name;
@@ -103,23 +107,25 @@ nwf.loadModule = function (mod_base_dir, name)
                         .. name .."'");
                 local moduleFounded = false;
                 for i,v in ipairs(nwf.mod_path) do
-                    local dep_path = v .. "/" .. name;
+                    local dep_path = PROJECT_BASE_DIR .. "/" .. v .. "/" .. line;
                     if (ParaIO.DoesFileExist(dep_path, false)) then
                         moduleFounded = true;
-                        nwf.loadModule(mod_base_dir, line);
+                        print("founded dependency on '" .. dep_path .. "'")
+                        print("load dependency on '" .. v .. "'");
+                        nwf.loadModule(v, line);
                         break;
                     end
                 end
                 if (not moduleFounded) then
-                   print("dependency of module '" .. name .. "' can not found. load failed!");
+                   error("dependency of module '" .. name .. "' can not found. load failed!");
                 end
             end
         end
         depConfig:close();
     end
 
-    print("loading module '" .. name .. "'")
-    local initScriptPath = path .. '/init.lua';
+    print("loading module '" .. name .. "'");
+    local initScriptPath = PROJECT_BASE_DIR .. "/" .. path .. '/init.lua';
     --[[local g = {};
     setmetatable(g, {__index = _G})
     local doInit = function()
@@ -129,9 +135,6 @@ nwf.loadModule = function (mod_base_dir, name)
     doInit();--]]
     NPL.load(initScriptPath);
 end
-
-NPL.load("(gl)script/ide/Files.lua");
-lfs = commonlib.Files.GetLuaFileSystem();
 
 function load_dir(mod_base_dir)
     for entry in lfs.dir(mod_base_dir) do
