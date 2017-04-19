@@ -12,7 +12,19 @@ function resultMapper:setResMapper(mapper)
 end
 
 function resultMapper:setValue(mapper, row, flag, isObj)
-    local id = row[mapper.primaryKey];
+    local id;
+    local typePrimaryKey = type(mapper.primaryKey);
+    if (typePrimaryKey == "table") then
+        local idTb = {};
+        for _, v in pairs(mapper.primaryKey) do
+            table.insert(row[v]);
+        end
+        id = table.cancat(idTb, "_");
+
+    elseif (typePrimaryKey == "string") then
+        id = row[mapper.primaryKey];
+    end
+
     if (id) then
         if (not mapper.idSet) then
             mapper.idSet = commonlib.UnorderedArraySet:new();

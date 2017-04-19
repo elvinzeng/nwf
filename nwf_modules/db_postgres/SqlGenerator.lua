@@ -70,17 +70,21 @@ local function handleValue(value)
     return res;
 end
 
-local function handleFiledValue(field, value)
-    if (field) then
-        if (string.match(field, "%?")) then
-            local v = value;
-            if (type(value) == "table") then
-                v = handleValue(value);
+local function handleFiledValue(field, ...)
+    local value = ...;
+    if (field and value) then
+        if (field:find("{%d+}")) then
+            local args = {...};
+            for i, v in ipairs(args) do
+                local content = v;
+                if (type(content) == "table") then
+                    content = handleValue(v);
+                end
+                if (content) then
+                    field = string.gsub(field, "{"..i.."}", content);
+                end
             end
-            if (v) then
-                value = string.gsub(field, "%?", v);
-                field = "";
-            end
+            value = "";
         else
             value = handleValue(value);
         end
@@ -137,7 +141,7 @@ end
 function sqlGenerator:select(fields)
     local newInstance = self:new();
     newInstance.type = sqlGenerator.TYPE_SELECT;
-    newInstance.sql = "SELECT ? ";
+    newInstance.sql = "SELECT {0} ";
     newInstance.whereStr = "";
     newInstance.fields = fields;
     return newInstance;
@@ -198,13 +202,16 @@ end
 	@Param value 查询条件 field 不为nil时，value会根据类型自动添加转换，类似string型的会加上'',如果value为nil时,那这条语句不会被拼接上去
 	@Return self
 ]]
-function sqlGenerator:where(field, value)
-    if (self.whereStr == "") then
-        field, value = handleFiledValue(field, value);
-        if (value) then
-            self.whereStr = "WHERE " .. field .. " " .. value;
-        else
-            self.whereStr = "WHERE 1 = 1";
+function sqlGenerator:where(field, ...)
+    if (self.type ~= sqlGenerator.TYPE_INSERT) then
+        if (self.whereStr == "") then
+            local value ;
+            field, value = handleFiledValue(field, ...);
+            if (value) then
+                self.whereStr = "WHERE " .. field .. " " .. value;
+            else
+                self.whereStr = "WHERE 1 = 1";
+            end
         end
     end
     return self;
@@ -216,9 +223,10 @@ end
 	@Param value 查询条件 field 不为nil时， value会根据类型自动添加转换，类似string型的会加上'',如果value为nil时,那这条语句不会被拼接上去
 	@Return self
 ]]
-function sqlGenerator:_and(field, value)
+function sqlGenerator:_and(field, ...)
     if (self.type ~= sqlGenerator.TYPE_INSERT) then
-        field, value = handleFiledValue(field, value);
+        local value;
+        field, value = handleFiledValue(field, ...);
         if (value and self.whereStr ~= "") then
             self.whereStr = self.whereStr .. " AND " .. field .. " " .. value;
         end
@@ -232,10 +240,13 @@ end
 	@Param value 查询条件 field 不为nil时， value会根据类型自动添加转换，类似string型的会加上'',如果value为nil时,那这条语句不会被拼接上去
 	@Return self
 ]]
-function sqlGenerator:_or(field, value)
-    field, value = handleFiledValue(field, value);
-    if (value and self.whereStr ~= "") then
-        self.whereStr = self.whereStr .. " OR " .. field .. " " .. value;
+function sqlGenerator:_or(field, ...)
+    if (self.type ~= sqlGenerator.TYPE_INSERT) then
+        local value;
+        field, value = handleFiledValue(field, ...);
+        if (value and self.whereStr ~= "") then
+            self.whereStr = self.whereStr .. " OR " .. field .. " " .. value;
+        end
     end
     return self;
 end
@@ -278,8 +289,9 @@ function sqlGenerator:get()
         if (self.whereStr ~= "") then
             self.sql = self.sql .. " " .. self.whereStr;
         end
-        local sql = string.gsub(self.sql, "%?", self.fields);
-        local countSql = string.gsub(self.sql, "%?", "COUNT(1)")
+        log(self.sql)
+        local sql = string.gsub(self.sql, "{0}", self.fields);
+        local countSql = string.gsub(self.sql, "{0}", "COUNT(1)")
         return sql.." "..(self.orderBySql or "").." "..(self.limitSql or ""), countSql;
     end
 end
