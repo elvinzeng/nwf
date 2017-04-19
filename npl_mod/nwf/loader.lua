@@ -85,8 +85,8 @@ NPL.load("(gl)www/mvc_settings.lua");
 -- load modules
 print("load nwf modules...");
 
-nwf.loadModule = function (path, name)
-    --print("nwf.loadModule('" .. path .. "', " .. name .. ")");
+nwf.loadModule = function (mod_base_dir, name)
+    local path = mod_base_dir .. '/' .. name;
     if (nwf.initializedModules[name]) then
         print("module '" .. name .. "' already loaded, skipped.");
         return;
@@ -101,7 +101,18 @@ nwf.loadModule = function (path, name)
             if (not nwf.initializedModules[line]) then
                 print("load module '" .. line .."' as a dependency of module '"
                         .. name .."'");
-                nwf.loadModule("www/modules/" .. line, line);
+                local moduleFounded = false;
+                for i,v in ipairs(nwf.mod_path) do
+                    local dep_path = v .. "/" .. name;
+                    if (ParaIO.DoesFileExist(dep_path, false)) then
+                        moduleFounded = true;
+                        nwf.loadModule(mod_base_dir, line);
+                        break;
+                    end
+                end
+                if (not moduleFounded) then
+                   print("dependency of module '" .. name .. "' can not found. load failed!");
+                end
             end
         end
         depConfig:close();
@@ -126,17 +137,14 @@ function load_dir(mod_base_dir)
     for entry in lfs.dir(mod_base_dir) do
         if entry ~= '.' and entry ~= '..' then
             local path = mod_base_dir .. '/' .. entry;
-            print("found module: " .. entry);
-            nwf.loadModule(path, entry);
+            print("found module: '" .. path .. "'");
+            nwf.loadModule(mod_base_dir, entry);
         end
     end
 end
 
 for i,v in ipairs(nwf.mod_path) do
-    print("--------------- loading modules -----------------");
-    print("modules base dir: '" .. v .. "'");
     load_dir(v);
-    print("--------------- loading modules ------------- end");
 end
 
 print('npl web framework loaded.');
