@@ -7,6 +7,11 @@ desc: this file will load NPL web framework basic module and init components.
 
 print('npl web framework is loading...');
 
+NPL.load("(gl)script/ide/Files.lua");
+lfs = commonlib.Files.GetLuaFileSystem();
+PROJECT_BASE_DIR = lfs.currentdir();
+print("project base dir: '" .. PROJECT_BASE_DIR .. "'");
+
 -- add search path
 NPL.load("(gl)script/ide/System/os/os.lua");
 local os_util = commonlib.gettable("System.os");
@@ -83,11 +88,14 @@ print("load framework settings...");
 NPL.load("(gl)www/mvc_settings.lua");
 
 -- load modules
-print("load nwf modules...");
-NPL.load("(gl)script/ide/Files.lua");
-lfs = commonlib.Files.GetLuaFileSystem();
-PROJECT_BASE_DIR = lfs.currentdir();
-print("project base dir: '" .. PROJECT_BASE_DIR .. "'");
+print("checking module search path setting...")
+for i,v in ipairs(nwf.mod_path) do
+    assert(not string.match(v, "^/")
+        , "module search path can not be absolute path, use relative path.")
+    if (string.match(v, "/$")) then
+        nwf.mod_path[i] = string.sub(v, 1, -2);
+    end
+end
 
 nwf.loadModule = function (mod_base_dir, name)
     local path = mod_base_dir .. '/' .. name;
@@ -146,6 +154,7 @@ function load_dir(mod_base_dir)
     end
 end
 
+print("load nwf modules...");
 for i,v in ipairs(nwf.mod_path) do
     load_dir(v);
 end
