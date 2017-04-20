@@ -14,7 +14,7 @@ config.echoDebugInfo = true;  -- 是否在页面上显示调试信息
 -- 该配置项仅当nwf.config.echoDebugInfo设置为false时有效
 config.redirectToErrorPage = false;
 
--- nwf模块项目的模块basedir相对与本项目的根目录的路径
+-- nwf模块项目的模块basedir相对于本项目的根目录的路径
 -- local moduleSearchPath = '../nwfModules/nwf_modules/';
 -- 把功能模块项目加入模块搜索路径，且优先于项目内安装的模块（用于调试模块）。
 -- table.insert(nwf.mod_path, 1, moduleSearchPath);
