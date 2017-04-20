@@ -2,6 +2,20 @@
 
 resultMapper.selMapper = nil;
 
+local function transformValue(type, value)
+    if (type == "number") then
+        return tonumber(value);
+    elseif(type == "bool") then
+        if (value == "f" or value == "false") then
+            return false;
+        elseif(value == "t" or value == "true") then
+            return true;
+        end
+        return value;
+    end
+    return value;
+end
+
 function resultMapper:get()
     return self.selMapper.arrays;
 end
@@ -46,7 +60,8 @@ function resultMapper:setValue(mapper, row, flag, isObj)
             end
             for k, v in pairs(row) do
                 if (mapper[k]) then
-                    item[mapper[k].prop or k] = v;
+                    local value = transformValue(mapper[k].type, v);
+                    item[mapper[k].prop or k] = value;
                     row[k] = nil;
                 end
             end
