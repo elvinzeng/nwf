@@ -109,7 +109,7 @@ nwf.loadModule = function (mod_base_dir, name)
 
     local dependenciesConfigPath = path .. '/dependencies.conf';
     if (ParaIO.DoesFileExist(dependenciesConfigPath, false)) then
-        local depConfig = io.open(dependenciesConfigPath);
+        local depConfig = assert(io.open(dependenciesConfigPath));
         for line in depConfig:lines() do
             if (not nwf.initializedModules[line]) then
                 print("load module '" .. line .."' as a dependency of module '"
@@ -146,19 +146,32 @@ nwf.loadModule = function (mod_base_dir, name)
     nwf.load(initScriptPath);
 end
 
-function load_dir(mod_base_dir)
-    for entry in lfs.dir(mod_base_dir) do
-        if entry ~= '.' and entry ~= '..' then
-            local path = mod_base_dir .. '/' .. entry;
-            print("found module: '" .. path .. "'");
-            nwf.loadModule(mod_base_dir, entry);
+print("load nwf modules...");
+local projectDependencies = PROJECT_BASE_DIR .. '/dependencies.conf';
+if (ParaIO.DoesFileExist(projectDependencies, false)) then
+    local projectDepConfig = assert(io.open(projectDependencies));
+    for line in projectDepConfig:lines() do
+        if (not nwf.initializedModules[line]) then
+            print("load module '" .. line .."' as a dependency of project");
+            local moduleFounded = false;
+            for i,v in ipairs(nwf.mod_path) do
+                local dep_path = PROJECT_BASE_DIR .. "/" .. v .. "/" .. line;
+                if (ParaIO.DoesFileExist(dep_path, false)) then
+                    moduleFounded = true;
+                    print("founded project dependency on '" .. dep_path .. "'")
+                    print("load project dependency on '" .. v .. "'");
+                    nwf.loadModule(v, line);
+                    break;
+                end
+            end
+            if (not moduleFounded) then
+                error("project dependency of module '" .. name .. "' can not found. load failed!");
+            end
+        else
+            print("project dependency '" .. line .. "' already loaded, skipped.");
         end
     end
-end
-
-print("load nwf modules...");
-for i,v in ipairs(nwf.mod_path) do
-    load_dir(v);
+    projectDepConfig:close();
 end
 
 print('npl web framework loaded.');
