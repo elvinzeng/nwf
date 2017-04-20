@@ -144,3 +144,67 @@ end);
 将helloworld模块的整个目录提交到nwf项目根目录下的nwf_modules目录中，然后发个pull request。
 ## 发布到私有源
 将helloworld模块的整个目录提交到到私有模块源git仓库的根目录下的nwf_modules中。
+
+# 在私有模块源目录中调试
+通过nwf模块机制，我们可以很方便的将多项目的系统中的公共代码提取出来，作为一个独立的项目被其他项目引用。
+  
+## 实际场景
+下面以我当前手头上的中药溯源系统为例。这个系统被拆分为5个子项目，目录结构如下：
+
+```
+.
+├── nwf_init.sh
+├── nwfModules
+├── zysy-collector
+├── zysy-company
+├── zysy-consumer
+├── zysy-modules
+└── zysy-platform
+```
+zysy-collector、zysy-company、zysy-consumer、zysy-platform四个项目是四个网站。
+zysy-modules项目则是中药溯源系统这四个网站用到的公共模块。
+nwfModules是我们小组的内部公共模块项目，也被这四个网站所引用。
+## 如何调试
+假设我现在想直接在zysy-modules这个项目中开发模块，然后直接启动网站项目就能查看模块的效果。
+那么只需要在网站项目的mvc_settings.lua中插入如下配置：  
+```lua
+-- nwf模块项目的模块basedir相对于本项目的根目录的路径
+local moduleSearchPath = '../zysy-modules/nwf_modules/';
+-- 把功能模块项目加入模块搜索路径，且优先于项目内安装的模块（用于调试模块）。
+table.insert(nwf.mod_path, 1, moduleSearchPath);
+```
+加入这个配置之后，网站启动的时候就会优先去加载zysy-modules这个模块项目下的nwf模块。
+这样做可以非常方便的调试模块代码。模块代码修改之后，只需要重启一下web项目，即可直接预览最新的变更情况。
+当模块代码调试结束之后，再提交zysy-modules这个模块项目。并在发布网站之前重新安装一遍web项目依赖的模块即可。
+## nwf模块中的load函数
+为了支持这种特殊的模块调试方式，在模块中加载其他的lua文件时不能再用`NPL.load`了。
+因为`NPL.load`无法用相对路径加载文件。为了解决这个问题，nwf框架提供了一个用于在模块中按相对路径加载文件的函数`load`。
+在你的模块的init.lua中，如果需要load当前目录下或者子目录下的某个文件，只需要用相对于init.lua的路径作为参数，即可加载文件。
+比如：
+```
+.
+├── db_postgres
+├── helloworld
+│   ├── del.sh
+│   ├── desc.txt
+│   ├── hello.html
+│   ├── HelloModController.lua
+│   ├── HelloModValidator.lua
+│   ├── init.lua
+│   └── install.sh
+└── preload_controller_mod
+
+```
+
+helloworld模块中的init.lua只需要像下面这样加载文件：
+```lua
+print("helloworld module init...");
+
+load("HelloModController.lua");
+load("HelloModValidator.lua");
+-- load("aaa/bbb/ccc.lua");
+
+```
+注意`load`函数只能用于模块中按相对路径加载文件，无法用在控制器、校验器、过滤器中。
+
+
