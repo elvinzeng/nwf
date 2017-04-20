@@ -289,7 +289,6 @@ function sqlGenerator:get()
         if (self.whereStr ~= "") then
             self.sql = self.sql .. " " .. self.whereStr;
         end
-        log(self.sql)
         local sql = string.gsub(self.sql, "{0}", self.fields);
         local countSql = string.gsub(self.sql, "{0}", "COUNT(1)")
         return sql.." "..(self.orderBySql or "").." "..(self.limitSql or ""), countSql;
