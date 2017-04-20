@@ -17,9 +17,9 @@ function resultMapper:setValue(mapper, row, flag, isObj)
     if (typePrimaryKey == "table") then
         local idTb = {};
         for _, v in pairs(mapper.primaryKey) do
-            table.insert(row[v]);
+            table.insert(idTb, row[v]);
         end
-        id = table.cancat(idTb, "_");
+        id = table.concat(idTb, "_");
 
     elseif (typePrimaryKey == "string") then
         id = row[mapper.primaryKey];
