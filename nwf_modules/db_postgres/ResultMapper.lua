@@ -60,7 +60,7 @@ function resultMapper:setValue(mapper, row, flag, isObj)
             end
             for k, v in pairs(row) do
                 if (mapper[k]) then
-                    local value = transformValue(mapper[k].type, v);
+                    local value = transformValue(mapper[k].luaType, v);
                     item[mapper[k].prop or k] = value;
                     row[k] = nil;
                 end
