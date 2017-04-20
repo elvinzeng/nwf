@@ -176,6 +176,7 @@ table.insert(nwf.mod_path, 1, moduleSearchPath);
 加入这个配置之后，网站启动的时候就会优先去加载zysy-modules这个模块项目下的nwf模块。
 这样做可以非常方便的调试模块代码。模块代码修改之后，只需要重启一下web项目，即可直接预览最新的变更情况。
 当模块代码调试结束之后，再提交zysy-modules这个模块项目。并在发布网站之前重新安装一遍web项目依赖的模块即可。
+更详细的配置描述请参考[项目配置文档](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/settings.md)。
 ## nwf模块中的load函数
 为了支持这种特殊的模块调试方式，在模块中加载其他的lua文件时不能再用`NPL.load`了。
 因为`NPL.load`无法用相对路径加载文件。为了解决这个问题，nwf框架提供了一个用于在模块中按相对路径加载文件的函数`load`。
