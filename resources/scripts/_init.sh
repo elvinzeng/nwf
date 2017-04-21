@@ -81,3 +81,5 @@ bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "start.sh"
 find . -path './.git' -prune -o -path './npl_packages' -prune -o -path './.nwf' -prune -o -type f -print | xargs md5sum > .nwf/md5sum
 
 echo NPL Web application initialization done.
+
+cat npl_packages/nwf/resources/scripts/_msg_init.txt

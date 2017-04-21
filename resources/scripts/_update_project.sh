@@ -153,3 +153,5 @@ cat .nwf/md5sum | sed 's/*//' | awk '{print $1" "$2}' | uniq | sort > .nwf/md5su
 mv .nwf/md5sum.formated .nwf/md5sum
 
 echo project updated.
+
+cat npl_packages/nwf/resources/scripts/_msg_update.txt
