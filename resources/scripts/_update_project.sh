@@ -60,7 +60,7 @@ do
     echo $line www/$(basename $line) >> $flst
 done
 
-find ./npl_packages/nwf/resources/scripts/ ! -name "_*.sh" -type f | while read line
+find ./npl_packages/nwf/resources/scripts/ ! -name "_*" -type f | while read line
 do
     echo $line $(basename $line) >> $flst
 done

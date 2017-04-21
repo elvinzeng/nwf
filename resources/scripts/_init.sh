@@ -46,7 +46,7 @@ cd ../../
 cp npl_packages/nwf/resources/config/gitignore .gitignore
 cp npl_packages/nwf/resources/config/module_source_repos.conf module_source_repos.conf
 cp npl_packages/nwf/resources/config/dependencies.conf dependencies.conf
-find npl_packages/nwf/resources/scripts/ ! -name "_*.sh" -type f -exec cp {} . \;
+find npl_packages/nwf/resources/scripts/ ! -name "_*" -type f -exec cp {} . \;
 
 if [ ! -d "www" ]; then
 	mkdir "www"
