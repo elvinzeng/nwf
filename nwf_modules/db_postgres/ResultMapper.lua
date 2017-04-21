@@ -23,9 +23,14 @@ end
 function resultMapper:setResMapper(mapper)
     local copy = commonlib.copy(mapper);
     self.selMapper = copy;
+    return self.selMapper;
 end
 
 function resultMapper:setValue(mapper, row, flag, isObj)
+    if (mapper == nil) then
+        mapper = self:setResMapper(self.entity);
+    end
+
     local id;
     local typePrimaryKey = type(mapper.primaryKey);
     if (typePrimaryKey == "table") then
@@ -60,7 +65,7 @@ function resultMapper:setValue(mapper, row, flag, isObj)
             end
             for k, v in pairs(row) do
                 if (mapper[k]) then
-                    local value = transformValue(mapper[k].type, v);
+                    local value = transformValue(mapper[k].luaType, v);
                     item[mapper[k].prop or k] = value;
                     row[k] = nil;
                 end

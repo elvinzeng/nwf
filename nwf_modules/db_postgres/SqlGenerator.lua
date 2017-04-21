@@ -170,7 +170,7 @@ end
 ]]
 function sqlGenerator:value(tb)
     if (self.type == sqlGenerator.TYPE_INSERT) then
-        for k, v in pairs(self.tbEntity.fields) do
+        for k, v in pairs(self.tbEntity.entity) do
             local value = tb[k] or tb[v.prop];
             if (v.notNil and value == nil) then
                 local prop = v.prop or k;
@@ -183,9 +183,9 @@ function sqlGenerator:value(tb)
             end
         end
     elseif (self.type == sqlGenerator.TYPE_UPDATE) then
-        for k, v in pairs(self.tbEntity.fields) do
+        for k, v in pairs(self.tbEntity.entity) do
             local value = tb[k] or tb[v.prop];
-            if (not v.isPrimaryKey) then
+            if (self.tbEntity.entity.primaryKey ~= k) then
                 local value = handleValue(value);
                 if (value) then
                     self.content[k] = value;
