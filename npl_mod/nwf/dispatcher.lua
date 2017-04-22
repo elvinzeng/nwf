@@ -254,7 +254,7 @@ local function render(ctx, view, model, im)
         end
     end
     if (type(view) == "table") then
-        res:set_header('Content-Type', 'application/json');
+        res:set_header('Content-Type', 'application/json;charset=utf-8');
         res:SetContent(nil); -- discard any previous text
         view = commonlib.Json.Encode(view);
         res:sendsome(view);
@@ -286,6 +286,7 @@ local function render(ctx, view, model, im)
             resbody = resbody .. s;
         end
         template.render(view, model);
+        res:set_header('Content-Type', 'text/html;charset=utf-8');
         res:sendsome(resbody);
         if (im) then
             res:finish();
@@ -312,6 +313,7 @@ local function process(ctx)
 	local action, validator = dispatch(requestPath);
 	if (type(action) == "table") then
         if (nwf.config.echoDebugInfo) then
+            res:set_header('Content-Type', 'text/html;charset=utf-8');
             res:status(action.status):send(string.format([[<html><body>%s</body></html>]]
                 , action.message));
             res:finish();
@@ -324,6 +326,7 @@ local function process(ctx)
                     nwf.redirectToErrorPage(ctx)
                 end
             else
+                res:set_header('Content-Type', 'text/html;charset=utf-8');
                 res:status(action.status):send(string.format([[<html><body>%s</body></html>]]
                     , "server error"));
                 res:finish();
@@ -377,6 +380,7 @@ local function process(ctx)
         print(tb);
 
         if (nwf.config.echoDebugInfo) then
+            res:set_header('Content-Type', 'text/html;charset=utf-8');
             res:status(500):send(string.format([[<html><head><title>error</title></head>
             <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
             res:finish();
@@ -426,6 +430,7 @@ local function doFilter(filters, i, ctx)
 
         local res = ctx.response;
         if (nwf.config.echoDebugInfo) then
+            res:set_header('Content-Type', 'text/html;charset=utf-8');
             res:status(500):send(string.format([[<html><head><title>error</title></head>
             <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
             res:finish();
