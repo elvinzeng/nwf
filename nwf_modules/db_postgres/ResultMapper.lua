@@ -5,10 +5,10 @@ resultMapper.selMapper = nil;
 local function transformValue(type, value)
     if (type == "number") then
         return tonumber(value);
-    elseif(type == "bool") then
+    elseif (type == "bool") then
         if (value == "f" or value == "false") then
             return false;
-        elseif(value == "t" or value == "true") then
+        elseif (value == "t" or value == "true") then
             return true;
         end
         return value;
@@ -39,7 +39,6 @@ function resultMapper:setValue(mapper, row, flag, isObj)
             table.insert(idTb, row[v]);
         end
         id = table.concat(idTb, "_");
-
     elseif (typePrimaryKey == "string") then
         id = row[mapper.primaryKey];
     end
@@ -53,7 +52,7 @@ function resultMapper:setValue(mapper, row, flag, isObj)
             for k, v in pairs(mapper) do
                 if (type(v) == "table" and v.type == "list") then
                     local _item = self:setValue(v.mapper, row, true, false);
-                    if (_item) then
+                    if (_item and next(_item) ~= nil) then
                         if (not item[v.prop or k]) then
                             item[v.prop or k] = commonlib.Array:new();
                         end
@@ -81,9 +80,21 @@ function resultMapper:setValue(mapper, row, flag, isObj)
         else
             local item;
             for _, v in pairs(mapper.arrays) do
-                if ((v[mapper[mapper.primaryKey].prop] or v[mapper.primaryKey]) == id) then
-                    item = v;
-                    break;
+                if (type(mapper.primaryKey) == "table") then
+                    local idTb = {};
+                    for _, primaryKey in pairs(mapper.primaryKey) do
+                        table.insert(idTb, v[mapper[primaryKey].prop] or v[primaryKey]);
+                    end
+                    local _id = table.concat(idTb, "_");
+                    if (_id == id) then
+                        item = v;
+                        break;
+                    end
+                else
+                    if ((v[mapper[mapper.primaryKey].prop] or v[mapper.primaryKey]) .. "" == id .. "") then
+                        item = v;
+                        break;
+                    end
                 end
             end
             for k, v in pairs(mapper) do

@@ -138,6 +138,7 @@ function dbTemplate:queryList(sql, mapper, countSql, pageIndex, pageSize)
 				_data = { pagination = pagination };
 
 				local sql = string.format(sql, pageSize, (pageIndex - 1 ) * pageSize);
+				log(sql)
 				cursor = self.executeWithReleaseCtrl(sql, conn, true);
 				if(cursor) then
 					local list;
