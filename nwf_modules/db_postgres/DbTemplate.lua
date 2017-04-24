@@ -23,7 +23,7 @@ local connectionManager = commonlib.gettable("nwf.modules.db_postgres.connection
 ]]
 local function getListFromCursor(cursor, mapper)
     for row in function() return cursor:fetch({}, "a"); end do
-        mapper:setValue(mapper.selMapper, row, mapper.prefix);
+        mapper:setValue(mapper.selMapper, row);
     end
     return mapper:get();
 end
