@@ -146,22 +146,25 @@ nwf.loadModule = function (mod_base_dir, name)
     if (ParaIO.DoesFileExist(dependenciesConfigPath, false)) then
         local depConfig = assert(io.open(dependenciesConfigPath));
         for line in depConfig:lines() do
-            if (not nwf.initializedModules[line]) then
-                print("load module '" .. line .."' as a dependency of module '"
-                        .. name .."'");
-                local moduleFounded = false;
-                for i,v in ipairs(nwf.mod_path) do
-                    local dep_path = PROJECT_BASE_DIR .. "/" .. v .. "/" .. line;
-                    if (ParaIO.DoesFileExist(dep_path, false)) then
-                        moduleFounded = true;
-                        print("founded dependency on '" .. dep_path .. "'")
-                        print("load dependency on '" .. v .. "'");
-                        nwf.loadModule(v, line);
-                        break;
+            if ((not string.match(line, "^%s*$"))
+                    and (not string.match(line, "^%s*#.*$"))) then
+                if (not nwf.initializedModules[line]) then
+                    print("load module '" .. line .."' as a dependency of module '"
+                            .. name .."'");
+                    local moduleFounded = false;
+                    for i,v in ipairs(nwf.mod_path) do
+                        local dep_path = PROJECT_BASE_DIR .. "/" .. v .. "/" .. line;
+                        if (ParaIO.DoesFileExist(dep_path, false)) then
+                            moduleFounded = true;
+                            print("founded dependency on '" .. dep_path .. "'")
+                            print("load dependency on '" .. v .. "'");
+                            nwf.loadModule(v, line);
+                            break;
+                        end
                     end
-                end
-                if (not moduleFounded) then
-                   error("dependency of module '" .. name .. "' can not found. load failed!");
+                    if (not moduleFounded) then
+                        error("dependency of module '" .. name .. "' can not found. load failed!");
+                    end
                 end
             end
         end
@@ -186,24 +189,27 @@ local projectDependencies = PROJECT_BASE_DIR .. '/dependencies.conf';
 if (ParaIO.DoesFileExist(projectDependencies, false)) then
     local projectDepConfig = assert(io.open(projectDependencies));
     for line in projectDepConfig:lines() do
-        if (not nwf.initializedModules[line]) then
-            print("load module '" .. line .."' as a dependency of project");
-            local moduleFounded = false;
-            for i,v in ipairs(nwf.mod_path) do
-                local dep_path = PROJECT_BASE_DIR .. "/" .. v .. "/" .. line;
-                if (ParaIO.DoesFileExist(dep_path, false)) then
-                    moduleFounded = true;
-                    print("founded project dependency on '" .. dep_path .. "'")
-                    print("load project dependency on '" .. v .. "'");
-                    nwf.loadModule(v, line);
-                    break;
+        if ((not string.match(line, "^%s*$"))
+                and (not string.match(line, "^%s*#.*$"))) then
+            if (not nwf.initializedModules[line]) then
+                print("load module '" .. line .."' as a dependency of project");
+                local moduleFounded = false;
+                for i,v in ipairs(nwf.mod_path) do
+                    local dep_path = PROJECT_BASE_DIR .. "/" .. v .. "/" .. line;
+                    if (ParaIO.DoesFileExist(dep_path, false)) then
+                        moduleFounded = true;
+                        print("founded project dependency on '" .. dep_path .. "'")
+                        print("load project dependency on '" .. v .. "'");
+                        nwf.loadModule(v, line);
+                        break;
+                    end
                 end
+                if (not moduleFounded) then
+                    error("project dependency of module '" .. name .. "' can not found. load failed!");
+                end
+            else
+                print("project dependency '" .. line .. "' already loaded, skipped.");
             end
-            if (not moduleFounded) then
-                error("project dependency of module '" .. name .. "' can not found. load failed!");
-            end
-        else
-            print("project dependency '" .. line .. "' already loaded, skipped.");
         end
     end
     projectDepConfig:close();
