@@ -22,10 +22,21 @@ local connectionManager = commonlib.gettable("nwf.modules.db_postgres.connection
 	@Return array: 列表
 ]]
 local function getListFromCursor(cursor, mapper)
-    for row in function() return cursor:fetch({}, "a"); end do
-        mapper:setValue(mapper.selMapper, row);
+    if (mapper) then
+        for row in function() return cursor:fetch({}, "a"); end do
+            mapper:setValue(mapper.selMapper, row);
+        end
+        return mapper:get();
+    else
+        local array ;
+        for row in function() return cursor:fetch({}, "a"); end do
+            if (not array) then
+                array = commonlib.Array:new()
+            end
+            array:add(row);
+        end
+        return array;
     end
-    return mapper:get();
 end
 
 

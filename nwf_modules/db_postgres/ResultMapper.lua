@@ -38,7 +38,9 @@ function resultMapper:setValue(mapper, row, flag, isObj)
         for _, v in pairs(mapper.primaryKey) do
             table.insert(idTb, row[v]);
         end
-        id = table.concat(idTb, "_");
+        if (#idTb == #mapper.primaryKey) then
+            id = table.concat(idTb, "_");
+        end
     elseif (typePrimaryKey == "string") then
         id = row[mapper.primaryKey];
     end
