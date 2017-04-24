@@ -251,9 +251,15 @@ function sqlGenerator:_or(field, ...)
     return self;
 end
 
-function sqlGenerator:limit()
+function sqlGenerator:limit(pageIndex, pageSize)
     if (self.type == sqlGenerator.TYPE_SELECT) then
-        self.limitSql = "LIMIT %d OFFSET %d";
+        if (not pageIndex or pageIndex <= 0) then
+            assert(false, "pageIndex in function sqlGenerator:limit() must be lager then 0");
+        end
+        if (not pageSize or pageSize <= 0) then
+            assert(false, "pageSize in function sqlGenerator:limit() must be lager then 0");
+        end
+        self.limitSql = "LIMIT "..pageSize.." OFFSET "..((pageIndex - 1 ) * pageSize);
     end
     return self;
 end
