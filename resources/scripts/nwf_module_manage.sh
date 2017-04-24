@@ -61,9 +61,9 @@ install_mod(){
 					if [ -f $modBaseDir/dependencies.conf ]; then
 						echo install dependencies of module $mod...
 						#bash npl_packages/nwf/resources/scripts/_dos2unix.sh $modBaseDir/dependencies.conf
-						cat $modBaseDir/dependencies.conf | grep -v '^$'
+						cat $modBaseDir/dependencies.conf | grep -v '^$'| grep -v "#"
 						local line=""
-						cat $modBaseDir/dependencies.conf | grep -v '^$' | while read line
+						cat $modBaseDir/dependencies.conf | grep -v '^$' | grep -v "#" | while read line
 						do
 							install_mod $line
 						done
@@ -98,7 +98,7 @@ del_mod(){
 	do
 	    if [ -e www/modules/$m/dependencies.conf ]; then
 	        bash npl_packages/nwf/resources/scripts/_dos2unix.sh www/modules/$m/dependencies.conf
-	        count=$(grep "$mod" www/modules/$m/dependencies.conf | wc -l)
+	        count=$(cat www/modules/$m/dependencies.conf |grep "$mod" | grep -v "#"| wc -l)
 	        if [ $count -gt 0 ]; then
 	            cancelFlag=1;
 	            depm="$m"
@@ -253,7 +253,7 @@ install_dependencies(){
     cd "$PROJECT_BASE_DIR"
     bash npl_packages/nwf/resources/scripts/_dos2unix.sh dependencies.conf
     echo "installing dependencies specified by dependencies.conf..."
-    cat dependencies.conf | grep -v '^$' | while read line
+    cat dependencies.conf | grep -v '^$'| grep -v "#" | while read line
     do
         install_mod $line
     done
