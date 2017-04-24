@@ -22,10 +22,10 @@ local connectionManager = commonlib.gettable("nwf.modules.db_postgres.connection
 	@Return array: 列表
 ]]
 local function getListFromCursor(cursor, mapper)
-	for row in function() return cursor:fetch({}, "a"); end do
-		mapper:setValue(mapper.selMapper, row, mapper.prefix);
-	end
-	return mapper:get();
+    for row in function() return cursor:fetch({}, "a"); end do
+        mapper:setValue(mapper.selMapper, row, mapper.prefix);
+    end
+    return mapper:get();
 end
 
 
@@ -35,14 +35,14 @@ end
 	@Return res: 执行结果 （游标对象或更新行数）
 ]]
 function dbTemplate.execute(sql)
-	local conn = connectionManager.getConnection();
-	local res, err = conn:execute(sql);
-	conn:commit();
-	connectionManager.releaseConnection(conn);
-	if(err) then
-		assert(false, err.." occurs when execute: "..sql);
-	end
-	return res;
+    local conn = connectionManager.getConnection();
+    local res, err = conn:execute(sql);
+    conn:commit();
+    connectionManager.releaseConnection(conn);
+    if (err) then
+        assert(false, err .. " occurs when execute: " .. sql);
+    end
+    return res;
 end
 
 --[[
@@ -54,26 +54,26 @@ end
 	@Return res: 执行结果 （游标对象或更新行数），conn: connection对象
 ]]
 function dbTemplate.executeWithReleaseCtrl(sql, conn, release, openTransaction)
-	if(not conn) then
-		conn = connectionManager.getConnection();
-		local _ = openTransaction and conn:execute("BEGIN;");
-	end
-	local res,err = conn:execute(sql);
-	if(err) then
-		if(openTransaction) then
-			conn:execute("ROLLBACK;");
-			conn:commit();
-		end
-		connectionManager.releaseConnection(conn);
-		assert(false, err.." occurs when execute: "..sql);
-	end
-	if(release) then
-		conn:commit();
-		connectionManager.releaseConnection(conn);
-		return res;
-	else
-		return res, conn;
-	end
+    if (not conn) then
+        conn = connectionManager.getConnection();
+        local _ = openTransaction and conn:execute("BEGIN;");
+    end
+    local res, err = conn:execute(sql);
+    if (err) then
+        if (openTransaction) then
+            conn:execute("ROLLBACK;");
+            conn:commit();
+        end
+        connectionManager.releaseConnection(conn);
+        assert(false, err .. " occurs when execute: " .. sql);
+    end
+    if (release) then
+        conn:commit();
+        connectionManager.releaseConnection(conn);
+        return res;
+    else
+        return res, conn;
+    end
 end
 
 --[[
@@ -81,22 +81,22 @@ end
 	@Param ... n条sql语句
 ]]
 function dbTemplate.executeWithTransaction(...)
-	local conn = connectionManager.getConnection();
-	conn:execute("BEGIN;");
-	local args = {...};
-	for _,v in ipairs(args) do
-		if(type(v) == "string") then
-			local _, err = conn:execute(v);
-			if(err) then
-				conn:execute("ROLLBACK;");
-				conn:commit();
-				connectionManager.releaseConnection(conn);
-				assert(false, err.." occurs when execute: "..v);
-			end
-		end
-	end
-	conn:commit();
-	connectionManager.releaseConnection(conn);
+    local conn = connectionManager.getConnection();
+    conn:execute("BEGIN;");
+    local args = { ... };
+    for _, v in ipairs(args) do
+        if (type(v) == "string") then
+            local _, err = conn:execute(v);
+            if (err) then
+                conn:execute("ROLLBACK;");
+                conn:commit();
+                connectionManager.releaseConnection(conn);
+                assert(false, err .. " occurs when execute: " .. v);
+            end
+        end
+    end
+    conn:commit();
+    connectionManager.releaseConnection(conn);
 end
 
 --[[
@@ -108,50 +108,52 @@ end
 	@Param pageSize 页数，为nil时查全部，否则pageSize > 0
 	@Return _data:数据
 ]]
-function dbTemplate:queryList(sql, mapper, countSql, pageIndex, pageSize)
-	if( countSql == nil or pageIndex == nil or pageSize == nil) then
-		local cursor = self.execute(sql);
-		local _data;
-		if(cursor) then
-			local res = getListFromCursor(cursor, mapper);
-			if(res and not res:empty()) then
-				_data = res;
-			end
-		end
-		return _data;
-	elseif( pageIndex <= 0) then
-		assert(false, "pageIndex must be lager then 0");
-	elseif( pageSize <= 0) then
-		assert(false, "pageSize must be lager then 0");
-	else
-		local cursor, conn = self.executeWithReleaseCtrl(countSql, nil, false);
-		local _data;
-		if(cursor) then
-			local count = cursor:fetch({}, "a").count + 0;
-			if(count ~= 0) then
-				local pageCount = math.ceil(count / pageSize);
-				local pagination = {
-					currentPageIndex = pageIndex,
-					pageCount = pageCount,
-					pageSize = pageSize,
-					recordCount = count};
-				_data = { pagination = pagination };
+function dbTemplate:queryList(sql, mapper, countSql)
+    if (countSql == nil) then
+        local cursor = self.execute(sql);
+        local _data;
+        if (cursor) then
+            local res = getListFromCursor(cursor, mapper);
+            if (res and not res:empty()) then
+                _data = res;
+            end
+        end
+        return _data;
+    else
+        local limit, offset = string.match(string.upper(sql), "LIMIT (%d+) OFFSET (%d+)");
+        if (not limit or not offset) then
+            assert(false, [[can not match param limit and offset,
+					make sure your sql has script like 'LIMIT 5 OFFSET 0']]);
+        end
+        local cursor, conn = self.executeWithReleaseCtrl(countSql, nil, false);
+        local _data;
+        if (cursor) then
+            local count = cursor:fetch({}, "a").count + 0;
+            if (count ~= 0) then
+                local pageIndex = offset / limit + 1;
+                local pageSize = limit + 0;
+                local pageCount = math.ceil(count / pageSize);
+                local pagination = {
+                    currentPageIndex = pageIndex,
+                    pageCount = pageCount,
+                    pageSize = pageSize,
+                    recordCount = count
+                };
+                _data = { pagination = pagination };
 
-				local sql = string.format(sql, pageSize, (pageIndex - 1 ) * pageSize);
-				log(sql)
-				cursor = self.executeWithReleaseCtrl(sql, conn, true);
-				if(cursor) then
-					local list;
-					local res = getListFromCursor(cursor, mapper);
-					if(res and not res:empty()) then
-						list = res;
-					end
-					_data.list = list or {};
-				end
-			end
-		end
-		return _data;
-	end
+                cursor = self.executeWithReleaseCtrl(sql, conn, true);
+                if (cursor) then
+                    local list;
+                    local res = getListFromCursor(cursor, mapper);
+                    if (res and not res:empty()) then
+                        list = res;
+                    end
+                    _data.list = list or {};
+                end
+            end
+        end
+        return _data;
+    end
 end
 
 --[[
@@ -161,15 +163,15 @@ end
 	@Return _data:数据
 ]]
 function dbTemplate:queryFirst(sql, mapper)
-	local cursor = self.execute(sql);
-	local _data;
-	if(cursor) then
-		if(mapper) then
-			local res = getListFromCursor(cursor, mapper);
-			_data = res and res:first();
-		else
-			_data = cursor:fetch({}, "a");
-		end
-	end
-	return _data;
+    local cursor = self.execute(sql);
+    local _data;
+    if (cursor) then
+        if (mapper) then
+            local res = getListFromCursor(cursor, mapper);
+            _data = res and res:first();
+        else
+            _data = cursor:fetch({}, "a");
+        end
+    end
+    return _data;
 end
