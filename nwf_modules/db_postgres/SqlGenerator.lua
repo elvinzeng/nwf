@@ -61,7 +61,8 @@ local function handleValue(value)
                 end
             end
             res = string.sub(res, 2);
-        elseif (type ~= "number" and type ~= "boolean" and not string.match(value, "%w-%([%'%s]-[%w_]*[%'%s]-%)")) then
+        elseif (type == "string" and not string.match(value, "%w-%([%'%s]-[%w_]*[%'%s]-%)")) then
+            value = string.gsub(tostring(value),"%s+","");
             if (#value > 0) then
                 res = "'" .. value .. "'";
             end
