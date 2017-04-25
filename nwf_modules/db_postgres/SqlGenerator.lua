@@ -61,8 +61,11 @@ local function handleValue(value)
                 end
             end
             res = string.sub(res, 2);
-        elseif (type ~= "number" and type ~= "boolean" and not string.match(value, "%w-%([%'%s]-[%w_]*[%'%s]-%)")) then
-            res = "'" .. value .. "'";
+        elseif (type == "string" and not string.match(value, "%w-%([%'%s]-[%w_]*[%'%s]-%)")) then
+            value = string.gsub(tostring(value),"%s+","");
+            if (#value > 0) then
+                res = "'" .. value .. "'";
+            end
         else
             res = value;
         end
@@ -74,19 +77,24 @@ local function handleFiledValue(field, ...)
     local value = ...;
     if (field and value) then
         if (field:find("{%d+}")) then
-            local args = {...};
+            local args = { ... };
             for i, v in ipairs(args) do
                 local content = v;
                 if (type(content) == "table") then
                     content = handleValue(v);
                 end
-                if (content) then
-                    field = string.gsub(field, "{"..i.."}", content);
+                content = string.gsub(tostring(content),"%s+","");
+                if (content and #content > 0 and not content:find("^%s*$")) then
+                    field = string.gsub(field, "{" .. i .. "}", content);
                 end
             end
-            value = "";
+            if (field:find("{%d+}")) then
+                value = nil;
+            else
+                value = "";
+            end
         else
-            value = handleValue(value);
+            value = handleValue(tostring(value));
         end
     end
     return field or "", value;
