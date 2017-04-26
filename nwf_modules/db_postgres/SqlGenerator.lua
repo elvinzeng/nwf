@@ -50,7 +50,7 @@ sqlGenerator.TYPE_SELECT = "SELECT";
 
 local function handleValue(value)
     local res;
-    if (value) then
+    if (value ~= nil) then
         local type = type(value);
         if (type == "table") then
             res = "";
@@ -185,9 +185,9 @@ function sqlGenerator:value(tb)
                 assert(false, prop .. " can not be nil");
             end
             local value = handleValue(value);
-            if (value) then
+            if (value ~= nil) then
                 table.insert(self.fields, k);
-                table.insert(self.values, value);
+                table.insert(self.values, tostring(value));
             end
         end
     elseif (self.type == sqlGenerator.TYPE_UPDATE) then
@@ -195,7 +195,7 @@ function sqlGenerator:value(tb)
             local value = tb[k] or tb[v.prop];
             if (self.tbEntity.entity.primaryKey ~= k) then
                 local value = handleValue(value);
-                if (value) then
+                if (value ~= nil) then
                     self.content[k] = value;
                 end
             end

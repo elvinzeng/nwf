@@ -17,7 +17,7 @@ local function transformValue(type, value)
 end
 
 function resultMapper:get()
-    return self.selMapper.arrays;
+    return self.selMapper and self.selMapper.arrays;
 end
 
 function resultMapper:setResMapper(mapper)
