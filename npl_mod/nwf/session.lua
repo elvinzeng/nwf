@@ -150,7 +150,7 @@ nwf.registerFilter(function(ctx, doNext)
     local req = ctx.request;
     local res = ctx.response;
 
-    local sessionIdKey = "sid";
+    local sessionIdKey = nwf.config.session_cookie_key or "sid";
 
     local sid = req:get_cookie(sessionIdKey);
     ctx.session = nwf.session.get(sid);
