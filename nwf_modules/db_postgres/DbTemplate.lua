@@ -137,39 +137,31 @@ function dbTemplate:queryList(sql, mapper, countSql)
 					make sure your sql has script like 'LIMIT 5 OFFSET 0']]);
         end
         local cursor, conn = self.executeWithReleaseCtrl(countSql, nil, false);
-        local _data = {};
-        local pagination
-        local list;
+        local _data;
         if (cursor) then
             local count = cursor:fetch({}, "a").count + 0;
-            local pageIndex = offset / limit + 1;
-            local pageSize = limit + 0;
-            local pageCount = math.ceil(count / pageSize);
             if (count ~= 0) then
-                pagination = {
+                local pageIndex = offset / limit + 1;
+                local pageSize = limit + 0;
+                local pageCount = math.ceil(count / pageSize);
+                local pagination = {
                     currentPageIndex = pageIndex,
                     pageCount = pageCount,
                     pageSize = pageSize,
                     recordCount = count
                 };
+                _data = { pagination = pagination };
 
                 cursor = self.executeWithReleaseCtrl(sql, conn, true);
                 if (cursor) then
+                    local list;
                     local res = getListFromCursor(cursor, mapper);
                     if (res and not res:empty()) then
                         list = res;
                     end
+                    _data.list = list or {};
                 end
-            else
-                pagination = {
-                    currentPageIndex = 0,
-                    pageCount = 0,
-                    pageSize = pageSize,
-                    recordCount = 0
-                };
             end
-            _data.pagination = pagination;
-            _data.list = list or {};
         end
         return _data;
     end
