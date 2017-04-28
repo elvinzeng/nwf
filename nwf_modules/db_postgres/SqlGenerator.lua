@@ -83,7 +83,7 @@ local function handleFiledValue(field, ...)
                 if (type(content) == "table") then
                     content = handleValue(v);
                 end
-                content = string.gsub(tostring(content),"%s+","");
+                content = tostring(content);
                 if (content and #content > 0 and not content:find("^%s*$")) then
                     field = string.gsub(field, "{" .. i .. "}", content);
                 end
@@ -292,7 +292,7 @@ function sqlGenerator:get()
         local sql = "UPDATE "
         local fieldStr = "";
         for k, v in pairs(self.content) do
-            fieldStr = fieldStr .. ", " .. k .. '=' .. tostring(v);
+            fieldStr = fieldStr .. ", " .. k .. '=' .. v;
         end
         fieldStr = string.sub(fieldStr, 2);
         return sql .. self.tbEntity.tbName .. " SET " .. fieldStr .. " " .. self.whereStr;
