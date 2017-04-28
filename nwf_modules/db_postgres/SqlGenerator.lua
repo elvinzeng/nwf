@@ -292,7 +292,7 @@ function sqlGenerator:get()
         local sql = "UPDATE "
         local fieldStr = "";
         for k, v in pairs(self.content) do
-            fieldStr = fieldStr .. ", " .. k .. '=' .. v;
+            fieldStr = fieldStr .. ", " .. k .. '=' .. tostring(v);
         end
         fieldStr = string.sub(fieldStr, 2);
         return sql .. self.tbEntity.tbName .. " SET " .. fieldStr .. " " .. self.whereStr;
