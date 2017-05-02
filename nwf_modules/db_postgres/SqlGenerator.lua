@@ -62,9 +62,10 @@ local function handleValue(value)
             end
             res = string.sub(res, 2);
         elseif (type == "string" and not string.match(value, "%w-%([%'%s]-[%w_]*[%'%s]-%)")) then
-            value = string.gsub(tostring(value),"%s+","");
-            if (#value > 0) then
+            if (#value > 0 and not value:find("^%s*$")) then
                 res = "'" .. value .. "'";
+            else
+                assert(false, "value can not be blank");
             end
         else
             res = value;
