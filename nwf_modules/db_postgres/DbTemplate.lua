@@ -28,7 +28,7 @@ local function getListFromCursor(cursor, mapper)
         end
         return mapper:get();
     else
-        local array ;
+        local array;
         for row in function() return cursor:fetch({}, "a"); end do
             if (not array) then
                 array = commonlib.Array:new()
@@ -132,27 +132,38 @@ function dbTemplate:queryList(sql, mapper, countSql)
         return _data;
     else
         local limit, offset = string.match(string.upper(sql), "LIMIT (%d+) OFFSET (%d+)");
-        if (not limit or not offset) then
-            assert(false, [[can not match param limit and offset,
-					make sure your sql has script like 'LIMIT 5 OFFSET 0']]);
+        limit = tonumber(limit);
+        offset = tonumber(offset);
+        local hasPagination = false;
+        if (limit and offset) then
+            if (limit <= 0) then
+                assert(false, "sql语句中limit后的数值不能小于等于0");
+            end
+            if (offset < 0) then
+                assert(false, "sql语句中offset后的数值不能小于0");
+            end
+            hasPagination = true;
         end
+
         local cursor, conn = self.executeWithReleaseCtrl(countSql, nil, false);
         local _data = {};
-        local pagination
+        local pagination;
         local list;
         if (cursor) then
             local count = cursor:fetch({}, "a").count + 0;
-            local pageIndex = offset / limit + 1;
-            local pageSize = limit + 0;
-            local pageCount = math.ceil(count / pageSize);
+            local pageCount;
             if (count ~= 0) then
-                pagination = {
-                    currentPageIndex = pageIndex,
-                    pageCount = pageCount,
-                    pageSize = pageSize,
-                    recordCount = count
-                };
-
+                if (hasPagination) then
+                    local pageIndex = offset / limit + 1;
+                    local pageSize = limit;
+                    pageCount = math.ceil(count / pageSize);
+                    pagination = {
+                        currentPageIndex = pageIndex,
+                        pageCount = pageCount,
+                        pageSize = pageSize,
+                        recordCount = count
+                    };
+                end
                 cursor = self.executeWithReleaseCtrl(sql, conn, true);
                 if (cursor) then
                     local res = getListFromCursor(cursor, mapper);
@@ -161,12 +172,16 @@ function dbTemplate:queryList(sql, mapper, countSql)
                     end
                 end
             else
-                pagination = {
-                    currentPageIndex = 0,
-                    pageCount = 0,
-                    pageSize = pageSize,
-                    recordCount = 0
-                };
+                if (hasPagination) then
+                    local pageSize = limit;
+                    pageCount = math.ceil(count / pageSize);
+                    pagination = {
+                        currentPageIndex = 0,
+                        pageCount = 0,
+                        pageSize = pageSize,
+                        recordCount = 0
+                    };
+                end
             end
             _data.pagination = pagination;
             _data.list = list or {};
