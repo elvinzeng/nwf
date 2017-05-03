@@ -140,9 +140,9 @@ tips: you can use git-bash to run script if you are Windows user.
 ***Attention:***
 Since the project auto update script will check the file changes by calculating the file checksum
 , If the git client is configured to automatically convert the line style will cause the project auto update script be not available.
-To resolve this issue, configure the git client line style conversion behavior in git-bash by executing the following command before creating or clone projects.
+To resolve this issue, configure the git client line style conversion behavior in terminal or git-bash by executing the following command before creating or clone projects.
 ```Shell
-Git config --global core.autocrlf input
+git config --global core.autocrlf input
 ```
 
 ## Run Web Server
