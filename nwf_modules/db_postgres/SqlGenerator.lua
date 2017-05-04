@@ -62,9 +62,11 @@ local function handleValue(value)
             end
             res = string.sub(res, 2);
         elseif (type == "string" and not string.match(value, "%w-%([%'%s]-[%w_]*[%'%s]-%)")) then
-            value = string.gsub(tostring(value),"%s+","");
-            if (#value > 0) then
+            if (#value > 0 and not value:find("^%s*$")) then
                 res = "'" .. value .. "'";
+            else
+                --如果为空字符串
+                res = nil;
             end
         else
             res = value;
@@ -262,7 +264,7 @@ end
 function sqlGenerator:limit(pageIndex, pageSize)
     if (self.type == sqlGenerator.TYPE_SELECT) then
         if (pageIndex and pageIndex > 0 and pageSize and pageSize > 0 ) then
-	    self.limitSql = "LIMIT "..pageSize.." OFFSET "..((pageIndex - 1 ) * pageSize);		
+	    self.limitSql = "LIMIT "..pageSize.." OFFSET "..((pageIndex - 1 ) * pageSize);
         end
     end
     return self;
