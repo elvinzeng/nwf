@@ -65,7 +65,9 @@ local function handleValue(value)
             if (#value > 0 and not value:find("^%s*$")) then
                 res = "'" .. value .. "'";
             else
-                assert(false, "value can not be blank");
+                --如果为空字符串
+                res = nil;
+                --assert(false, "value can not be blank");
             end
         else
             res = value;
@@ -263,7 +265,7 @@ end
 function sqlGenerator:limit(pageIndex, pageSize)
     if (self.type == sqlGenerator.TYPE_SELECT) then
         if (pageIndex and pageIndex > 0 and pageSize and pageSize > 0 ) then
-	    self.limitSql = "LIMIT "..pageSize.." OFFSET "..((pageIndex - 1 ) * pageSize);		
+	    self.limitSql = "LIMIT "..pageSize.." OFFSET "..((pageIndex - 1 ) * pageSize);
         end
     end
     return self;
