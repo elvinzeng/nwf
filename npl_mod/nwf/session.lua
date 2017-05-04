@@ -151,6 +151,8 @@ nwf.registerFilter(function(ctx, doNext)
     local res = ctx.response;
 
     local sessionIdKey = nwf.config.session_cookie_key or "sid";
+    local sessionTimeout = nwf.config.session_timeout or nwf.session.timeoutSeconds
+    nwf.session.timeoutSeconds = sessionTimeout
 
     local sid = req:get_cookie(sessionIdKey);
     ctx.session = nwf.session.get(sid);
