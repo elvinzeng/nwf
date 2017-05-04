@@ -1,19 +1,16 @@
 # Database Access For Postgres
-## Install Module  
-* sh nwf_module_manage.sh -a               ##list available module  
-* sh nwf_module_manage.sh -i db_postgres   ## install
+## Set Denpendency  
+Append a line `db_postgres` in dependencies.conf
 ## Config
-Configure your db connection parameters in webserver.config.xml
-```xml
-<config>
-    <table name='db'>
-      <string name='host'>127.0.0.1</string>
-      <string name='user_name'>postgres</string>
-      <string name='user_password'>123456</string>
-      <string name='database'>test</string>
-      <string name='port'>5432</string>
-    </table>  
-  </config>
+Configure your db connection parameters in mvc_setting.lua
+```lua
+--数据库配置
+local config = commonlib.gettable("nwf.modules.db_postgres.config");
+config.host = "127.0.0.1";
+config.user_name = "postgres";
+config.user_password = "123456";
+config.database = "test";
+config.port = "5432";
 ```
 ## Create Mapper  
 Create `mapper.lua` for each table, like table `grade` to `GradeMapper.lua`
@@ -26,11 +23,10 @@ You can use sqlGenerator to create some simple sql script.
 Before you create `INSERT` or `UPDATE` sql,you need to create a lua file for db entity in `mapper.lua` like this  
 ```lua
 gradeMapper.entity = {
-	tbName = "grade",
-	fields = {
-		grade_id = {prop = "gradeId", notNil = true, isPrimaryKey = true},
-		grade_name = {prop = "gradeName", notNil = true}
-	}
+	primaryKey = "grade_id",
+	grade_id = {prop = "gradeId", notNil = true, type = field, luaType = "number"},
+	grade_name = {prop = "gradeName", notNil = true, type = field, luaType = "string"}
+}
 ```
 then
 ```lua
@@ -52,6 +48,7 @@ sql = sqlGenerator:select(" s.name , s.age ")
 		  :append("FROM student s LEFT JOIN class c ON c.id = s.id")
 		  :where(nil,"create_time = now()")
 		  :_and("name = ?", "'zhangsan'")
+		  :limit(1, 5)
 		  :get();
 ```
 Method `where(field, value)`,under the normal conditions that the field entry conditions and the comparison of characters,such as `id =`,`name LIKE`,value is the outcome of the comparison, the method internally determines whether to add single quotation marks by value's type,if value is `nil`,this statement will not be appended to sql. Sometimes if you don't want to handle the value,or just want to append a single sql to result,set filed to nil.The methods of `_and` and `_or` are same with `where`.
@@ -81,11 +78,11 @@ dbTemplate.executeWithReleaseCtrl(sqlN, conn, true, openTransaction)
 ### Query
 Befor query, you need to code the relation between the fields of table and mapper to mapper.lua file
 ```lua
-gradeMapper.selectGrade = {
-	primaryKey = "grade_id", 				--primaryKey 
-	grade_id = {prop = "gradeId", type = "field"},		--key is fieldName define in sql
-	grade_name = {prop = "gradeName", type = "field"}	--prop is same to alias,to solve problem that the Postgres check out the field is lowercase 
-};
+gradeMapper.entity = {
+	primaryKey = "grade_id",
+	grade_id = {prop = "gradeId", notNil = true, type = field, luaType = "number"},
+	grade_name = {prop = "gradeName", notNil = true, type = field}
+}
 ``` 
 then
 ```lua
@@ -122,12 +119,11 @@ gradeMapper.classListForGrade = {
 	test = { mapper = gradeMapper.testObjForClass, type = "obj"}		--type="obj" means one to one
 };
 
-gradeMapper.selectGrade = {
-	primaryKey = "grade_id", 					--primaryKey 
-	grade_id = {prop = "gradeId", type = "field"},			--key is fieldName define in sql
-	grade_name = {prop = "gradeName", type = "field"}		--prop is same to alias,to solve problem that the Postgres check out the field is lowercase 
-	class = {mapper = gradeMapper.classListForGrade, type = "list"} 
-};
+gradeMapper.entity = {
+	primaryKey = "grade_id",
+	grade_id = {prop = "gradeId", notNil = true, type = field, luaType = "number"},
+	grade_name = {prop = "gradeName", notNil = true, type = field}
+}
 ```  
 #### Tips
 * fields name or alias must be unique in one select
@@ -172,11 +168,11 @@ local sql = sqlGenerator:select([[
 				t.test_id,
                         	t.test_name]])
 			:append([[
-				FROM (SELECT grade_id, grade_name FROM grade LIMIT %d OFFSET %d) g 
+				FROM (SELECT grade_id, grade_name FROM grade LIMIT 5 OFFSET 0) g 
 				LEFT JOIN class c ON g.grade_id = c.grade_id
 				LEFT JOIN student s ON c.class_id = s.class_id
 				LEFT JOIN test t ON c.class_id = t.class_id
 			]])
 			:get();
-local data = dbTemplate:queryList(sql, mapper, " select count(1) from grade ", 1, 3);
+local data = dbTemplate:queryList(sql, mapper, " select count(1) from grade ");
 ```
