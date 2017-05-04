@@ -149,8 +149,8 @@ local res = dbTemplate:queryFirst(sql,  mapper);
 
 ### 分页查询
 #### Tips
-* `countSql` 不能为nil, `pageIndex` 和 `pageSize` 必须大于0
-* sql的分页子句: `LIMIT %d OFFSET %d`
+* `countSql` 不能为nil
+* sql必须包含`LIMIT %d OFFSET %d`
 ```lua	
 local sql = sqlGenerator:select([[
 				g.grade_id,
