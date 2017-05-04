@@ -150,7 +150,17 @@ nwf.registerFilter(function(ctx, doNext)
     local req = ctx.request;
     local res = ctx.response;
 
-    local sessionIdKey = "sid";
+    local sessionIdKey = nwf.config.session_cookie_key or "sid";
+    local sessionTimeout = nwf.config.session_timeout or nwf.session.timeoutSeconds
+    if (sessionTimeout) then
+        if (sessionTimeout > 1) then
+            nwf.session.timeoutSeconds = sessionTimeout
+        else
+            error("error: config session timeout seconds invalid.")
+        end
+    else
+        error("error: config session timeout seconds can not be nil.")
+    end
 
     local sid = req:get_cookie(sessionIdKey);
     ctx.session = nwf.session.get(sid);

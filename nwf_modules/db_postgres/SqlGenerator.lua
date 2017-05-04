@@ -67,6 +67,7 @@ local function handleValue(value)
             else
                 --如果为空字符串
                 res = nil;
+                --assert(false, "value can not be blank");
             end
         else
             res = value;

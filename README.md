@@ -136,6 +136,15 @@ Now, you only need to run the following command:
 
 Then, this script will use parameter "project-name" to create a directoty as project root directory, it will generate the necessary directory structure and the basic file automatically.  
 tips: you can use git-bash to run script if you are Windows user.  
+
+***Attention:***
+Since the project auto update script will check the file changes by calculating the file checksum
+, If the git client is configured to automatically convert the line style will cause the project auto update script be not available.
+To resolve this issue, configure the git client line style conversion behavior in terminal or git-bash by executing the following command before creating or clone projects.
+```Shell
+git config --global core.autocrlf input
+```
+
 ## Run Web Server
 * Linux: sh start.sh
 * Windows: run update_packages.sh and then run start_win.bat
