@@ -48,7 +48,7 @@ sqlGenerator.TYPE_UPDATE = "UPDATE";
 sqlGenerator.TYPE_DELETE = "DELETE";
 sqlGenerator.TYPE_SELECT = "SELECT";
 
-local function handleValue(value)
+local function handleValue(value, blankToNull)
     local res;
     if (value ~= nil) then
         local type = type(value);
@@ -66,7 +66,13 @@ local function handleValue(value)
                 res = "'" .. value .. "'";
             else
                 --如果为空字符串
-                res = nil;
+                if (blankToNull) then
+                    res = "NULL";
+                else
+                    res = nil;
+                end
+                -- res = "NULL"
+                --assert(false, "value can not be blank");
             end
         else
             res = value;
@@ -186,7 +192,7 @@ function sqlGenerator:value(tb)
                 local prop = v.prop or k;
                 assert(false, prop .. " can not be nil");
             end
-            local value = handleValue(value);
+            local value = handleValue(value, true);
             if (value ~= nil) then
                 table.insert(self.fields, k);
                 table.insert(self.values, tostring(value));
@@ -196,7 +202,7 @@ function sqlGenerator:value(tb)
         for k, v in pairs(self.tbEntity.entity) do
             local value = tb[k] or tb[v.prop];
             if (self.tbEntity.entity.primaryKey ~= k) then
-                local value = handleValue(value);
+                local value = handleValue(value, true);
                 if (value ~= nil) then
                     self.content[k] = value;
                 end
