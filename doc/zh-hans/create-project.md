@@ -8,10 +8,21 @@
 ```
 
 脚本的参数为想要创建的项目的项目名称。初始化脚本会自动创建好目录结构并生成必要的文件。
+
+***注意：***
+由于自动更新项目的脚本会通过计算文件校验和的方式来检查文件变更情况
+，当git客户端被配置为自动转换换行符时将会导致项目自动更新脚本不可用。
+为了解决这个问题，在创建或者clone项目之前请在终端或git-bash执行以下命令配置git客户端换行符转换行为。  
+```shell
+git config --global core.autocrlf input
+```
+
 # 项目结构
 <pre>
 .                                --> 项目根目录
 ├── module_source_repos.conf     --> 模块源的配置文件
+├── dependencies.conf            --> 配置此项目依赖的模块
+├── reinitialize.sh              --> 重新初始化项目的工具脚本（项目小组其他成员clone了项目之后可以运行这个脚本初始化所有git子模块）
 ├── npl_packages                 --> npl packages 根目录
 │   ├── main                     --> NPL main package
 │   └── nwf                      --> nwf package
@@ -56,7 +67,25 @@
 
 ```
 
-## 运行服务器
+# 安装依赖的模块
+
+首先配置好项目依赖的[模块](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/nwf-module.md)
+
+```shell
+elvin@elvin-idreamtech ~/workspace/testnwf $ cat dependencies.conf 
+preload_controller_mod
+helloworld
+```
+
+然后执行以下命令安装所有配置文件中的[模块](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/nwf-module.md)
+
+```shell
+~ $ ./nwf_module_manage.sh -I
+```
+
+如果你还不熟悉nwf模块，可以暂时跳过这一步直接启动服务器。
+
+# 运行服务器
 * Linux: sh start.sh
 * Windows: 运行update_packages.sh更新包，然后运行start_win.bat
 * 打开浏览器访问"http://localhost:8099/ ". 如果看到页面上显示"it works!"则表示运行成功。

@@ -20,18 +20,26 @@ usage(){
 	echo "        list all available modules"
 	echo "    -r"
 	echo "        update(reinstall) all modules"
+	echo "    -I"
+	echo "        install all modules specified by dependencies.conf"
 }
 
 init_repo(){
     echo "init repositories..."
+    cwd=$(pwd)
+    bash npl_packages/nwf/resources/scripts/_dos2unix.sh module_source_repos.conf
 	cat module_source_repos.conf| grep -v '#'|while read line
 	do
 		rn=$(echo $line | cut -d' ' -f1)
 		rl=$(echo $line | cut -d' ' -f2)
+		rb=$(echo $line | cut -d' ' -f3)
 		if [ ! -d "npl_packages/$rn" ]; then
 			echo "repository $rn doesn't exist, importing..."
 			git submodule add "$rl" "npl_packages/$rn"
 		fi
+		cd "npl_packages/$rn"
+        git checkout "${rb:-master}"
+        cd "$cwd"
 	done
 }
 
@@ -52,9 +60,10 @@ install_mod(){
 				else
 					if [ -f $modBaseDir/dependencies.conf ]; then
 						echo install dependencies of module $mod...
-						cat $modBaseDir/dependencies.conf | grep -v '^$'
+						#bash npl_packages/nwf/resources/scripts/_dos2unix.sh $modBaseDir/dependencies.conf
+						cat $modBaseDir/dependencies.conf | grep -v '^$'| grep -v "#"
 						local line=""
-						cat $modBaseDir/dependencies.conf | grep -v '^$' | while read line
+						cat $modBaseDir/dependencies.conf | grep -v '^$' | grep -v "#" | while read line
 						do
 							install_mod $line
 						done
@@ -63,8 +72,12 @@ install_mod(){
 					echo copy files...
 					cp $modBaseDir www/modules/ -r
 					if [ -f "www/modules/$mod/install.sh" ]; then
+						local cwd="$(pwd)"
+						cd www/modules/$mod
+						bash ${cwd}/npl_packages/nwf/resources/scripts/_dos2unix.sh install.sh
+						bash ./install.sh
+						cd "$cwd"
 						echo executing "www/modules/$mod/install.sh"
-						echo $(cd www/modules/$mod && bash ./install.sh)
 					fi
 					echo "module $mod installattion completed."
 				fi
@@ -78,19 +91,64 @@ install_mod(){
 
 del_mod(){
 	mod=$1
-	modDir="www/modules/$mod"
-	if [ -d $modDir ]; then
-		echo "module '$mod' founded in '$modDir'"
-		if [ -f "$modDir/del.sh" ]; then
-			echo executing "$modDir/del.sh"
-			echo $(cd $modDir && bash ./del.sh)
-		fi
-		echo remove files...
-		echo $(cd www/modules && echo "remove dir $mod" && rm $mod -rf)
-		echo "done."
-	else
-		echo "module '$mod' can not found."
+	cancelFlag=0;
+	depm=""
+
+	for m in $(ls www/modules)
+	do
+	    if [ -e www/modules/$m/dependencies.conf ]; then
+	        bash npl_packages/nwf/resources/scripts/_dos2unix.sh www/modules/$m/dependencies.conf
+	        count=$(cat www/modules/$m/dependencies.conf |grep "$mod" | grep -v "#"| wc -l)
+	        if [ $count -gt 0 ]; then
+	            cancelFlag=1;
+	            depm="$m"
+	            break;
+	        fi
+	    fi
+	done
+
+    if [ $cancelFlag -ne 0 ]; then
+        echo "Module \"$mod\" cannot be uninstalled because module \"$depm\" is dependent on it."
+    else
+        modDir="www/modules/$mod"
+        if [ -d $modDir ]; then
+            echo "module '$mod' founded in '$modDir'"
+            if [ -f "$modDir/del.sh" ]; then
+                local cwd="$(pwd)"
+                cd "$modDir"
+                bash ${cwd}/npl_packages/nwf/resources/scripts/_dos2unix.sh del.sh
+                bash ./del.sh
+                cd "$cwd"
+                echo executing "$modDir/del.sh"
+            fi
+            echo remove files...
+            echo $(cd www/modules && echo "remove dir $mod" && rm $mod -rf)
+            echo "done."
+        else
+            echo "module '$mod' can not found."
+        fi
 	fi
+}
+
+del_mod_force(){
+	mod=$1
+    modDir="www/modules/$mod"
+    if [ -d $modDir ]; then
+        echo "module '$mod' founded in '$modDir'"
+        if [ -f "$modDir/del.sh" ]; then
+            local cwd="$(pwd)"
+            cd "$modDir"
+            bash ${cwd}/npl_packages/nwf/resources/scripts/_dos2unix.sh del.sh
+            bash ./del.sh
+            cd "$cwd"
+            echo executing "$modDir/del.sh"
+        fi
+        echo remove files...
+        echo $(cd www/modules && echo "remove dir $mod" && rm $mod -rf)
+        echo "done."
+    else
+        echo "module '$mod' can not found."
+    fi
 }
 
 reinstall_mod(){
@@ -103,7 +161,7 @@ reinstall_mod(){
 		cd $cwd
 	done
 	echo deleting...
-	del_mod $mod
+	del_mod_force $mod
 	echo reinstall...
 	install_mod $mod
 	echo completed.
@@ -121,7 +179,7 @@ reinstall_all_mod(){
 	for di in $(ls www/modules)
 	do
 		echo deleting...
-		del_mod $di
+		del_mod_force $di
 		echo reinstall...
 		install_mod $di
 		echo completed.
@@ -179,20 +237,47 @@ all_modules(){
 	echo "============ [all available modules] end ========="
 }
 
+install_dependencies(){
+    if [ ! -f "dependencies.conf" ]; then
+        echo "dependencies config file of project 'dependencies.conf' not found."
+        echo "you should put dependencies config file 'dependencies.conf' on project root dir."
+        exit 1;
+    fi
+    init_repo
+    for di in $(ls npl_packages)
+    do
+        cd "npl_packages/$di"
+        git pull
+        cd "$PROJECT_BASE_DIR"
+    done
+    cd "$PROJECT_BASE_DIR"
+    bash npl_packages/nwf/resources/scripts/_dos2unix.sh dependencies.conf
+    echo "installing dependencies specified by dependencies.conf..."
+    cat dependencies.conf | grep -v '^$'| grep -v "#" | while read line
+    do
+        install_mod $line
+    done
+    echo "dependencies installation completed."
+}
+
 if [ $# -lt 1 ] ; then
 	usage
 	exit 1;
 fi
 
 cd $(cd $(dirname $0) && pwd -P)
+PROJECT_BASE_DIR="$(pwd)"
 
-while getopts ":i:d:u:mar" opt
+while getopts ":i:d:u:marI" opt
 do
         case $opt in
                 i ) init_repo
+                    cwd="$(pwd)"
                     for di in $(ls npl_packages)
                     do
-                        echo $(cd "npl_packages/$di" && git pull)
+                        cd "npl_packages/$di"
+                        git pull
+                        cd "$cwd"
                     done
                     install_mod $OPTARG ;;
                 d ) del_mod $OPTARG ;;
@@ -200,6 +285,7 @@ do
 				m ) installed_modules ;;
 				r ) reinstall_all_mod ;;
 				a ) all_modules ;;
+				I ) install_dependencies ;;
                 ? ) usage
                     exit 1;;
         esac

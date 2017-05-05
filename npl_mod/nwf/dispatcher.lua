@@ -3,6 +3,44 @@ title: NPL web framework dispatcher
 author: zenghui
 date: 2017/3/1
 desc: dispatcher is core of NPL Web framework.
+
+          .,:,,,                                        .::,,,::.
+        .::::,,;;,                                  .,;;:,,....:i:
+        :i,.::::,;i:.      ....,,:::::::::,....   .;i:,.  ......;i.
+        :;..:::;::::i;,,:::;:,,,,,,,,,,..,.,,:::iri:. .,:irsr:,.;i.
+        ;;..,::::;;;;ri,,,.                    ..,,:;s1s1ssrr;,.;r,
+        :;. ,::;ii;:,     . ...................     .;iirri;;;,,;i,
+        ,i. .;ri:.   ... ............................  .,,:;:,,,;i:
+        :s,.;r:... ....................................... .::;::s;
+        ,1r::. .............,,,.,,:,,........................,;iir;
+        ,s;...........     ..::.,;:,,.          ...............,;1s
+       :i,..,.              .,:,,::,.          .......... .......;1,
+      ir,....:rrssr;:,       ,,.,::.     .r5S9989398G95hr;. ....,.:s,
+     ;r,..,s9855513XHAG3i   .,,,,,,,.  ,S931,.,,.;s;s&BHHA8s.,..,..:r:
+    :r;..rGGh,  :SAG;;G@BS:.,,,,,,,,,.r83:      hHH1sXMBHHHM3..,,,,.ir.
+   ,si,.1GS,   sBMAAX&MBMB5,,,,,,:,,.:&8       3@HXHBMBHBBH#X,.,,,,,,rr
+   ;1:,,SH:   .A@&&B#&8H#BS,,,,,,,,,.,5XS,     3@MHABM&59M#As..,,,,:,is,
+  .rr,,,;9&1   hBHHBB&8AMGr,,,,,,,,,,,:h&&9s;   r9&BMHBHMB9:  . .,,,,;ri.
+  :1:....:5&XSi;r8BMBHHA9r:,......,,,,:ii19GG88899XHHH&GSr.      ...,:rs.
+  ;s.     .:sS8G8GG889hi.        ....,,:;:,.:irssrriii:,.        ...,,i1,
+  ;1,         ..,....,,isssi;,        .,,.                      ....,.i1,
+  ;h:               i9HHBMBBHAX9:         .                     ...,,,rs,
+  ,1i..            :A#MBBBBMHB##s                             ....,,,;si.
+  .r1,..        ,..;3BMBBBHBB#Bh.     ..                    ....,,,,,i1;
+   :h;..       .,..;,1XBMMMMBXs,.,, .. :: ,.               ....,,,,,,ss.
+    ih: ..    .;;;, ;;:s58A3i,..    ,. ,.:,,.             ...,,,,,:,s1,
+    .s1,....   .,;sh,  ,iSAXs;.    ,.  ,,.i85            ...,,,,,,:i1;
+     .rh: ...     rXG9XBBM#M#MHAX3hss13&&HHXr         .....,,,,,,,ih;
+      .s5: .....    i598X&&A&AAAAAA&XG851r:       ........,,,,:,,sh;
+      . ihr, ...  .         ..                    ........,,,,,;11:.
+         ,s1i. ...  ..,,,..,,,.,,.,,.,..       ........,,.,,.;s5i.
+          .:s1r,......................       ..............;shs,
+          . .:shr:.  ....                 ..............,ishs.
+              .,issr;,... ...........................,is1s;.
+                 .,is1si;:,....................,:;ir1sr;,
+                    ..:isssssrrii;::::::;;iirsssssr;:..
+                         .,::iiirsssssssssrri;;:.
+
 ]]
 
 -- init objects
@@ -216,7 +254,7 @@ local function render(ctx, view, model, im)
         end
     end
     if (type(view) == "table") then
-        res:set_header('Content-Type', 'application/json');
+        res:set_header('Content-Type', 'application/json;charset=utf-8');
         res:SetContent(nil); -- discard any previous text
         view = commonlib.Json.Encode(view);
         res:sendsome(view);
@@ -248,6 +286,7 @@ local function render(ctx, view, model, im)
             resbody = resbody .. s;
         end
         template.render(view, model);
+        res:set_header('Content-Type', 'text/html;charset=utf-8');
         res:sendsome(resbody);
         if (im) then
             res:finish();
@@ -274,6 +313,7 @@ local function process(ctx)
 	local action, validator = dispatch(requestPath);
 	if (type(action) == "table") then
         if (nwf.config.echoDebugInfo) then
+            res:set_header('Content-Type', 'text/html;charset=utf-8');
             res:status(action.status):send(string.format([[<html><body>%s</body></html>]]
                 , action.message));
             res:finish();
@@ -286,6 +326,7 @@ local function process(ctx)
                     nwf.redirectToErrorPage(ctx)
                 end
             else
+                res:set_header('Content-Type', 'text/html;charset=utf-8');
                 res:status(action.status):send(string.format([[<html><body>%s</body></html>]]
                     , "server error"));
                 res:finish();
@@ -339,6 +380,7 @@ local function process(ctx)
         print(tb);
 
         if (nwf.config.echoDebugInfo) then
+            res:set_header('Content-Type', 'text/html;charset=utf-8');
             res:status(500):send(string.format([[<html><head><title>error</title></head>
             <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
             res:finish();
@@ -388,6 +430,7 @@ local function doFilter(filters, i, ctx)
 
         local res = ctx.response;
         if (nwf.config.echoDebugInfo) then
+            res:set_header('Content-Type', 'text/html;charset=utf-8');
             res:status(500):send(string.format([[<html><head><title>error</title></head>
             <body><h3>%s</h3><h4>%s</h4><pre>%s</pre></body></html>]], e, m, tb));
             res:finish();
@@ -488,4 +531,39 @@ end
 -- @param validatorFunc: function of validator
 function nwf.registerRequestMapping(requestPath, controllerFunc, validatorFunc)
     nwf.requestMappings[requestPath] = {action = controllerFunc, validator = validatorFunc};
+end
+
+-- register controller
+-- @param requestPath: request path
+-- @param controllerFunc: function of controller
+function nwf.registerController(requestPath, controllerFunc)
+    if (not nwf.requestMappings[requestPath]) then
+        nwf.requestMappings[requestPath] = {
+            action = controllerFunc,
+            validator = {
+                message = string.format("validator of '%s' not registered."
+                    , requestPath)
+            }
+        };
+    else
+        nwf.requestMappings[requestPath].action = controllerFunc;
+    end
+end
+
+-- register validator
+-- @param requestPath: request path
+-- @param validatorFunc: function of validator
+function nwf.registerValidator(requestPath, validatorFunc)
+    if (not nwf.requestMappings[requestPath]) then
+        nwf.requestMappings[requestPath] = {
+            action = {
+                status = 404,
+                message = string.format("controller of '%s' not registered."
+                    , requestPath)
+            },
+            validator = validatorFunc
+        };
+    else
+        nwf.requestMappings[requestPath].validator = validatorFunc;
+    end
 end

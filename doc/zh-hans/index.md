@@ -135,6 +135,14 @@ options:
 ~/workspace $ sh ./nwf_init.sh "project-name"  
 ```
 脚本的参数为想要创建的项目的项目名称。初始化脚本会自动创建好目录结构并生成必要的文件。
+
+***注意：***
+由于自动更新项目的脚本会通过计算文件校验和的方式来检查文件变更情况
+，当git客户端被配置为自动转换换行符时将会导致项目自动更新脚本不可用。
+为了解决这个问题，在创建或者clone项目之前请在终端或git-bash执行以下命令配置git客户端换行符转换行为。  
+```shell
+git config --global core.autocrlf input
+```
 ## 运行服务器
 * Linux: sh start.sh
 * Windows: 运行update_packages.sh更新包，然后运行start_win.bat。或者直接运行start_win_auto_update.sh。

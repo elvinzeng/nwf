@@ -45,7 +45,8 @@ cd ../../
 
 cp npl_packages/nwf/resources/config/gitignore .gitignore
 cp npl_packages/nwf/resources/config/module_source_repos.conf module_source_repos.conf
-find npl_packages/nwf/resources/scripts/ ! -name "_*.sh" -type f -exec cp {} . \;
+cp npl_packages/nwf/resources/config/dependencies.conf dependencies.conf
+find npl_packages/nwf/resources/scripts/ ! -name "_*" -type f -exec cp {} . \;
 
 if [ ! -d "www" ]; then
 	mkdir "www"
@@ -68,6 +69,17 @@ cp -r npl_packages/nwf/resources/demo/* www/
 
 mkdir .nwf
 echo "do not run init script again! project already initialized at: $(date '+%F %T')" > .nwf/init_flag
+
+bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh npl_packages
+bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh ".nwf"
+bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh ".gitmodules"
+bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh ".gitignore"
+bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "restart_debug.sh"
+bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "shutdown.sh"
+bash npl_packages/nwf/resources/scripts/_hide_file_on_win.sh "start.sh"
+
 find . -path './.git' -prune -o -path './npl_packages' -prune -o -path './.nwf' -prune -o -type f -print | xargs md5sum > .nwf/md5sum
 
 echo NPL Web application initialization done.
+
+cat npl_packages/nwf/resources/scripts/_msg_init.txt

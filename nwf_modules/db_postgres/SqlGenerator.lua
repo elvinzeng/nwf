@@ -71,7 +71,6 @@ local function handleValue(value, blankToNull)
                 else
                     res = nil;
                 end
-                -- res = "NULL"
                 --assert(false, "value can not be blank");
             end
         else

@@ -8,5 +8,5 @@
 
 print("helloworld module init...");
 
-NPL.load("(gl)www/modules/helloworld/HelloModController.lua");
-NPL.load("(gl)www/modules/helloworld/HelloModValidator.lua");
+load("HelloModController.lua");
+load("HelloModValidator.lua");

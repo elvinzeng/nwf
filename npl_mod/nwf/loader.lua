@@ -3,9 +3,49 @@ title: NPL web framework loader
 author: zenghui
 date: 2017/2/27
 desc: this file will load NPL web framework basic module and init components.
+
+
+           .,,       .,:;;iiiiiiiii;;:,,.     .,,
+         rGB##HS,.;iirrrrriiiiiiiiiirrrrri;,s&##MAS,
+        r5s;:r3AH5iiiii;;;;;;;;;;;;;;;;iiirXHGSsiih1,
+           .;i;;s91;;;;;;::::::::::::;;;;iS5;;;ii:
+         :rsriii;;r::::::::::::::::::::::;;,;;iiirsi,
+      .,iri;;::::;;;;;;::,,,,,,,,,,,,,..,,;;;;;;;;iiri,,.
+   ,9BM&,            .,:;;:,,,,,,,,,,,hXA8:            ..,,,.
+  ,;&@@#r:;;;;;::::,,.   ,r,,,,,,,,,,iA@@@s,,:::;;;::,,.   .;.
+   :ih1iii;;;;;::::;;;;;;;:,,,,,,,,,,;i55r;;;;;;;;;iiirrrr,..
+  .ir;;iiiiiiiiii;;;;::::::,,,,,,,:::::,,:;;;iiiiiiiiiiiiri
+  iriiiiiiiiiiiiiiii;;;::::::::::::::::;;;iiiiiiiiiiiiiiiir;
+ ,riii;;;;;;;;;;;;;:::::::::::::::::::::::;;;;;;;;;;;;;;iiir.
+ iri;;;::::,,,,,,,,,,:::::::::::::::::::::::::,::,,::::;;iir:
+.rii;;::::,,,,,,,,,,,,:::::::::::::::::,,,,,,,,,,,,,::::;;iri
+,rii;;;::,,,,,,,,,,,,,:::::::::::,:::::,,,,,,,,,,,,,:::;;;iir.
+,rii;;i::,,,,,,,,,,,,,:::::::::::::::::,,,,,,,,,,,,,,::i;;iir.
+,rii;;r::,,,,,,,,,,,,,:,:::::,:,:::::::,,,,,,,,,,,,,::;r;;iir.
+.rii;;rr,:,,,,,,,,,,,,,,:::::::::::::::,,,,,,,,,,,,,:,si;;iri
+ ;rii;:1i,,,,,,,,,,,,,,,,,,:::::::::,,,,,,,,,,,,,,,:,ss:;iir:
+ .rii;;;5r,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,sh:;;iri
+  ;rii;:;51,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.:hh:;;iir,
+   irii;::hSr,.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.,sSs:;;iir:
+    irii;;:iSSs:.,,,,,,,,,,,,,,,,,,,,,,,,,,,..:135;:;;iir:
+     ;rii;;:,r535r:...,,,,,,,,,,,,,,,,,,..,;sS35i,;;iirr:
+      :rrii;;:,;1S3Shs;:,............,:is533Ss:,;;;iiri,
+       .;rrii;;;:,;rhS393S55hh11hh5S3393Shr:,:;;;iirr:
+         .;rriii;;;::,:;is1h555555h1si;:,::;;;iirri:.
+           .:irrrii;;;;;:::,,,,,,,,:::;;;;iiirrr;,
+              .:irrrriiiiii;;;;;;;;iiiiiirrrr;,.
+                 .,:;iirrrrrrrrrrrrrrrrri;:.
+                       ..,:::;;;;:::,,.
+
+
 ]]
 
 print('npl web framework is loading...');
+
+NPL.load("(gl)script/ide/Files.lua");
+lfs = commonlib.Files.GetLuaFileSystem();
+PROJECT_BASE_DIR = lfs.currentdir();
+print("project base dir: '" .. PROJECT_BASE_DIR .. "'");
 
 -- add search path
 NPL.load("(gl)script/ide/System/os/os.lua");
@@ -28,6 +68,7 @@ nwf.modules = {};  -- namespace for modules
 nwf.requestMappings = {};
 nwf.template = require "nwf.resty.template";
 nwf.validation = require "nwf.resty.validation";
+nwf.mod_path = {"www/modules"}  -- specified module search path
 -- init functions
 local filters = commonlib.gettable("nwf.filters");
 
@@ -44,10 +85,11 @@ function nwf.registerFilter(filter)
     table.insert(filters, filter);
 end;
 
-NPL.load("nwf.utils.configUtil")
+NPL.load("nwf.utils.config_util")
 NPL.load("nwf.utils.string_util")
 NPL.load("nwf.dispatcher")
 NPL.load("nwf.utils.string_escape_util")
+NPL.load("nwf.nwf_load_file")
 
 -- builtin filters
 -- register request log filter
@@ -82,10 +124,17 @@ print("load framework settings...");
 NPL.load("(gl)www/mvc_settings.lua");
 
 -- load modules
-print("load nwf modules...");
+print("checking module search path setting...")
+for i,v in ipairs(nwf.mod_path) do
+    assert(not string.match(v, "^/")
+        , "module search path can not be absolute path, use relative path.")
+    if (string.match(v, "/$")) then
+        nwf.mod_path[i] = string.sub(v, 1, -2);
+    end
+end
 
-nwf.loadModule = function (path, name)
-    --print("nwf.loadModule('" .. path .. "', " .. name .. ")");
+nwf.loadModule = function (mod_base_dir, name)
+    local path = mod_base_dir .. '/' .. name;
     if (nwf.initializedModules[name]) then
         print("module '" .. name .. "' already loaded, skipped.");
         return;
@@ -95,39 +144,75 @@ nwf.loadModule = function (path, name)
 
     local dependenciesConfigPath = path .. '/dependencies.conf';
     if (ParaIO.DoesFileExist(dependenciesConfigPath, false)) then
-        local depConfig = io.open(dependenciesConfigPath);
+        local depConfig = assert(io.open(dependenciesConfigPath));
         for line in depConfig:lines() do
-            if (not nwf.initializedModules[line]) then
-                print("load module '" .. line .."' as a dependency of module '"
-                        .. name .."'");
-                nwf.loadModule("www/modules/" .. line, line);
+            if ((not string.match(line, "^%s*$"))
+                    and (not string.match(line, "^%s*#.*$"))) then
+                if (not nwf.initializedModules[line]) then
+                    print("load module '" .. line .."' as a dependency of module '"
+                            .. name .."'");
+                    local moduleFounded = false;
+                    for i,v in ipairs(nwf.mod_path) do
+                        local dep_path = PROJECT_BASE_DIR .. "/" .. v .. "/" .. line;
+                        if (ParaIO.DoesFileExist(dep_path, false)) then
+                            moduleFounded = true;
+                            print("founded dependency on '" .. dep_path .. "'")
+                            print("load dependency on '" .. v .. "'");
+                            nwf.loadModule(v, line);
+                            break;
+                        end
+                    end
+                    if (not moduleFounded) then
+                        error("dependency of module '" .. name .. "' can not found. load failed!");
+                    end
+                end
             end
         end
         depConfig:close();
     end
 
-    print("loading module '" .. name .. "'")
-    local initScriptPath = path .. '/init.lua';
-    local g = {};
+    print("loading module '" .. name .. "'");
+    local initScriptPath = PROJECT_BASE_DIR .. "/" .. path .. '/init.lua';
+    --[[local g = {};
     setmetatable(g, {__index = _G})
     local doInit = function()
         NPL.load(initScriptPath);
     end
     setfenv(doInit, g);
-    doInit();
+    doInit();--]]
+    -- NPL.load(initScriptPath);
+    nwf.load(initScriptPath);
 end
 
-NPL.load("(gl)script/ide/Files.lua");
-lfs = commonlib.Files.GetLuaFileSystem();
-mod_pathes = {}
-mod_root_dir = "www/modules"
-for entry in lfs.dir(mod_root_dir) do
-    if entry ~= '.' and entry ~= '..' then
-        local path = mod_root_dir .. '/' .. entry;
-        print("found module: " .. entry);
-        nwf.loadModule(path, entry);
+print("load nwf modules...");
+local projectDependencies = PROJECT_BASE_DIR .. '/dependencies.conf';
+if (ParaIO.DoesFileExist(projectDependencies, false)) then
+    local projectDepConfig = assert(io.open(projectDependencies));
+    for line in projectDepConfig:lines() do
+        if ((not string.match(line, "^%s*$"))
+                and (not string.match(line, "^%s*#.*$"))) then
+            if (not nwf.initializedModules[line]) then
+                print("load module '" .. line .."' as a dependency of project");
+                local moduleFounded = false;
+                for i,v in ipairs(nwf.mod_path) do
+                    local dep_path = PROJECT_BASE_DIR .. "/" .. v .. "/" .. line;
+                    if (ParaIO.DoesFileExist(dep_path, false)) then
+                        moduleFounded = true;
+                        print("founded project dependency on '" .. dep_path .. "'")
+                        print("load project dependency on '" .. v .. "'");
+                        nwf.loadModule(v, line);
+                        break;
+                    end
+                end
+                if (not moduleFounded) then
+                    error("project dependency of module '" .. name .. "' can not found. load failed!");
+                end
+            else
+                print("project dependency '" .. line .. "' already loaded, skipped.");
+            end
+        end
     end
+    projectDepConfig:close();
 end
-
 
 print('npl web framework loaded.');
