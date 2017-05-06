@@ -17,32 +17,32 @@ if [ $country_flag -ge 1 ]; then
     if [ -f "npl_packages/main/README.md" ]; then
         cd npl_packages/main
         git remote set-url origin https://git.oschina.net/elvinzeng/npl-main-packages.git
+        cd $PROJECT_BASE_DIR
         sed -i 's/https:\/\/github.com\/NPLPackages\/main/https:\/\/git.oschina.net\/elvinzeng\/npl-main-packages.git/' .gitmodules
         sed -i 's/https:\/\/github.com\/NPLPackages\/main/https:\/\/git.oschina.net\/elvinzeng\/npl-main-packages.git/' .git/config
-        cd $PROJECT_BASE_DIR
     fi
     if [ -f "npl_packages/nwf/README.md" ]; then
         cd npl_packages/nwf
         git remote set-url origin https://git.oschina.net/elvinzeng/nwf.git
+        cd $PROJECT_BASE_DIR
         sed -i 's/https:\/\/github.com\/elvinzeng\/nwf.git/https:\/\/git.oschina.net\/elvinzeng\/nwf.git/' .gitmodules
         sed -i 's/https:\/\/github.com\/elvinzeng\/nwf.git/https:\/\/git.oschina.net\/elvinzeng\/nwf.git/' .git/config
-        cd $PROJECT_BASE_DIR
     fi
 else
     echo "We have detected that you are not currently in China, so we will use github repository directly."
     if [ -f "npl_packages/main/README.md" ]; then
         cd npl_packages/main
         git remote set-url origin https://github.com/NPLPackages/main
+        cd $PROJECT_BASE_DIR
         sed -i 's/https:\/\/git.oschina.net\/elvinzeng\/npl-main-packages.git/https:\/\/github.com\/NPLPackages\/main/' .gitmodules
         sed -i 's/https:\/\/git.oschina.net\/elvinzeng\/npl-main-packages.git/https:\/\/github.com\/NPLPackages\/main/' .git/config
-        cd $PROJECT_BASE_DIR
     fi
     if [ -f "npl_packages/nwf/README.md" ]; then
         cd npl_packages/nwf
         git remote set-url origin https://github.com/elvinzeng/nwf.git
+        cd $PROJECT_BASE_DIR
         sed -i 's/https:\/\/git.oschina.net\/elvinzeng\/nwf.git/https:\/\/github.com\/elvinzeng\/nwf.git/' .gitmodules
         sed -i 's/https:\/\/git.oschina.net\/elvinzeng\/nwf.git/https:\/\/github.com\/elvinzeng\/nwf.git/' .git/config
-        cd $PROJECT_BASE_DIR
     fi
 fi
 
