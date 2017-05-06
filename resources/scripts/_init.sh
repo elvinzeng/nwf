@@ -33,12 +33,27 @@ fi
 if [ ! -d "npl_packages" ]; then
 	mkdir "npl_packages"
 fi
-if [ ! -f "npl_packages/main/README.md" ]; then
-	git submodule add https://github.com/NPLPackages/main npl_packages/main
+
+echo detecting the current location...
+country_flag=$(curl "http://ip.taobao.com/service/getIpInfo.php?ip=$(curl http://ipecho.net/plain)" | grep '"country_id":"CN"' | wc -l)
+if [ $country_flag -ge 1 ]; then
+    echo "We have detected that you are currently in China, so we will use the mirror repository located in China."
+    if [ ! -f "npl_packages/main/README.md" ]; then
+        git submodule add https://git.oschina.net/elvinzeng/npl-main-packages.git npl_packages/main
+    fi
+    if [ ! -f "npl_packages/nwf/README.md" ]; then
+        git submodule add https://git.oschina.net/elvinzeng/nwf.git npl_packages/nwf
+    fi
+else
+    echo "We have detected that you are not currently in China, so we will use github repository directly."
+    if [ ! -f "npl_packages/main/README.md" ]; then
+        git submodule add https://github.com/NPLPackages/main npl_packages/main
+    fi
+    if [ ! -f "npl_packages/nwf/README.md" ]; then
+        git submodule add https://github.com/elvinzeng/nwf.git npl_packages/nwf
+    fi
 fi
-if [ ! -f "npl_packages/nwf/README.md" ]; then
-	git submodule add https://github.com/elvinzeng/nwf.git npl_packages/nwf
-fi
+
 cd npl_packages/main && git pull
 cd ../nwf && git pull
 cd ../../
