@@ -147,7 +147,7 @@ git config --global core.autocrlf input
 
 ## Run Web Server
 * Linux: sh start.sh
-* Windows: run update_packages.sh and then run start_win.bat
+* Windows: run start_win.bat
 * Access "http://localhost:8099/ ". "it works!" means web application is start success.
 
 # development documentation

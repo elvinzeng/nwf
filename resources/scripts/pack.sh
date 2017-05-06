@@ -53,7 +53,7 @@ cd $SOURCE_DIR
 echo "current dir: $(pwd)"
 echo "updating files..."
 git pull
-bash ./update_packages.sh
+bash ./update_project.sh
 bash ./nwf_module_manage.sh -I
 bash ./nwf_module_manage.sh -r
 
