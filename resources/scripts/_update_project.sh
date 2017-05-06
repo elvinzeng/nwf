@@ -10,6 +10,41 @@
 echo updating project...
 PROJECT_BASE_DIR="$(pwd)"
 
+echo detecting the current location...
+country_flag=$(curl "http://ip.taobao.com/service/getIpInfo.php?ip=$(curl http://ipecho.net/plain)" | grep '"country_id":"CN"' | wc -l)
+if [ $country_flag -ge 1 ]; then
+    echo "We have detected that you are currently in China, so we will use the mirror repository located in China."
+    if [ -f "npl_packages/main/README.md" ]; then
+        cd npl_packages/main
+        git remote set-url origin https://git.oschina.net/elvinzeng/npl-main-packages.git
+        cd $PROJECT_BASE_DIR
+    fi
+    if [ -f "npl_packages/nwf/README.md" ]; then
+        cd npl_packages/nwf
+        git remote set-url origin https://git.oschina.net/elvinzeng/nwf.git
+        cd $PROJECT_BASE_DIR
+    fi
+else
+    echo "We have detected that you are not currently in China, so we will use github repository directly."
+    if [ -f "npl_packages/main/README.md" ]; then
+        cd npl_packages/main
+        git remote set-url origin https://github.com/NPLPackages/main
+        cd $PROJECT_BASE_DIR
+    fi
+    if [ -f "npl_packages/nwf/README.md" ]; then
+        cd npl_packages/nwf
+        git remote set-url origin https://github.com/elvinzeng/nwf.git
+        cd $PROJECT_BASE_DIR
+    fi
+fi
+
+cd $PROJECT_BASE_DIR
+cd npl_packages/main
+git pull
+cd ../nwf/
+git pull
+cd $PROJECT_BASE_DIR
+
 get_hash(){
     f=$1
     cat .nwf/md5sum | sed 's/*//' | while read line
