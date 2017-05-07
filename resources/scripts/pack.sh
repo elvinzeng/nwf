@@ -67,5 +67,11 @@ cp $BUILD_DIR_SOURCE/start.sh $BUILD_DIR_TARGET
 cp $BUILD_DIR_SOURCE/shutdown.sh $BUILD_DIR_TARGET
 cp $BUILD_DIR_SOURCE/dependencies.conf $BUILD_DIR_TARGET
 
+echo compressing...
+PROJECT_NAME=$(basename $PROJECT_BASE_DIR)
+cp $BUILD_DIR_TARGET $PROJECT_NAME -r
+tar -czf $PROJECT_NAME.tar.gz $PROJECT_NAME
+rm $PROJECT_NAME -rf
+
 echo pack completed. target directory: $PROJECT_BASE_DIR/$BUILD_DIR_TARGET
 
