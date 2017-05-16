@@ -48,7 +48,7 @@ sqlGenerator.TYPE_UPDATE = "UPDATE";
 sqlGenerator.TYPE_DELETE = "DELETE";
 sqlGenerator.TYPE_SELECT = "SELECT";
 
-local function handleValue(value, blankToNull)
+local function handleValue(value, blankToNull, isArray)
     local res;
     if (value ~= nil) then
         local type = type(value);
@@ -63,7 +63,11 @@ local function handleValue(value, blankToNull)
             res = string.sub(res, 2);
         elseif (type == "string" and not string.match(value, "%w-%([%'%s]-[%w_]*[%'%s]-%)")) then
             if (#value > 0 and not value:find("^%s*$")) then
-                res = "'" .. value .. "'";
+                if (isArray) then
+                    res = "'{"..value.."}'";
+                else
+                    res = "'" .. value .. "'";
+                end
             else
                 --如果为空字符串
                 if (blankToNull) then
@@ -82,7 +86,7 @@ end
 
 local function handleFiledValue(field, ...)
     local value = ...;
-    if (field and value) then
+    if (field and value ~= nil ) then
         if (field:find("{%d+}")) then
             local args = { ... };
             for i, v in ipairs(args) do
@@ -185,23 +189,29 @@ end
 ]]
 function sqlGenerator:value(tb)
     if (self.type == sqlGenerator.TYPE_INSERT) then
+        local tempFields = {};
+        local tempValue = {};
         for k, v in pairs(self.tbEntity.entity) do
             local value = tb[k] or tb[v.prop];
             if (v.notNil and value == nil) then
                 local prop = v.prop or k;
                 assert(false, prop .. " can not be nil");
             end
-            local value = handleValue(value, true);
+            local value = handleValue(value, true, v.isArray);
             if (value ~= nil) then
-                table.insert(self.fields, k);
-                table.insert(self.values, tostring(value));
+                table.insert(tempFields, k);
+                table.insert(tempValue, tostring(value));
             end
         end
+        if (not next(self.fields)) then
+            self.fields = tempFields;
+        end
+        table.insert(self.values, "("..table.concat(tempValue, ",")..")");
     elseif (self.type == sqlGenerator.TYPE_UPDATE) then
         for k, v in pairs(self.tbEntity.entity) do
             local value = tb[k] or tb[v.prop];
             if (self.tbEntity.entity.primaryKey ~= k) then
-                local value = handleValue(value, true);
+                local value = handleValue(value, true, v.isArray);
                 if (value ~= nil) then
                     self.content[k] = value;
                 end
@@ -222,8 +232,8 @@ function sqlGenerator:where(field, ...)
         if (self.whereStr == "") then
             local value ;
             field, value = handleFiledValue(field, ...);
-            if (value) then
-                self.whereStr = "WHERE " .. field .. " " .. value;
+            if (value ~= nil) then
+                self.whereStr = "WHERE " .. field .. " " .. tostring(value);
             else
                 self.whereStr = "WHERE 1 = 1";
             end
@@ -242,8 +252,8 @@ function sqlGenerator:_and(field, ...)
     if (self.type ~= sqlGenerator.TYPE_INSERT) then
         local value;
         field, value = handleFiledValue(field, ...);
-        if (value and self.whereStr ~= "") then
-            self.whereStr = self.whereStr .. " AND " .. field .. " " .. value;
+        if (value ~= nil and self.whereStr ~= "") then
+            self.whereStr = self.whereStr .. " AND " .. field .. " " .. tostring(value);
         end
     end
     return self;
@@ -259,8 +269,8 @@ function sqlGenerator:_or(field, ...)
     if (self.type ~= sqlGenerator.TYPE_INSERT) then
         local value;
         field, value = handleFiledValue(field, ...);
-        if (value and self.whereStr ~= "") then
-            self.whereStr = self.whereStr .. " OR " .. field .. " " .. value;
+        if (value ~= nil and self.whereStr ~= "") then
+            self.whereStr = self.whereStr .. " OR " .. field .. " " .. tostring(value);
         end
     end
     return self;
@@ -290,7 +300,7 @@ function sqlGenerator:get()
         local sql = "INSERT INTO ";
         local fieldStr = table.concat(self.fields, ",");
         local valueStr = table.concat(self.values, ",");
-        return sql .. self.tbEntity.tbName .. " (" .. fieldStr .. ") VALUES (" .. valueStr .. ")";
+        return sql .. self.tbEntity.tbName .. " (" .. fieldStr .. ") VALUES " .. valueStr ;
     elseif (self.type == sqlGenerator.TYPE_UPDATE) then
         local sql = "UPDATE "
         local fieldStr = "";
