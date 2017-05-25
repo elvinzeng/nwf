@@ -224,6 +224,19 @@ local function dispatch(requestPath)
              getValidator(validatorPath, validatorName, func);
     end
 
+    --  get action and validator from custom requestMapper.
+    for i, mapper in ipairs(nwf.requestMapper) do
+        local act, vali = mapper(requestPath);
+        if (act) then
+            if (vali) then
+                return act, vali;
+            else
+                return act, {message = "can not found specified validator."};
+            end
+            break
+        end
+    end
+
     return {status = 404, message = "can not found route rules." },
         {message = "can not found specified validator."};
 end
