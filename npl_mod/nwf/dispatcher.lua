@@ -249,7 +249,11 @@ end
 -- @param im: specified whether if need to send response immediately
 local function render(ctx, view, model, im)
     if (not model) then
-        model = {}
+        model = {ctx = ctx }
+    else
+        if (not model.ctx) then
+            model.ctx = ctx
+        end
     end
     local res = ctx.response;
     if (not view or view == "") then
