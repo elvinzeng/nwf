@@ -9,6 +9,9 @@ print("direct_view_access_mod module init...");
 
 if (nwf.config.echoDebugInfo) then
     nwf.registerRequestMapper(function(requestPath)
+        if ("/" == requestPath) then
+            return;
+        end
         local filePath = "www/view" .. requestPath
         if (not ParaIO.DoesFileExist(filePath, false)) then
             return;
