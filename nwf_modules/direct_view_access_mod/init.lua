@@ -11,7 +11,7 @@ if (nwf.config.echoDebugInfo) then
     nwf.registerRequestMapper(function(requestPath)
         return function(ctx)
             local filePath = "www/view" .. requestPath
-            if (ParaIO.DoesFileExist(filePath, false)) then
+            if (not ParaIO.DoesFileExist(filePath, false)) then
                 return;
             end
             local f = assert(io.open(filePath, "r"))
