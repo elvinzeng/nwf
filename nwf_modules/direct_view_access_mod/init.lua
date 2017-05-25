@@ -10,7 +10,11 @@ print("direct_view_access_mod module init...");
 if (nwf.config.echoDebugInfo) then
     nwf.registerRequestMapper(function(requestPath)
         return function(ctx)
-            local f = assert(io.open("www/view" .. requestPath, "r"))
+            local filePath = "www/view" .. requestPath
+            if (ParaIO.DoesFileExist(filePath, false)) then
+                return;
+            end
+            local f = assert(io.open(filePath, "r"))
             local str = f:read("*all");
             f:close();
             return "raw", {content = str}
