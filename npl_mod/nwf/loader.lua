@@ -222,7 +222,7 @@ if (ParaIO.DoesFileExist(projectDependencies, false)) then
                     end
                 end
                 if (not moduleFounded) then
-                    error("project dependency of module '" .. name .. "' can not found. load failed!");
+                    error("project dependency of module '" .. line .. "' can not found. load failed!");
                 end
             else
                 print("project dependency '" .. line .. "' already loaded, skipped.");
