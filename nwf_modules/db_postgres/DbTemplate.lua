@@ -69,10 +69,7 @@ function dbTemplate.executeWithReleaseCtrl(sql, conn, release, openTransaction)
         conn = connectionManager.getConnection();
         local _ = openTransaction and conn:execute("BEGIN;");
     end
-    local res, err;
-    if (sql) then
-        res, err = conn:execute(sql);
-    end
+    local res, err = conn:execute(sql);
     if (err) then
         if (openTransaction) then
             conn:execute("ROLLBACK;");
