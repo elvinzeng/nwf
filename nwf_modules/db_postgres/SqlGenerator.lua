@@ -277,6 +277,8 @@ function sqlGenerator:_or(field, ...)
 end
 
 function sqlGenerator:limit(pageIndex, pageSize)
+    local pageIndex = tonumber(pageIndex);
+    local pageSize = tonumber(pageSize);
     if (self.type == sqlGenerator.TYPE_SELECT) then
         if (pageIndex and pageIndex > 0 and pageSize and pageSize > 0) then
             self.limitSql = "LIMIT " .. pageSize .. " OFFSET " .. ((pageIndex - 1) * pageSize);
