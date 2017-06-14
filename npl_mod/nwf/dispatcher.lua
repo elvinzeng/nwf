@@ -317,6 +317,10 @@ end
 -- process a http request
 -- @param ctx: request context
 local function process(ctx)
+    if (ctx.request:GetMethod() == 'OPTIONS') then
+        return
+    end
+
     local req = ctx.request;
     local res = ctx.response;
 	local requestPath = req:url();
