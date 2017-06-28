@@ -306,6 +306,9 @@ function sqlGenerator:get()
     elseif (self.type == sqlGenerator.TYPE_UPDATE) then
         local sql = "UPDATE "
         local fieldStr = "";
+		if (next(self.content) == nil) then
+            return nil;
+        end
         for k, v in pairs(self.content) do
             fieldStr = fieldStr .. ", " .. k .. '=' .. tostring(v);
         end
