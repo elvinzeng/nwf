@@ -287,9 +287,13 @@ function sqlGenerator:limit(pageIndex, pageSize)
     return self;
 end
 
-function sqlGenerator:orderBy(field)
+function sqlGenerator:orderBy(field, orderDesc)
     if (self.type == sqlGenerator.TYPE_SELECT) then
-        self.orderBySql = "ORDER BY "..field;
+	if(orderDesc == true) then
+	    self.orderBySql = "ORDER BY "..field.." DESC ";
+	else
+	    self.orderBySql = "ORDER BY "..field;		
+	end		
     end
     return self;
 end
