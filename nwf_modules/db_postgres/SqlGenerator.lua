@@ -41,6 +41,7 @@ date: 2017/3/6
 
 ]]
 local sqlGenerator = commonlib.inherit(nil, commonlib.gettable("nwf.modules.db_postgres.sqlGenerator"));
+local stringUtil = commonlib.inherit(nil, commonlib.gettable("nwf.modules.db_postgres.StringUtil"));
 
 sqlGenerator.type = nil;
 sqlGenerator.TYPE_INSERT = "INSERT";
@@ -61,10 +62,10 @@ local function handleValue(value, blankToNull, isArray)
                 end
             end
             res = string.sub(res, 2);
-        elseif (type == "string" and not string.match(value, "%w-%([%'%s]-[%w_]*[%'%s]-%)")) then
+        elseif (type == "string" and not stringUtil.isExcludeFunc(value)) then
             if (#value > 0 and not value:find("^%s*$")) then
                 if (isArray) then
-                    res = "'{"..value.."}'";
+                    res = "'{" .. value .. "}'";
                 else
                     res = "'" .. value .. "'";
                 end
@@ -86,7 +87,7 @@ end
 
 local function handleFiledValue(field, ...)
     local value = ...;
-    if (field and value ~= nil ) then
+    if (field and value ~= nil) then
         if (field:find("{%d+}")) then
             local args = { ... };
             for i, v in ipairs(args) do
@@ -96,7 +97,8 @@ local function handleFiledValue(field, ...)
                 end
                 content = tostring(content);
                 if (content and #content > 0 and not content:find("^%s*$")) then
-                    field = string.gsub(field, "{" .. i .. "}", content);
+
+                    field = string.gsub(field, "{" .. i .. "}", stringUtil.escapeSql(content));
                 end
             end
             if (field:find("{%d+}")) then
@@ -105,7 +107,7 @@ local function handleFiledValue(field, ...)
                 value = "";
             end
         else
-            value = handleValue(value);
+            value = handleValue(stringUtil.escapeSql(value));
         end
     end
     return field or "", value;
@@ -197,7 +199,10 @@ function sqlGenerator:value(tb)
                 local prop = v.prop or k;
                 assert(false, prop .. " can not be nil");
             end
-            local value = handleValue(value, true, v.isArray);
+            if (not v.dontEscape) then
+                value = stringUtil.escapeSql(value)
+            end
+            value = handleValue(value, true, v.isArray);
             if (value ~= nil) then
                 table.insert(tempFields, k);
                 table.insert(tempValue, tostring(value));
@@ -206,12 +211,15 @@ function sqlGenerator:value(tb)
         if (not next(self.fields)) then
             self.fields = tempFields;
         end
-        table.insert(self.values, "("..table.concat(tempValue, ",")..")");
+        table.insert(self.values, "(" .. table.concat(tempValue, ",") .. ")");
     elseif (self.type == sqlGenerator.TYPE_UPDATE) then
         for k, v in pairs(self.tbEntity.entity) do
             local value = tb[k] or tb[v.prop];
             if (self.tbEntity.entity.primaryKey ~= k) then
-                local value = handleValue(value, true, v.isArray);
+                if (not v.dontEscape) then
+                    value = stringUtil.escapeSql(value);
+                end
+                value = handleValue(value, true, v.isArray);
                 if (value ~= nil) then
                     self.content[k] = value;
                 end
@@ -230,7 +238,7 @@ end
 function sqlGenerator:where(field, ...)
     if (self.type ~= sqlGenerator.TYPE_INSERT) then
         if (self.whereStr == "") then
-            local value ;
+            local value;
             field, value = handleFiledValue(field, ...);
             if (value ~= nil) then
                 self.whereStr = "WHERE " .. field .. " " .. tostring(value);
@@ -280,8 +288,8 @@ function sqlGenerator:limit(pageIndex, pageSize)
     local pageIndex = tonumber(pageIndex);
     local pageSize = tonumber(pageSize);
     if (self.type == sqlGenerator.TYPE_SELECT) then
-        if (pageIndex and pageIndex > 0 and pageSize and pageSize > 0 ) then
-	    self.limitSql = "LIMIT "..pageSize.." OFFSET "..((pageIndex - 1 ) * pageSize);
+        if (pageIndex and pageIndex > 0 and pageSize and pageSize > 0) then
+            self.limitSql = "LIMIT " .. pageSize .. " OFFSET " .. ((pageIndex - 1) * pageSize);
         end
     end
     return self;
@@ -289,11 +297,11 @@ end
 
 function sqlGenerator:orderBy(field, orderDesc)
     if (self.type == sqlGenerator.TYPE_SELECT) then
-	if(orderDesc == true) then
-	    self.orderBySql = "ORDER BY "..field.." DESC ";
-	else
-	    self.orderBySql = "ORDER BY "..field;		
-	end		
+        if (orderDesc == true) then
+            self.orderBySql = "ORDER BY " .. field .. " DESC ";
+        else
+            self.orderBySql = "ORDER BY " .. field;
+        end
     end
     return self;
 end
@@ -306,11 +314,11 @@ function sqlGenerator:get()
         local sql = "INSERT INTO ";
         local fieldStr = table.concat(self.fields, ",");
         local valueStr = table.concat(self.values, ",");
-        return sql .. self.tbEntity.tbName .. " (" .. fieldStr .. ") VALUES " .. valueStr ;
+        return sql .. self.tbEntity.tbName .. " (" .. fieldStr .. ") VALUES " .. valueStr;
     elseif (self.type == sqlGenerator.TYPE_UPDATE) then
         local sql = "UPDATE "
         local fieldStr = "";
-		if (next(self.content) == nil) then
+        if (next(self.content) == nil) then
             return nil;
         end
         for k, v in pairs(self.content) do
@@ -327,6 +335,6 @@ function sqlGenerator:get()
         end
         local sql = string.gsub(self.sql, "{0}", self.fields);
         local countSql = string.gsub(self.sql, "{0}", "COUNT(1)")
-        return sql.." "..(self.orderBySql or "").." "..(self.limitSql or ""), countSql;
+        return sql .. " " .. (self.orderBySql or "") .. " " .. (self.limitSql or ""), countSql;
     end
 end
