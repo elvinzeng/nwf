@@ -41,7 +41,8 @@ date: 2017/3/6
 
 ]]
 local sqlGenerator = commonlib.inherit(nil, commonlib.gettable("nwf.modules.db_postgres.sqlGenerator"));
-local stringUtil = commonlib.gettable("nwf.util.string");
+local stringUtil = commonlib.inherit(nil, commonlib.gettable("nwf.modules.db_postgres.StringUtil"));
+
 sqlGenerator.type = nil;
 sqlGenerator.TYPE_INSERT = "INSERT";
 sqlGenerator.TYPE_UPDATE = "UPDATE";
@@ -61,7 +62,7 @@ local function handleValue(value, blankToNull, isArray)
                 end
             end
             res = string.sub(res, 2);
-        elseif (type == "string" and not string.match(value, "%w-%([%'%s]-[%w_]*[%'%s]-%)")) then
+        elseif (type == "string" and not stringUtil.isExcludeFunc(value)) then
             if (#value > 0 and not value:find("^%s*$")) then
                 if (isArray) then
                     res = "'{" .. value .. "}'";
