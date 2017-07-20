@@ -18,8 +18,8 @@ PROJECT_BASE_DIR="$(pwd)"
 if [ ! -f ".nwf/reinitialized_flag" ]; then
     echo "reinitializing project..."
     echo "init submodules..."
-    echo "tips: This script will download files from github, if you are in China, maybe it will take a long time. Please wait patiently."
-    echo "提示：当前脚本运行时会从github上下载文件，如果在你在中国，可能会需要比较长的时间去下载文件。请耐心等待！"
+    #echo "tips: This script will download files from github, if you are in China, maybe it will take a long time. Please wait patiently."
+    #echo "提示：当前脚本运行时会从github上下载文件，如果在你在中国，可能会需要比较长的时间去下载文件。请耐心等待！"
     git submodule update --init --recursive
     for di in $(ls npl_packages)
 	do

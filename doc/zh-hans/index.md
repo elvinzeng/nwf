@@ -145,7 +145,7 @@ git config --global core.autocrlf input
 ```
 ## 运行服务器
 * Linux: sh start.sh
-* Windows: 运行update_packages.sh更新包，然后运行start_win.bat。或者直接运行start_win_auto_update.sh。
+* Windows: 运行start_win.bat
 * 打开浏览器访问"http://localhost:8099/ ". 如果看到页面上显示"it works!"则表示运行成功。
 
 # 其他中文文档

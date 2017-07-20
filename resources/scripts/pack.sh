@@ -53,7 +53,7 @@ cd $SOURCE_DIR
 echo "current dir: $(pwd)"
 echo "updating files..."
 git pull
-bash ./update_packages.sh
+bash ./update_project.sh
 bash ./nwf_module_manage.sh -I
 bash ./nwf_module_manage.sh -r
 
@@ -67,5 +67,13 @@ cp $BUILD_DIR_SOURCE/start.sh $BUILD_DIR_TARGET
 cp $BUILD_DIR_SOURCE/shutdown.sh $BUILD_DIR_TARGET
 cp $BUILD_DIR_SOURCE/dependencies.conf $BUILD_DIR_TARGET
 
-echo pack completed. target directory: $PROJECT_BASE_DIR/$BUILD_DIR_TARGET
+echo compressing...
+PROJECT_NAME=$(basename $PROJECT_BASE_DIR)
+cp $BUILD_DIR_TARGET $PROJECT_NAME -r
+tar -czf $PROJECT_NAME.tar.gz $PROJECT_NAME
+rm $PROJECT_NAME -rf
+
+echo pack completed.
+echo target directory: $PROJECT_BASE_DIR/$TARGET_DIR
+echo package: $PROJECT_BASE_DIR/$BUILD_DIR/$PROJECT_NAME.tar.gz
 

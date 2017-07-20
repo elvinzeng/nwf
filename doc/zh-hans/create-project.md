@@ -34,7 +34,7 @@ git config --global core.autocrlf input
 ├── shutdown.sh                  --> 关闭服务器(linux)
 ├── start.sh                     --> 启动服务器(linux)
 ├── start_win.bat                --> 启动服务器(Windows)
-├── update_packages.sh           --> 更新main package以及nwf框架的包(linux and Windows)
+├── update_project.sh            --> 更新main package以及nwf框架的包(linux and Windows)
 └── www                          --> web应用运行时的根目录
     ├── app_initialized.lua      --> 网站完成启动之后执行的脚本
     ├── controller               --> 控制器搜索目录
@@ -87,5 +87,5 @@ helloworld
 
 # 运行服务器
 * Linux: sh start.sh
-* Windows: 运行update_packages.sh更新包，然后运行start_win.bat
+* Windows: 运行start_win.bat
 * 打开浏览器访问"http://localhost:8099/ ". 如果看到页面上显示"it works!"则表示运行成功。

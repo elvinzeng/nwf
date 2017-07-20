@@ -1,3 +1,4 @@
+[![Join the chat at https://gitter.im/nwfproject/Lobby](https://badges.gitter.im/nwfproject/Lobby.svg)](https://gitter.im/nwfproject/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 # Introduction
 A simple and easy-to-use MVC framework for NPL Web application. If you are familiar with the jsp/servlet or asp.net mvc, you'll like it.  
 [Chinese document](https://github.com/elvinzeng/nwf/blob/master/doc/zh-hans/index.md)
@@ -147,7 +148,7 @@ git config --global core.autocrlf input
 
 ## Run Web Server
 * Linux: sh start.sh
-* Windows: run update_packages.sh and then run start_win.bat
+* Windows: run start_win.bat
 * Access "http://localhost:8099/ ". "it works!" means web application is start success.
 
 # development documentation
