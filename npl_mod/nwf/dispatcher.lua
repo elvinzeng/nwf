@@ -150,6 +150,19 @@ local function dispatch(requestPath)
             , message = "validator of " .. requestPath .. " not found"};
     end
 
+    --  get action and validator from custom requestMapper.
+    for i, mapper in ipairs(nwf.requestMapper) do
+        local act, vali = mapper(requestPath);
+        if (act) then
+            if (vali) then
+                return act, vali;
+            else
+                return act, {message = "can not found specified validator."};
+            end
+            break
+        end
+    end
+
     local controllerPath = "www/controller/";
     local validatorPath = "www/validator/";
     local ctrl, func = false, false;
@@ -236,7 +249,11 @@ end
 -- @param im: specified whether if need to send response immediately
 local function render(ctx, view, model, im)
     if (not model) then
-        model = {}
+        model = {ctx = ctx }
+    else
+        if (not model.ctx) then
+            model.ctx = ctx
+        end
     end
     local res = ctx.response;
     if (not view or view == "") then
@@ -300,6 +317,10 @@ end
 -- process a http request
 -- @param ctx: request context
 local function process(ctx)
+    if (ctx.request:GetMethod() == 'OPTIONS') then
+        return
+    end
+
     local req = ctx.request;
     local res = ctx.response;
 	local requestPath = req:url();

@@ -69,6 +69,7 @@ nwf.requestMappings = {};
 nwf.template = require "nwf.resty.template";
 nwf.validation = require "nwf.resty.validation";
 nwf.mod_path = {"www/modules"}  -- specified module search path
+nwf.requestMapper = {}
 -- init functions
 local filters = commonlib.gettable("nwf.filters");
 
@@ -83,6 +84,22 @@ local filters = commonlib.gettable("nwf.filters");
 ]]
 function nwf.registerFilter(filter)
     table.insert(filters, filter);
+end;
+
+--[[
+    nwf.registerRequestMapper(function(requestPath)
+        local action = function(ctx)
+            return "test.html"
+        end
+        local validator = function(params)
+            return true;
+        end
+        return action, validator;
+        -- return; -- return nil if not found any action.
+    end);
+]]
+function nwf.registerRequestMapper(mapper)
+    table.insert(nwf.requestMapper, mapper);
 end;
 
 NPL.load("nwf.utils.config_util")
@@ -205,7 +222,7 @@ if (ParaIO.DoesFileExist(projectDependencies, false)) then
                     end
                 end
                 if (not moduleFounded) then
-                    error("project dependency of module '" .. name .. "' can not found. load failed!");
+                    error("project dependency of module '" .. line .. "' can not found. load failed!");
                 end
             else
                 print("project dependency '" .. line .. "' already loaded, skipped.");

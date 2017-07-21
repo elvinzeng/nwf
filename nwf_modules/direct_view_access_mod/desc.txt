@@ -1,0 +1,14 @@
+Installation this module supports direct access to the views via file path for front-end debugging.
+It is only enabled when the nwf.config.echoDebugInfo configuration is set to true.
+E.g:
+http://localhost:8099/test.html  --> www/view/test.html
+http://localhost:8099/xx/test.html  --> www/view/xx/test.html
+
+Chinese description:
+安装该模块支持通过输入文件路径直接访问www/view目录下的视图，方便前端调试。
+该模块仅在nwf.config.echoDebugInfo配置设置为true时被启用。
+例如：
+http://localhost:8099/test.html  --> www/view/test.html
+http://localhost:8099/xx/test.html  --> www/view/xx/test.html
+
+author: Elvin
