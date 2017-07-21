@@ -193,13 +193,14 @@ function sqlGenerator:value(tb)
     if (self.type == sqlGenerator.TYPE_INSERT) then
         local tempFields = {};
         local tempValue = {};
+        local primaryKey = self.tbEntity.entity.primaryKey;
         for k, v in pairs(self.tbEntity.entity) do
             local value = tb[k] or tb[v.prop];
             if (v.notNil and value == nil) then
                 local prop = v.prop or k;
                 assert(false, prop .. " can not be nil");
             end
-            if (not v.dontEscape) then
+            if (k ~= primaryKey) then
                 value = stringUtil.escapeSql(value)
             end
             value = handleValue(value, true, v.isArray);
