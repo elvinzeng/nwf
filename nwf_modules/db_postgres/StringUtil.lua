@@ -15,7 +15,7 @@ function StringUtil.escapeSql(value)
         end
         return value
     end
-    return text;
+    return value;
 end
 
 function StringUtil.isExcludeFunc(value)
