@@ -3,14 +3,17 @@
     Author: Links
     Date: 2017/7/20
 --]]
-local StringUtil = commonlib.inherit(nil, commonlib.gettable("nwf.modules.db_postgres.StringUtil"));
+local StringUtil = commonlib.gettable("nwf.modules.db_postgres.StringUtil");
 local util = commonlib.gettable("nwf.util.string");
 local excludeFuncs = commonlib.gettable("nwf.modules.db_postgres.ExcludeFuncs");
 
-function StringUtil.escapeSql(text)
-    if (type(text) == "string") then
-        local newText = util.escape_sql(text);
-        return newText;
+function StringUtil.escapeSql(value)
+    if (type(value) == "string") then
+        if StringUtil.isExcludeFunc(value) == false then
+            local newValue = util.escape_sql(value);
+            return newValue;
+        end
+        return value
     end
     return text;
 end
