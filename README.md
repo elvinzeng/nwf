@@ -1,3 +1,5 @@
+This repository has been discontinued because of my change in work. Please use the new [branch](http://git.idreamtech.com.cn/rddept/nwf) maintained by idreamtech.  
+
 [![Join the chat at https://gitter.im/nwfproject/Lobby](https://badges.gitter.im/nwfproject/Lobby.svg)](https://gitter.im/nwfproject/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 # Introduction
 A simple and easy-to-use MVC framework for NPL Web application. If you are familiar with the jsp/servlet or asp.net mvc, you'll like it.  
